@@ -12,7 +12,6 @@ import {
   GraduationCap,
   Home,
   Library,
-  LogOut,
   Menu,
   MessageCircle,
   Search,
@@ -20,10 +19,15 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import type { NavItem, UserRole } from "@/types/coaching";
 import { cn } from "@/utils/cn";
 
 type AppShellProps = {
+  account?: {
+    email?: string;
+    fullName?: string;
+  };
   children: React.ReactNode;
   navItems: NavItem[];
   role: UserRole;
@@ -50,8 +54,16 @@ const iconMap: Record<string, LucideIcon> = {
   users: UsersRound,
 };
 
-export function AppShell({ children, navItems, role, subtitle }: AppShellProps) {
+export function AppShell({
+  account,
+  children,
+  navItems,
+  role,
+  subtitle,
+}: AppShellProps) {
   const pathname = usePathname();
+  const accountName = account?.fullName ?? roleLabel[role];
+  const accountEmail = account?.email ?? "Session active";
 
   return (
     <div className="min-h-screen bg-[#f7f8fb] text-slate-950">
@@ -92,9 +104,9 @@ export function AppShell({ children, navItems, role, subtitle }: AppShellProps) 
 
             <div className="border-t border-slate-200 p-4">
               <div className="rounded-xl bg-slate-50 p-4">
-                <p className="text-sm font-semibold">{roleLabel[role]}</p>
+                <p className="truncate text-sm font-semibold">{accountName}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  V1 démo connectée à Supabase Auth et prête pour les tables.
+                  {roleLabel[role]} · {accountEmail}
                 </p>
               </div>
             </div>
@@ -123,13 +135,7 @@ export function AppShell({ children, navItems, role, subtitle }: AppShellProps) 
             >
               <Bell className="h-5 w-5" />
             </button>
-            <Link
-              className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
-              href="/login"
-            >
-              <LogOut className="h-4 w-4" />
-              Déconnexion
-            </Link>
+            <SignOutButton />
           </header>
 
           <div className="mx-auto max-w-7xl">{children}</div>

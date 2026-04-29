@@ -1,5 +1,25 @@
-import { AdminLayout } from "@/components/app/role-layouts";
+import { AppShell } from "@/components/app/app-shell";
+import { requireRole } from "@/lib/auth/session";
+import { adminNav } from "@/lib/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return <AdminLayout>{children}</AdminLayout>;
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { profile, user } = await requireRole("admin");
+
+  return (
+    <AppShell
+      account={{
+        email: user.email,
+        fullName: profile?.full_name ?? user.email,
+      }}
+      navItems={adminNav}
+      role="admin"
+      subtitle="Supervision globale"
+    >
+      {children}
+    </AppShell>
+  );
 }

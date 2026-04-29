@@ -1,5 +1,5 @@
--- Patch pour bases Supabase où assignment_progress.status ou content_progress.status
--- existent déjà avec un ancien enum public.progress_status.
+-- Patch pour bases Supabase où assignment_progress.status, content_progress.status
+-- ou assignments.status existent déjà avec un ancien enum public.progress_status.
 -- Exécuter ce fichier seul, attendre le succès, puis relancer supabase/schema.sql.
 
 drop view if exists public.assignment_progress_effective cascade;
@@ -29,7 +29,64 @@ begin
     alter table public.assignment_progress
       alter column status drop default,
       alter column status type public.assignment_status
-        using status::text::public.assignment_status,
+        using (
+          case status::text
+            when 'not_started' then 'assigned'
+            when 'pending' then 'assigned'
+            when 'done' then 'completed'
+            else status::text
+          end
+        )::public.assignment_status,
+      alter column status set default 'assigned'::public.assignment_status;
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'content_progress'
+      and column_name = 'status'
+      and udt_name <> 'assignment_status'
+  ) then
+    alter table public.content_progress
+      alter column status drop default,
+      alter column status type public.assignment_status
+        using (
+          case status::text
+            when 'not_started' then 'assigned'
+            when 'pending' then 'assigned'
+            when 'done' then 'completed'
+            else status::text
+          end
+        )::public.assignment_status,
+      alter column status set default 'assigned'::public.assignment_status;
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'assignments'
+      and column_name = 'status'
+      and udt_name <> 'assignment_status'
+  ) then
+    alter table public.assignments
+      alter column status drop default,
+      alter column status type public.assignment_status
+        using (
+          case status::text
+            when 'not_started' then 'assigned'
+            when 'pending' then 'assigned'
+            when 'done' then 'completed'
+            else status::text
+          end
+        )::public.assignment_status,
       alter column status set default 'assigned'::public.assignment_status;
   end if;
 end $$;
@@ -59,39 +116,3 @@ select
   a.deadline
 from public.assignment_progress ap
 join public.assignments a on a.id = ap.assignment_id;
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'content_progress'
-      and column_name = 'status'
-      and udt_name <> 'assignment_status'
-  ) then
-    alter table public.content_progress
-      alter column status drop default,
-      alter column status type public.assignment_status
-        using status::text::public.assignment_status,
-      alter column status set default 'assigned'::public.assignment_status;
-  end if;
-end $$;
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'assignments'
-      and column_name = 'status'
-      and udt_name <> 'assignment_status'
-  ) then
-    alter table public.assignments
-      alter column status drop default,
-      alter column status type public.assignment_status
-        using status::text::public.assignment_status,
-      alter column status set default 'assigned'::public.assignment_status;
-  end if;
-end $$;

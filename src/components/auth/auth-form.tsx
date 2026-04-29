@@ -4,7 +4,11 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { getRoleRedirectPath } from "@/lib/auth/roles";
+import {
+  getRoleRedirectPath,
+  getUserRole,
+  type UserRole,
+} from "@/lib/auth/roles";
 
 type AuthMode = "forgot-password" | "login" | "register";
 
@@ -23,6 +27,26 @@ const loadingLabel: Record<AuthMode, string> = {
   login: "Connexion...",
   register: "Création du compte...",
 };
+
+function isAuthorizedRedirect(path: string, role: UserRole) {
+  if (!path.startsWith("/") || path.startsWith("//")) {
+    return false;
+  }
+
+  if (path.startsWith("/admin")) {
+    return role === "admin";
+  }
+
+  if (path.startsWith("/coach")) {
+    return role === "admin" || role === "coach";
+  }
+
+  if (path.startsWith("/coachee")) {
+    return role === "admin" || role === "coachee";
+  }
+
+  return false;
+}
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
@@ -58,7 +82,16 @@ export function AuthForm({ mode }: AuthFormProps) {
         }
 
         if (data.user) {
-          router.replace(getRoleRedirectPath(data.user));
+          const role = getUserRole(data.user);
+          const nextPath = new URLSearchParams(window.location.search).get(
+            "next",
+          );
+
+          router.replace(
+            nextPath && isAuthorizedRedirect(nextPath, role)
+              ? nextPath
+              : getRoleRedirectPath(data.user),
+          );
           router.refresh();
         }
 

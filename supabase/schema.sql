@@ -88,6 +88,11 @@ exception
   when duplicate_object then null;
 end $$;
 
+drop function if exists public.is_admin() cascade;
+drop function if exists public.is_coach() cascade;
+drop function if exists public.jwt_role() cascade;
+drop function if exists public."current_role"() cascade;
+
 create or replace function public.jwt_role()
 returns text
 language sql
@@ -124,6 +129,121 @@ create table if not exists public.profiles (
   avatar_url text,
   created_at timestamptz not null default now()
 );
+
+do $$
+declare
+  trigger_name text;
+begin
+  for trigger_name in
+    select t.tgname
+    from pg_trigger t
+    join pg_class c on c.oid = t.tgrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    join pg_proc p on p.oid = t.tgfoid
+    where n.nspname = 'public'
+      and c.relname = 'profiles'
+      and p.proname = 'protect_profile_fields'
+      and not t.tgisinternal
+  loop
+    execute format('drop trigger if exists %I on public.profiles', trigger_name);
+  end loop;
+end $$;
+
+drop function if exists public.protect_profile_fields() cascade;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'profiles'
+      and column_name = 'role'
+      and udt_name <> 'user_role'
+  ) then
+    alter table public.profiles
+      alter column role drop default,
+      alter column role type public.user_role
+        using (
+          case role::text
+            when 'admin' then 'admin'
+            when 'coach' then 'coach'
+            when 'coachee' then 'coachee'
+            else 'coachee'
+          end
+        )::public.user_role,
+      alter column role set default 'coachee'::public.user_role;
+  end if;
+end $$;
+
+create or replace function public.resolve_user_role(
+  app_meta jsonb,
+  user_meta jsonb
+)
+returns public.user_role
+language sql
+immutable
+as $$
+  select case
+    when app_meta ->> 'role' in ('admin', 'coach', 'coachee')
+      then (app_meta ->> 'role')::public.user_role
+    when user_meta ->> 'role' in ('admin', 'coach', 'coachee')
+      then (user_meta ->> 'role')::public.user_role
+    else 'coachee'::public.user_role
+  end;
+$$;
+
+create or replace function public.handle_auth_user_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (user_id, full_name, role, avatar_url)
+  values (
+    new.id,
+    coalesce(
+      nullif(new.raw_user_meta_data ->> 'full_name', ''),
+      nullif(new.raw_user_meta_data ->> 'name', ''),
+      nullif(new.email, ''),
+      'Utilisateur'
+    ),
+    public.resolve_user_role(new.raw_app_meta_data, new.raw_user_meta_data),
+    nullif(new.raw_user_meta_data ->> 'avatar_url', '')
+  )
+  on conflict (user_id) do update
+  set
+    full_name = excluded.full_name,
+    role = excluded.role,
+    avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url);
+
+  return new;
+end;
+$$;
+
+drop trigger if exists auth_users_sync_profile on auth.users;
+create trigger auth_users_sync_profile
+after insert or update of email, raw_app_meta_data, raw_user_meta_data on auth.users
+for each row execute function public.handle_auth_user_profile();
+
+insert into public.profiles (user_id, full_name, role, avatar_url)
+select
+  u.id,
+  coalesce(
+    nullif(u.raw_user_meta_data ->> 'full_name', ''),
+    nullif(u.raw_user_meta_data ->> 'name', ''),
+    nullif(u.email, ''),
+    'Utilisateur'
+  ),
+  public.resolve_user_role(u.raw_app_meta_data, u.raw_user_meta_data),
+  nullif(u.raw_user_meta_data ->> 'avatar_url', '')
+from auth.users u
+on conflict (user_id) do update
+set
+  full_name = excluded.full_name,
+  role = excluded.role,
+  avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url);
 
 create table if not exists public.cohorts (
   id uuid primary key default gen_random_uuid(),
