@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlaceholderDashboard } from "@/components/dashboard/placeholder-dashboard";
+import { AdminDashboard } from "@/components/coaching/admin-pages";
 
 export const metadata: Metadata = {
   title: "Admin | Coaching Platform",
@@ -7,10 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return (
-    <PlaceholderDashboard
-      description="Cet espace accueillera la gestion des coachs, des coachés, des contenus et des paramètres de la plateforme."
-      title="Espace admin"
-    />
-  );
+  return <AdminDashboard />;
 }
