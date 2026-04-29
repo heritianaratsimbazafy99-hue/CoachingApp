@@ -1,26 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import type { Quiz } from "@/types/coaching";
+import { useActionState, useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { ArrowLeft, ArrowRight, SendHorizonal } from "lucide-react";
+import { submitQuizAction, type CoacheeActionState } from "@/app/coachee/actions";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
+import type { CoacheeQuizData } from "@/services/coachee-service";
+import { cn } from "@/utils/cn";
+import { formatDateTime, formatPercent } from "@/utils/format";
 
-type QuizRunnerProps = {
-  quiz: Quiz;
+const initialCoacheeActionState: CoacheeActionState = {
+  message: "",
+  status: "idle",
 };
 
-export function QuizRunner({ quiz }: QuizRunnerProps) {
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={pending}
+      type="submit"
+    >
+      <SendHorizonal className="h-4 w-4" />
+      {pending ? "Soumission..." : "Soumettre"}
+    </button>
+  );
+}
+
+export function QuizRunner({ data }: { data: CoacheeQuizData }) {
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState<Record<string, string[]>>({});
-  const [openAnswer, setOpenAnswer] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const question = quiz.questions[step];
-  const progress = ((step + 1) / quiz.questions.length) * 100;
-
-  const score = useMemo(() => {
-    return quiz.questions.reduce(
+  const [state, formAction] = useActionState(
+    submitQuizAction,
+    initialCoacheeActionState,
+  );
+  const questions = data.quiz.questions;
+  const question = questions[step];
+  const progress = questions.length ? ((step + 1) / questions.length) * 100 : 0;
+  const selectedScore = useMemo(() => {
+    return questions.reduce(
       (sum, current) => {
         if (current.questionType === "open") {
           return {
@@ -30,72 +52,46 @@ export function QuizRunner({ quiz }: QuizRunnerProps) {
           };
         }
 
-        const correctIds = current.options
-          .filter((option) => option.isCorrect)
-          .map((option) => option.id)
-          .sort();
-        const selectedIds = (selected[current.id] ?? []).toSorted();
-        const isCorrect =
-          correctIds.length === selectedIds.length &&
-          correctIds.every((id, index) => id === selectedIds[index]);
-
         return {
           max: sum.max + current.points,
-          obtained: sum.obtained + (isCorrect ? current.points : 0),
+          obtained: sum.obtained,
           pending: sum.pending,
         };
       },
       { max: 0, obtained: 0, pending: false },
     );
-  }, [quiz.questions, selected]);
+  }, [questions]);
 
-  function toggleOption(optionId: string) {
+  function toggleOption(questionId: string, optionId: string) {
+    const targetQuestion = questions.find((item) => item.id === questionId);
+
     setSelected((current) => {
-      if (question.questionType === "single_choice") {
-        return { ...current, [question.id]: [optionId] };
+      if (targetQuestion?.questionType === "single_choice") {
+        return { ...current, [questionId]: [optionId] };
       }
 
-      const existing = current[question.id] ?? [];
+      const existing = current[questionId] ?? [];
+
       return {
         ...current,
-        [question.id]: existing.includes(optionId)
+        [questionId]: existing.includes(optionId)
           ? existing.filter((id) => id !== optionId)
           : [...existing, optionId],
       };
     });
   }
 
-  function submitQuiz() {
-    setIsSubmitted(true);
-    toast.success("Quiz soumis");
-  }
-
-  if (isSubmitted) {
-    const percentage = score.max ? Math.round((score.obtained / score.max) * 100) : 0;
-
+  if (!questions.length) {
     return (
       <>
         <PageHeader
-          description="Votre résultat est enregistré. Les questions ouvertes seront corrigées par votre coach."
-          title="Résultat du quiz"
+          description="Ce quiz ne contient pas encore de question."
+          title={data.quiz.title}
         />
         <div className="p-6">
-          <section className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Score obtenu</p>
-            <p className="mt-3 text-6xl font-semibold tracking-tight">
-              {percentage}%
-            </p>
-            <p className="mt-4 text-slate-600">
-              {score.obtained}/{score.max} points
-            </p>
-            <p className="mt-4 rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-              {score.pending
-                ? "Une question ouverte est en attente de correction."
-                : percentage >= quiz.passingScore
-                  ? "Bravo, le quiz est réussi."
-                  : "Continuez, vous pouvez demander un feedback au coach."}
-            </p>
-          </section>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
+            Demandez à votre coach de compléter ce quiz avant de le passer.
+          </div>
         </div>
       </>
     );
@@ -103,80 +99,144 @@ export function QuizRunner({ quiz }: QuizRunnerProps) {
 
   return (
     <>
-      <PageHeader description={quiz.description} title={quiz.title} />
-      <div className="p-6">
-        <section className="mx-auto max-w-3xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <PageHeader description={data.quiz.description} title={data.quiz.title} />
+      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_320px]">
+        <form
+          action={formAction}
+          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5"
+        >
+          <input
+            name="assignmentId"
+            type="hidden"
+            value={data.assignment?.id ?? ""}
+          />
+          <input name="quizId" type="hidden" value={data.quiz.id} />
+
           <div className="mb-6">
             <div className="mb-2 flex justify-between text-xs text-slate-500">
               <span>
-                Question {step + 1}/{quiz.questions.length}
+                Question {step + 1}/{questions.length}
               </span>
               <span>{Math.round(progress)}%</span>
             </div>
             <ProgressBar value={progress} />
           </div>
 
-          <p className="text-sm font-medium text-slate-500">
-            {question.points} points
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-            {question.questionText}
-          </h2>
+          {questions.map((item) => (
+            <section
+              className={cn(item.id === question.id ? "block" : "hidden")}
+              key={item.id}
+            >
+              <p className="text-sm font-semibold text-emerald-700">
+                {item.points} points
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                {item.questionText}
+              </h2>
 
-          <div className="mt-6 space-y-3">
-            {question.questionType === "open" ? (
-              <textarea
-                className="min-h-40 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm"
-                onChange={(event) => setOpenAnswer(event.target.value)}
-                placeholder="Votre réponse..."
-                value={openAnswer}
-              />
-            ) : (
-              question.options.map((option) => (
-                <button
-                  className={`block w-full rounded-lg border px-4 py-3 text-left text-sm transition ${
-                    selected[question.id]?.includes(option.id)
-                      ? "border-slate-950 bg-slate-950 text-white"
-                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                  }`}
-                  key={option.id}
-                  onClick={() => toggleOption(option.id)}
-                  type="button"
-                >
-                  {option.optionText}
-                </button>
-              ))
-            )}
-          </div>
+              <div className="mt-6 space-y-3">
+                {item.questionType === "open" ? (
+                  <textarea
+                    className="min-h-40 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    name={`open:${item.id}`}
+                    placeholder="Votre réponse..."
+                    required
+                  />
+                ) : (
+                  item.options.map((option) => {
+                    const isSelected = selected[item.id]?.includes(option.id);
 
-          <div className="mt-8 flex justify-between">
+                    return (
+                      <label
+                        className={cn(
+                          "block cursor-pointer rounded-xl border px-4 py-3 text-sm transition",
+                          isSelected
+                            ? "border-emerald-700 bg-emerald-700 text-white"
+                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+                        )}
+                        key={option.id}
+                      >
+                        <input
+                          className="sr-only"
+                          name={`selected:${item.id}`}
+                          onChange={() => toggleOption(item.id, option.id)}
+                          type={
+                            item.questionType === "single_choice"
+                              ? "radio"
+                              : "checkbox"
+                          }
+                          value={option.id}
+                        />
+                        {option.optionText}
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+            </section>
+          ))}
+
+          {state.message ? (
+            <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+              {state.message}
+            </p>
+          ) : null}
+
+          <div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row">
             <button
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-40"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-40"
               disabled={step === 0}
               onClick={() => setStep((current) => current - 1)}
               type="button"
             >
+              <ArrowLeft className="h-4 w-4" />
               Précédent
             </button>
-            {step === quiz.questions.length - 1 ? (
-              <button
-                className="rounded-lg bg-slate-950 px-5 py-2 text-sm font-medium text-white"
-                onClick={submitQuiz}
-                type="button"
-              >
-                Soumettre
-              </button>
+            {step === questions.length - 1 ? (
+              <SubmitButton />
             ) : (
               <button
-                className="rounded-lg bg-slate-950 px-5 py-2 text-sm font-medium text-white"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                 onClick={() => setStep((current) => current + 1)}
                 type="button"
               >
                 Suivant
+                <ArrowRight className="h-4 w-4" />
               </button>
             )}
           </div>
-        </section>
+        </form>
+
+        <aside className="space-y-4">
+          <section className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+            <h2 className="font-semibold text-slate-950">Objectif</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Score minimum : {formatPercent(data.quiz.passingScore)}. Les
+              questions ouvertes seront envoyées à votre coach pour correction.
+            </p>
+            <div className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+              Barème total : {selectedScore.max} points
+            </div>
+          </section>
+
+          {data.latestAttempt ? (
+            <section className="rounded-2xl border border-indigo-900/10 bg-white p-5 shadow-sm shadow-indigo-950/5">
+              <h2 className="font-semibold text-slate-950">
+                Dernière tentative
+              </h2>
+              <p className="mt-3 text-4xl font-semibold text-indigo-700">
+                {formatPercent(data.latestAttempt.percentage)}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                {data.latestAttempt.scoreObtained}/{data.latestAttempt.scoreMax}{" "}
+                points · {formatDateTime(data.latestAttempt.submittedAt)}
+              </p>
+              <div className="mt-4">
+                <StatusBadge status={data.latestAttempt.status} />
+              </div>
+            </section>
+          ) : null}
+        </aside>
       </div>
     </>
   );

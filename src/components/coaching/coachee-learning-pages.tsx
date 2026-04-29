@@ -1,23 +1,32 @@
 import Link from "next/link";
-import { BookOpen, CheckCircle2 } from "lucide-react";
 import {
-  getCoacheeAssignments,
-  getContent,
-  getQuiz,
-  quizAttempts,
-} from "@/lib/demo-data";
-import { ActionButton } from "@/components/ui/action-button";
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  FileText,
+  Trophy,
+} from "lucide-react";
+import { completeContentAction } from "@/app/coachee/actions";
+import { QuizRunner } from "@/components/coaching/quiz-runner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { formatDate } from "@/utils/format";
-import { QuizRunner } from "@/components/coaching/quiz-runner";
+import { StatCard } from "@/components/ui/stat-card";
+import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
+import type {
+  CoacheeContentDetail,
+  CoacheeQuizData,
+  CoacheeResultsData,
+  CoacheeTasksData,
+} from "@/services/coachee-service";
+import {
+  contentTypeLabel,
+  formatDate,
+  formatDateTime,
+  formatPercent,
+} from "@/utils/format";
 
-const demoUserId = "coachee-1";
-
-export function CoacheeTasksPage() {
-  const tasks = getCoacheeAssignments(demoUserId);
-
+export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
   return (
     <>
       <PageHeader
@@ -25,35 +34,43 @@ export function CoacheeTasksPage() {
         title="Mes tâches"
       />
       <div className="space-y-4 p-6">
-        {tasks.length ? (
-          tasks.map((task) => {
-            const content = task.contentId ? getContent(task.contentId) : null;
-            return (
-              <article
-                className="grid gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-[1fr_130px_140px]"
-                key={task.id}
-              >
-                <div>
-                  <p className="font-semibold">{task.title}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    {task.instructions}
-                  </p>
-                  <p className="mt-2 text-xs text-slate-500">
-                    Deadline {formatDate(task.deadline)}
-                  </p>
+        {data.tasks.length ? (
+          data.tasks.map((task) => (
+            <article
+              className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 md:grid-cols-[1fr_130px_110px_140px]"
+              key={task.id}
+            >
+              <div>
+                <div className="flex flex-wrap gap-2">
+                  <PriorityBadge priority={task.priority} />
+                  <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                    {task.assignmentType === "content_quiz"
+                      ? "Contenu + quiz"
+                      : task.quizId
+                        ? "Quiz"
+                        : "Contenu"}
+                  </span>
                 </div>
-                <StatusBadge status={task.status} />
-                <Link
-                  className="rounded-lg bg-slate-950 px-4 py-2 text-center text-sm font-medium text-white"
-                  href={
-                    content ? `/coachee/contents/${content.id}` : `/coachee/quiz/${task.quizId}`
-                  }
-                >
-                  Commencer
-                </Link>
-              </article>
-            );
-          })
+                <p className="mt-3 font-semibold text-slate-950">{task.title}</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  {task.instructions || task.description || "Consigne à suivre."}
+                </p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Deadline {formatDate(task.deadline)}
+                </p>
+              </div>
+              <StatusBadge status={task.progressStatus} />
+              <p className="text-sm font-semibold text-slate-700">
+                {task.quizTitle || task.contentTitle || "Parcours"}
+              </p>
+              <Link
+                className="rounded-lg bg-slate-950 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
+                href={task.href}
+              >
+                {task.ctaLabel}
+              </Link>
+            </article>
+          ))
         ) : (
           <EmptyState
             description="Votre coach n'a pas encore assigné de contenu ou quiz."
@@ -66,49 +83,97 @@ export function CoacheeTasksPage() {
   );
 }
 
-export function ContentReaderPage({ id }: { id: string }) {
-  const content = getContent(id);
-  const quiz = content?.quizId ? getQuiz(content.quizId) : null;
-
-  if (!content) {
-    return (
-      <PageHeader
-        description="Ce contenu n'existe pas dans les données démo."
-        title="Contenu introuvable"
-      />
-    );
-  }
-
+export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
   return (
     <>
-      <PageHeader description={content.description} title={content.title} />
+      <PageHeader description={data.content.description} title={data.content.title} />
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_320px]">
-        <article className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="prose prose-slate max-w-none">
-            <p className="text-lg leading-8 text-slate-700">{content.body}</p>
+        <article className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
+          <div className="mb-6 flex flex-wrap gap-2">
+            <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+              {contentTypeLabel[data.content.type]}
+            </span>
+            {data.progressStatus ? <StatusBadge status={data.progressStatus} /> : null}
           </div>
+
+          <div className="prose prose-slate max-w-none">
+            <p className="text-lg leading-8 text-slate-700">
+              {data.content.body || data.content.description}
+            </p>
+          </div>
+
+          {data.content.videoUrl || data.content.externalUrl || data.content.fileUrl ? (
+            <div className="mt-8 grid gap-3">
+              {data.content.videoUrl ? (
+                <a
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  href={data.content.videoUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ouvrir la vidéo
+                </a>
+              ) : null}
+              {data.content.externalUrl ? (
+                <a
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  href={data.content.externalUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ouvrir la ressource
+                </a>
+              ) : null}
+              {data.content.fileUrl ? (
+                <a
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  href={data.content.fileUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <FileText className="h-4 w-4" />
+                  Ouvrir le document
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="mt-8 flex flex-wrap gap-3">
-            <ActionButton message="Contenu marqué comme terminé" variant="primary">
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Marquer comme terminé
-            </ActionButton>
-            {quiz ? (
+            <form action={completeContentAction}>
+              <input name="contentId" type="hidden" value={data.content.id} />
+              <input
+                name="assignmentId"
+                type="hidden"
+                value={data.assignment?.id ?? ""}
+              />
+              <button
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                type="submit"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Marquer comme terminé
+              </button>
+            </form>
+            {data.quizHref ? (
               <Link
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700"
-                href={`/coachee/quiz/${quiz.id}`}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                href={data.quizHref}
               >
                 Passer au quiz
               </Link>
             ) : null}
           </div>
         </article>
-        <aside className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold">Progression</h2>
+
+        <aside className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+          <h2 className="font-semibold text-slate-950">Progression</h2>
           <div className="mt-4 space-y-3 text-sm text-slate-600">
             <p>1. Lire le contenu</p>
             <p>2. Marquer comme terminé</p>
-            <p>3. Passer au quiz associé</p>
-            <p>4. Voir votre score</p>
+            {data.quizTitle ? <p>3. Passer le quiz : {data.quizTitle}</p> : null}
+            <p>Dernière mise à jour : {formatDate(data.content.updatedAt)}</p>
           </div>
         </aside>
       </div>
@@ -116,53 +181,86 @@ export function ContentReaderPage({ id }: { id: string }) {
   );
 }
 
-export function QuizPage({ id }: { id: string }) {
-  const quiz = getQuiz(id);
-
-  if (!quiz) {
-    return (
-      <PageHeader
-        description="Ce quiz n'existe pas dans les données démo."
-        title="Quiz introuvable"
-      />
-    );
-  }
-
-  return <QuizRunner quiz={quiz} />;
+export function QuizPage({ data }: { data: CoacheeQuizData }) {
+  return <QuizRunner data={data} />;
 }
 
-export function CoacheeResultsPage() {
-  const attempts = quizAttempts.filter((attempt) => attempt.userId === demoUserId);
-
+export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
   return (
     <>
       <PageHeader
         description="Vos scores, pourcentages, statuts et feedbacks coach."
         title="Mes scores"
       />
-      <div className="p-6">
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="divide-y divide-slate-100">
-            {attempts.map((attempt) => {
-              const quiz = getQuiz(attempt.quizId);
-              return (
+      <div className="space-y-6 p-6">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            helper="Quiz soumis"
+            icon={Trophy}
+            label="Tentatives"
+            tone="sky"
+            value={String(data.metrics.attemptsCount)}
+          />
+          <StatCard
+            helper="Score moyen"
+            icon={CheckCircle2}
+            label="Moyenne"
+            tone="indigo"
+            value={formatPercent(data.metrics.averageScore)}
+          />
+          <StatCard
+            helper="Quiz validés"
+            icon={Trophy}
+            label="Réussites"
+            tone="emerald"
+            value={String(data.metrics.passedCount)}
+          />
+          <StatCard
+            helper="Questions ouvertes"
+            icon={Clock}
+            label="En correction"
+            tone="amber"
+            value={String(data.metrics.pendingCorrectionsCount)}
+          />
+        </section>
+
+        {data.results.length ? (
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5">
+            <div className="divide-y divide-slate-100">
+              {data.results.map((attempt) => (
                 <div
-                  className="grid gap-3 p-5 md:grid-cols-[1fr_140px_140px]"
+                  className="grid gap-3 p-5 md:grid-cols-[1fr_140px_140px_150px]"
                   key={attempt.id}
                 >
                   <div>
-                    <p className="font-medium">{quiz?.title}</p>
+                    <p className="font-semibold text-slate-950">
+                      {attempt.quizTitle}
+                    </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {attempt.scoreObtained}/{attempt.scoreMax} points
+                      {attempt.assignmentTitle}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {formatDateTime(attempt.submittedAt)}
                     </p>
                   </div>
-                  <p className="text-2xl font-semibold">{attempt.percentage}%</p>
+                  <p className="font-semibold text-slate-700">
+                    {attempt.scoreObtained}/{attempt.scoreMax} points
+                  </p>
+                  <p className="text-2xl font-semibold text-indigo-700">
+                    {formatPercent(attempt.percentage)}
+                  </p>
                   <StatusBadge status={attempt.status} />
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <EmptyState
+            description="Vos scores apparaîtront dès votre premier quiz soumis."
+            icon={Trophy}
+            title="Aucun score"
+          />
+        )}
       </div>
     </>
   );
@@ -176,21 +274,12 @@ export function CoacheeProfilePage() {
         title="Mon profil"
       />
       <div className="grid gap-6 p-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-semibold">Informations personnelles</h2>
-          <div className="mt-5 space-y-4">
-            <input
-              className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm"
-              defaultValue="Aina Rakoto"
-            />
-            <input
-              className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm"
-              defaultValue="aina@coaching.test"
-            />
-            <ActionButton message="Profil enregistré" variant="primary">
-              Enregistrer
-            </ActionButton>
-          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Le profil réel sera branché dans le prochain passage avec édition
+            sécurisée des informations personnelles.
+          </p>
         </section>
       </div>
     </>
