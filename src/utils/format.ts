@@ -1,5 +1,6 @@
 import type {
   AssignmentStatus,
+  CalendarEventStatus,
   CalendarEventType,
   ContentType,
   Priority,
@@ -20,6 +21,13 @@ export function formatDateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
     month: "short",
+  }).format(new Date(value));
+}
+
+export function formatTime(value: string) {
+  return new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(new Date(value));
 }
 
@@ -58,4 +66,10 @@ export const eventTypeLabel: Record<CalendarEventType, string> = {
   individual_coaching: "Coaching individuel",
   info_meeting: "Meeting info",
   reminder: "Rappel",
+};
+
+export const calendarStatusLabel: Record<CalendarEventStatus, string> = {
+  cancelled: "Annulé",
+  done: "Terminé",
+  scheduled: "Planifié",
 };
