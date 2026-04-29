@@ -1,22 +1,21 @@
 import Link from "next/link";
 import { MessageCircle, NotebookPen, Send, UserRound } from "lucide-react";
-import {
-  assignmentProgress,
-  assignments,
-  coachNotes,
-  getProfile,
-  profiles,
-  quizAttempts,
-} from "@/lib/demo-data";
 import { ActionButton } from "@/components/ui/action-button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusBadge } from "@/components/ui/status-badge";
+import type {
+  CoachCoacheeDetail,
+  CoachCoacheeSummary,
+} from "@/services/coach-service";
 import { formatDateTime, formatPercent } from "@/utils/format";
 
-export function CoacheesPage() {
-  const coachees = profiles.filter((profile) => profile.role === "coachee");
-
+export function CoacheesPage({
+  coachees,
+}: {
+  coachees: CoachCoacheeSummary[];
+}) {
   return (
     <>
       <PageHeader
@@ -24,26 +23,9 @@ export function CoacheesPage() {
         title="Mes coachés"
       />
       <div className="p-6">
-        <div className="grid gap-4">
-          {coachees.map((coachee) => {
-            const progress = assignmentProgress.filter(
-              (item) => item.userId === coachee.id,
-            );
-            const completed = progress.filter(
-              (item) => item.status === "completed",
-            ).length;
-            const percentage = progress.length
-              ? Math.round((completed / progress.length) * 100)
-              : 0;
-            const attempts = quizAttempts.filter(
-              (attempt) => attempt.userId === coachee.id,
-            );
-            const average = attempts.length
-              ? attempts.reduce((sum, item) => sum + item.percentage, 0) /
-                attempts.length
-              : 0;
-
-            return (
+        {coachees.length ? (
+          <div className="grid gap-4">
+            {coachees.map((coachee) => (
               <article
                 className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[1.2fr_220px_140px_260px]"
                 key={coachee.id}
@@ -63,14 +45,14 @@ export function CoacheesPage() {
                 <div>
                   <div className="mb-2 flex justify-between text-xs text-slate-500">
                     <span>Progression</span>
-                    <span>{percentage}%</span>
+                    <span>{coachee.progress}%</span>
                   </div>
-                  <ProgressBar value={percentage} />
+                  <ProgressBar value={coachee.progress} />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Score moyen</p>
                   <p className="mt-1 text-2xl font-semibold">
-                    {formatPercent(average)}
+                    {formatPercent(coachee.scoreAverage)}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -84,41 +66,31 @@ export function CoacheesPage() {
                   </ActionButton>
                 </div>
               </article>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            description="Ajoutez des coachés dans une cohorte ou assignez-leur un contenu pour les voir ici."
+            icon={UserRound}
+            title="Aucun coaché"
+          />
+        )}
       </div>
     </>
   );
 }
 
-export function CoacheeProfilePage({ id }: { id: string }) {
-  const coachee = getProfile(id);
-  const progress = assignmentProgress.filter((item) => item.userId === id);
-  const attempts = quizAttempts.filter((attempt) => attempt.userId === id);
-  const notes = coachNotes.filter((note) => note.coacheeId === id);
-
-  if (!coachee) {
-    return (
-      <>
-        <PageHeader
-          description="Le coaché demandé n'existe pas dans les données démo."
-          title="Coaché introuvable"
-        />
-      </>
-    );
-  }
-
+export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
   return (
     <>
       <PageHeader
         actions={
-          <ActionButton message={`Rendez-vous planifié avec ${coachee.fullName}`}>
+          <ActionButton message={`Rendez-vous planifié avec ${data.profile.fullName}`}>
             Planifier un rendez-vous
           </ActionButton>
         }
         description="Profil détaillé, assignations, scores, notes privées et historique."
-        title={coachee.fullName}
+        title={data.profile.fullName}
       />
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_360px]">
         <section className="space-y-6">
@@ -128,8 +100,8 @@ export function CoacheeProfilePage({ id }: { id: string }) {
                 <UserRound className="h-6 w-6 text-slate-700" />
               </div>
               <div>
-                <p className="font-semibold">{coachee.fullName}</p>
-                <p className="text-sm text-slate-500">{coachee.email}</p>
+                <p className="font-semibold">{data.profile.fullName}</p>
+                <p className="text-sm text-slate-500">{data.profile.email}</p>
               </div>
             </div>
           </div>
@@ -139,26 +111,26 @@ export function CoacheeProfilePage({ id }: { id: string }) {
               <h2 className="font-semibold">Progression individuelle</h2>
             </div>
             <div className="divide-y divide-slate-100">
-              {progress.map((item) => {
-                const assignment = assignments.find(
-                  (candidate) => candidate.id === item.assignmentId,
-                );
-
-                return (
+              {data.progress.length ? (
+                data.progress.map((item) => (
                   <div
                     className="grid gap-3 p-5 md:grid-cols-[1fr_140px]"
                     key={item.id}
                   >
                     <div>
-                      <p className="font-medium">{assignment?.title}</p>
+                      <p className="font-medium">{item.assignmentTitle}</p>
                       <p className="mt-1 text-sm text-slate-500">
-                        {assignment?.description}
+                        {item.assignmentDescription}
                       </p>
                     </div>
                     <StatusBadge status={item.status} />
                   </div>
-                );
-              })}
+                ))
+              ) : (
+                <p className="p-5 text-sm text-slate-500">
+                  Aucune progression enregistrée.
+                </p>
+              )}
             </div>
           </div>
 
@@ -167,13 +139,24 @@ export function CoacheeProfilePage({ id }: { id: string }) {
               <h2 className="font-semibold">Résultats quiz</h2>
             </div>
             <div className="divide-y divide-slate-100">
-              {attempts.map((attempt) => (
-                <div className="grid gap-3 p-5 md:grid-cols-[1fr_120px_120px]" key={attempt.id}>
-                  <p className="font-medium">{attempt.quizId}</p>
-                  <p className="text-sm font-semibold">{attempt.percentage}%</p>
-                  <StatusBadge status={attempt.status} />
-                </div>
-              ))}
+              {data.quizAttempts.length ? (
+                data.quizAttempts.map((attempt) => (
+                  <div
+                    className="grid gap-3 p-5 md:grid-cols-[1fr_120px_120px]"
+                    key={attempt.id}
+                  >
+                    <p className="font-medium">{attempt.quizTitle}</p>
+                    <p className="text-sm font-semibold">
+                      {attempt.percentage}%
+                    </p>
+                    <StatusBadge status={attempt.status} />
+                  </div>
+                ))
+              ) : (
+                <p className="p-5 text-sm text-slate-500">
+                  Aucun résultat quiz pour le moment.
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -185,14 +168,20 @@ export function CoacheeProfilePage({ id }: { id: string }) {
               <h2 className="font-semibold">Notes privées coach</h2>
             </div>
             <div className="mt-4 space-y-3">
-              {notes.map((note) => (
-                <p
-                  className="rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600"
-                  key={note.id}
-                >
-                  {note.note}
+              {data.notes.length ? (
+                data.notes.map((note) => (
+                  <p
+                    className="rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600"
+                    key={note.id}
+                  >
+                    {note.note}
+                  </p>
+                ))
+              ) : (
+                <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">
+                  Aucune note privée.
                 </p>
-              ))}
+              )}
             </div>
             <textarea
               className="mt-4 min-h-24 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"

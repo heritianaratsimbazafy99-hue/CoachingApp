@@ -1,0 +1,885 @@
+import { cache } from "react";
+import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import type {
+  AssignmentStatus,
+  AssignmentType,
+  CalendarEventStatus,
+  CalendarEventType,
+  ContentStatus,
+  ContentType,
+  Priority,
+  QuizAttemptStatus,
+} from "@/types/coaching";
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
+
+type ProfileRow = {
+  avatar_url: string | null;
+  created_at: string;
+  full_name: string;
+  id: string;
+  role: "admin" | "coach" | "coachee";
+  user_id: string;
+};
+
+type CohortRow = {
+  coach_id: string;
+  created_at: string;
+  description: string | null;
+  end_date: string | null;
+  id: string;
+  name: string;
+  start_date: string | null;
+};
+
+type CohortMemberRow = {
+  cohort_id: string;
+  created_at: string;
+  id: string;
+  user_id: string;
+};
+
+type ContentRow = {
+  body: string | null;
+  created_by: string;
+  description: string | null;
+  external_url: string | null;
+  file_url: string | null;
+  id: string;
+  status: ContentStatus;
+  subtheme_id: string | null;
+  tags: string[];
+  theme_id: string | null;
+  title: string;
+  type: ContentType;
+  updated_at: string;
+  video_url: string | null;
+};
+
+type ThemeRow = {
+  created_by: string;
+  description: string | null;
+  id: string;
+  title: string;
+};
+
+type SubthemeRow = {
+  description: string | null;
+  id: string;
+  theme_id: string;
+  title: string;
+};
+
+type QuizRow = {
+  content_id: string | null;
+  id: string;
+  title: string;
+};
+
+type AssignmentRow = {
+  assigned_by: string;
+  assigned_to_cohort_id: string | null;
+  assigned_to_user_id: string | null;
+  assignment_type: AssignmentType;
+  content_id: string | null;
+  created_at: string;
+  deadline: string;
+  description: string | null;
+  id: string;
+  instructions: string | null;
+  priority: Priority;
+  quiz_id: string | null;
+  status: AssignmentStatus;
+  title: string;
+};
+
+type AssignmentProgressRow = {
+  assignment_id: string;
+  completed_at: string | null;
+  id: string;
+  is_late: boolean;
+  started_at: string | null;
+  status: AssignmentStatus;
+  updated_at: string;
+  user_id: string;
+};
+
+type QuizAttemptRow = {
+  assignment_id: string | null;
+  corrected_at: string | null;
+  created_at: string;
+  id: string;
+  passed: boolean;
+  percentage: number;
+  quiz_id: string;
+  score_max: number;
+  score_obtained: number;
+  status: QuizAttemptStatus;
+  submitted_at: string | null;
+  user_id: string;
+};
+
+type CalendarEventRow = {
+  cohort_id: string | null;
+  coachee_id: string | null;
+  coach_id: string;
+  description: string | null;
+  end_time: string;
+  id: string;
+  start_time: string;
+  status: CalendarEventStatus;
+  title: string;
+  type: CalendarEventType;
+};
+
+type CoachNoteRow = {
+  coachee_id: string;
+  coach_id: string;
+  created_at: string;
+  id: string;
+  note: string;
+};
+
+type ActivityLogRow = {
+  action: string;
+  created_at: string;
+  entity_id: string | null;
+  entity_type: string;
+  id: string;
+  user_id: string;
+};
+
+type AuthUserSummary = {
+  email: string;
+  lastSignInAt: string | null;
+};
+
+export type CoachCoacheeSummary = {
+  email: string;
+  fullName: string;
+  id: string;
+  lastActiveAt: string;
+  lateAssignmentsCount: number;
+  pendingCorrectionsCount: number;
+  progress: number;
+  scoreAverage: number;
+};
+
+export type CoachAssignmentSummary = {
+  contentTitle: string;
+  deadline: string;
+  description: string;
+  id: string;
+  priority: Priority;
+  status: AssignmentStatus;
+  title: string;
+};
+
+export type CoachCalendarEvent = {
+  endTime: string;
+  id: string;
+  startTime: string;
+  status: CalendarEventStatus;
+  title: string;
+  type: CalendarEventType;
+};
+
+export type CoachActivity = {
+  action: string;
+  createdAt: string;
+  entityType: string;
+  id: string;
+};
+
+export type CoachDashboardData = {
+  activityLogs: CoachActivity[];
+  assignments: CoachAssignmentSummary[];
+  calendarEvents: CoachCalendarEvent[];
+  coachees: CoachCoacheeSummary[];
+  metrics: {
+    activeCoacheesCount: number;
+    averageScore: number;
+    lateAssignmentsCount: number;
+    pendingCorrectionsCount: number;
+  };
+};
+
+export type CoachCoacheeDetail = {
+  notes: Array<{
+    createdAt: string;
+    id: string;
+    note: string;
+  }>;
+  profile: CoachCoacheeSummary;
+  progress: Array<{
+    assignmentDescription: string;
+    assignmentTitle: string;
+    deadline: string;
+    id: string;
+    status: AssignmentStatus;
+  }>;
+  quizAttempts: Array<{
+    id: string;
+    percentage: number;
+    quizTitle: string;
+    status: QuizAttemptStatus;
+    submittedAt: string;
+  }>;
+};
+
+export type CoachCohortSummary = {
+  description: string;
+  endDate: string | null;
+  id: string;
+  memberCount: number;
+  name: string;
+  progress: number;
+  scoreAverage: number;
+  startDate: string | null;
+};
+
+export type CoachCohortDetail = CoachCohortSummary & {
+  assignments: CoachAssignmentSummary[];
+  members: CoachCoacheeSummary[];
+};
+
+export type CoachTheme = {
+  description: string;
+  id: string;
+  title: string;
+};
+
+export type CoachSubtheme = {
+  description: string;
+  id: string;
+  themeId: string;
+  title: string;
+};
+
+export type CoachContent = {
+  body: string;
+  description: string;
+  externalUrl: string;
+  fileUrl: string;
+  id: string;
+  status: ContentStatus;
+  subthemeId: string;
+  subthemeTitle: string;
+  tags: string[];
+  themeId: string;
+  themeTitle: string;
+  title: string;
+  type: ContentType;
+  updatedAt: string;
+  videoUrl: string;
+};
+
+export type CoachLibraryData = {
+  contents: CoachContent[];
+  subthemes: CoachSubtheme[];
+  themes: CoachTheme[];
+};
+
+export type CoachContentEditorData = CoachLibraryData & {
+  content: CoachContent | null;
+};
+
+type CoachBaseData = {
+  activityLogs: ActivityLogRow[];
+  assignmentProgress: AssignmentProgressRow[];
+  assignments: AssignmentRow[];
+  authUsersById: Map<string, AuthUserSummary>;
+  calendarEvents: CalendarEventRow[];
+  coachNotes: CoachNoteRow[];
+  cohortMembers: CohortMemberRow[];
+  cohorts: CohortRow[];
+  contents: ContentRow[];
+  profiles: ProfileRow[];
+  quizAttempts: QuizAttemptRow[];
+  quizzes: QuizRow[];
+  subthemes: SubthemeRow[];
+  themes: ThemeRow[];
+};
+
+function average(values: number[]) {
+  if (!values.length) {
+    return 0;
+  }
+
+  return Math.round(
+    values.reduce((sum, value) => sum + Number(value ?? 0), 0) / values.length,
+  );
+}
+
+function unique(values: Array<string | null | undefined>) {
+  return [...new Set(values.filter(Boolean) as string[])];
+}
+
+function groupBy<T>(items: T[], getKey: (item: T) => string) {
+  return items.reduce((map, item) => {
+    const key = getKey(item);
+    const bucket = map.get(key) ?? [];
+    bucket.push(item);
+    map.set(key, bucket);
+
+    return map;
+  }, new Map<string, T[]>());
+}
+
+function percentCompleted(progressRows: AssignmentProgressRow[]) {
+  if (!progressRows.length) {
+    return 0;
+  }
+
+  const completed = progressRows.filter((row) => row.status === "completed").length;
+
+  return Math.round((completed / progressRows.length) * 100);
+}
+
+function ensureDescription(value: string | null) {
+  return value?.trim() || "Aucune description renseignée.";
+}
+
+async function getRows<T>(
+  query: PromiseLike<{ data: unknown; error: { message: string } | null }>,
+): Promise<T[]> {
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as T[];
+}
+
+async function fetchMembers(
+  supabase: SupabaseServerClient,
+  cohortIds: string[],
+) {
+  if (!cohortIds.length) {
+    return [];
+  }
+
+  return getRows<CohortMemberRow>(
+    supabase
+      .from("cohort_members")
+      .select("id,cohort_id,user_id,created_at")
+      .in("cohort_id", cohortIds),
+  );
+}
+
+async function fetchProfiles(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+  isAdmin: boolean,
+) {
+  const query = supabase
+    .from("profiles")
+    .select("id,user_id,full_name,role,avatar_url,created_at")
+    .eq("role", "coachee")
+    .order("full_name", { ascending: true });
+
+  if (!isAdmin) {
+    if (!userIds.length) {
+      return [];
+    }
+
+    return getRows<ProfileRow>(query.in("user_id", userIds));
+  }
+
+  return getRows<ProfileRow>(query);
+}
+
+async function fetchProgress(
+  supabase: SupabaseServerClient,
+  assignmentIds: string[],
+) {
+  if (!assignmentIds.length) {
+    return [];
+  }
+
+  return getRows<AssignmentProgressRow>(
+    supabase
+      .from("assignment_progress")
+      .select(
+        "id,assignment_id,user_id,status,started_at,completed_at,is_late,updated_at",
+      )
+      .in("assignment_id", assignmentIds),
+  );
+}
+
+async function fetchQuizAttempts(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return getRows<QuizAttemptRow>(
+    supabase
+      .from("quiz_attempts")
+      .select(
+        "id,quiz_id,assignment_id,user_id,score_obtained,score_max,percentage,status,passed,submitted_at,corrected_at,created_at",
+      )
+      .in("user_id", userIds),
+  );
+}
+
+async function fetchCoachNotes(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return getRows<CoachNoteRow>(
+    supabase
+      .from("coach_notes")
+      .select("id,coach_id,coachee_id,note,created_at")
+      .in("coachee_id", userIds)
+      .order("created_at", { ascending: false }),
+  );
+}
+
+async function fetchActivityLogs(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return getRows<ActivityLogRow>(
+    supabase
+      .from("activity_logs")
+      .select("id,user_id,action,entity_type,entity_id,created_at")
+      .in("user_id", userIds)
+      .order("created_at", { ascending: false })
+      .limit(8),
+  );
+}
+
+async function fetchAuthUsersById(userIds: string[]) {
+  const filteredIds = unique(userIds);
+
+  if (!filteredIds.length) {
+    return new Map<string, AuthUserSummary>();
+  }
+
+  const usersToKeep = new Set(filteredIds);
+  const adminSupabase = createServiceSupabaseClient();
+  const { data, error } = await adminSupabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return new Map(
+    data.users
+      .filter((user) => usersToKeep.has(user.id))
+      .map((user) => [
+        user.id,
+        {
+          email: user.email ?? "Email non disponible",
+          lastSignInAt: user.last_sign_in_at ?? null,
+        },
+      ]),
+  );
+}
+
+function createAssignmentMapper(base: CoachBaseData) {
+  const contentsById = new Map(base.contents.map((content) => [content.id, content]));
+  const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+
+  return function mapAssignment(assignment: AssignmentRow): CoachAssignmentSummary {
+    const contentTitle = assignment.content_id
+      ? contentsById.get(assignment.content_id)?.title
+      : assignment.quiz_id
+        ? quizzesById.get(assignment.quiz_id)?.title
+        : null;
+
+    return {
+      contentTitle: contentTitle ?? "Ressource non renseignée",
+      deadline: assignment.deadline,
+      description: ensureDescription(assignment.description),
+      id: assignment.id,
+      priority: assignment.priority,
+      status: assignment.status,
+      title: assignment.title,
+    };
+  };
+}
+
+function mapContent(
+  content: ContentRow,
+  themesById: Map<string, ThemeRow>,
+  subthemesById: Map<string, SubthemeRow>,
+): CoachContent {
+  return {
+    body: content.body ?? "",
+    description: content.description ?? "",
+    externalUrl: content.external_url ?? "",
+    fileUrl: content.file_url ?? "",
+    id: content.id,
+    status: content.status,
+    subthemeId: content.subtheme_id ?? "",
+    subthemeTitle: content.subtheme_id
+      ? subthemesById.get(content.subtheme_id)?.title ?? "Sous-thème supprimé"
+      : "Sans sous-thème",
+    tags: content.tags ?? [],
+    themeId: content.theme_id ?? "",
+    themeTitle: content.theme_id
+      ? themesById.get(content.theme_id)?.title ?? "Thème supprimé"
+      : "Sans thème",
+    title: content.title,
+    type: content.type,
+    updatedAt: content.updated_at,
+    videoUrl: content.video_url ?? "",
+  };
+}
+
+function buildCoacheeSummaries(base: CoachBaseData): CoachCoacheeSummary[] {
+  const progressByUser = groupBy(base.assignmentProgress, (row) => row.user_id);
+  const attemptsByUser = groupBy(base.quizAttempts, (row) => row.user_id);
+
+  return base.profiles.map((profile) => {
+    const progressRows = progressByUser.get(profile.user_id) ?? [];
+    const attempts = attemptsByUser.get(profile.user_id) ?? [];
+    const authUser = base.authUsersById.get(profile.user_id);
+
+    return {
+      email: authUser?.email ?? "Email non disponible",
+      fullName: profile.full_name,
+      id: profile.user_id,
+      lastActiveAt: authUser?.lastSignInAt ?? profile.created_at,
+      lateAssignmentsCount: progressRows.filter(
+        (row) => row.status === "late" || row.is_late,
+      ).length,
+      pendingCorrectionsCount: attempts.filter(
+        (attempt) => attempt.status === "pending_correction",
+      ).length,
+      progress: percentCompleted(progressRows),
+      scoreAverage: average(attempts.map((attempt) => attempt.percentage)),
+    };
+  });
+}
+
+function buildCohortSummaries(base: CoachBaseData): CoachCohortSummary[] {
+  const membersByCohort = groupBy(base.cohortMembers, (row) => row.cohort_id);
+  const progressByAssignment = groupBy(
+    base.assignmentProgress,
+    (row) => row.assignment_id,
+  );
+
+  return base.cohorts.map((cohort) => {
+    const members = membersByCohort.get(cohort.id) ?? [];
+    const memberIds = new Set(members.map((member) => member.user_id));
+    const cohortAssignments = base.assignments.filter(
+      (assignment) => assignment.assigned_to_cohort_id === cohort.id,
+    );
+    const progressRows = cohortAssignments.flatMap(
+      (assignment) => progressByAssignment.get(assignment.id) ?? [],
+    );
+    const attempts = base.quizAttempts.filter((attempt) =>
+      memberIds.has(attempt.user_id),
+    );
+
+    return {
+      description: ensureDescription(cohort.description),
+      endDate: cohort.end_date,
+      id: cohort.id,
+      memberCount: members.length,
+      name: cohort.name,
+      progress: percentCompleted(progressRows),
+      scoreAverage: average(attempts.map((attempt) => attempt.percentage)),
+      startDate: cohort.start_date,
+    };
+  });
+}
+
+const getCoachBaseData = cache(async (): Promise<CoachBaseData> => {
+  const currentUser = await requireRole(["admin", "coach"]);
+  const supabase = await createServerSupabaseClient();
+  const isAdmin = currentUser.role === "admin";
+
+  const cohortQuery = supabase
+    .from("cohorts")
+    .select("id,name,description,start_date,end_date,coach_id,created_at")
+    .order("created_at", { ascending: false });
+  const assignmentQuery = supabase
+    .from("assignments")
+    .select(
+      "id,title,description,assignment_type,content_id,quiz_id,assigned_to_user_id,assigned_to_cohort_id,assigned_by,deadline,priority,status,instructions,created_at",
+    )
+    .order("created_at", { ascending: false });
+  const contentQuery = supabase
+    .from("contents")
+    .select(
+      "id,title,description,type,body,video_url,external_url,file_url,theme_id,subtheme_id,status,tags,created_by,updated_at",
+    )
+    .order("updated_at", { ascending: false });
+  const eventQuery = supabase
+    .from("calendar_events")
+    .select(
+      "id,title,description,start_time,end_time,type,coach_id,coachee_id,cohort_id,status",
+    )
+    .gte("start_time", new Date().toISOString())
+    .order("start_time", { ascending: true })
+    .limit(8);
+
+  if (!isAdmin) {
+    cohortQuery.eq("coach_id", currentUser.user.id);
+    assignmentQuery.eq("assigned_by", currentUser.user.id);
+    contentQuery.eq("created_by", currentUser.user.id);
+    eventQuery.eq("coach_id", currentUser.user.id);
+  }
+
+  const [cohorts, assignments, contents, themes, subthemes, quizzes, calendarEvents] =
+    await Promise.all([
+      getRows<CohortRow>(cohortQuery),
+      getRows<AssignmentRow>(assignmentQuery),
+      getRows<ContentRow>(contentQuery),
+      getRows<ThemeRow>(
+        supabase
+          .from("themes")
+          .select("id,title,description,created_by")
+          .order("title", { ascending: true }),
+      ),
+      getRows<SubthemeRow>(
+        supabase
+          .from("subthemes")
+          .select("id,theme_id,title,description")
+          .order("title", { ascending: true }),
+      ),
+      getRows<QuizRow>(
+        supabase
+          .from("quizzes")
+          .select("id,title,content_id")
+          .order("title", { ascending: true }),
+      ),
+      getRows<CalendarEventRow>(eventQuery),
+    ]);
+
+  const cohortMembers = await fetchMembers(
+    supabase,
+    cohorts.map((cohort) => cohort.id),
+  );
+  const scopedCoacheeIds = unique([
+    ...cohortMembers.map((member) => member.user_id),
+    ...assignments.map((assignment) => assignment.assigned_to_user_id),
+  ]);
+  const profiles = await fetchProfiles(supabase, scopedCoacheeIds, isAdmin);
+  const profileUserIds = profiles.map((profile) => profile.user_id);
+
+  const [
+    assignmentProgress,
+    quizAttempts,
+    coachNotes,
+    activityLogs,
+    authUsersById,
+  ] = await Promise.all([
+    fetchProgress(
+      supabase,
+      assignments.map((assignment) => assignment.id),
+    ),
+    fetchQuizAttempts(supabase, profileUserIds),
+    fetchCoachNotes(supabase, profileUserIds),
+    fetchActivityLogs(supabase, profileUserIds),
+    fetchAuthUsersById(profileUserIds),
+  ]);
+
+  return {
+    activityLogs,
+    assignmentProgress,
+    assignments,
+    authUsersById,
+    calendarEvents,
+    coachNotes,
+    cohortMembers,
+    cohorts,
+    contents,
+    profiles,
+    quizAttempts,
+    quizzes,
+    subthemes,
+    themes,
+  };
+});
+
+export const getCoachDashboardData =
+  cache(async (): Promise<CoachDashboardData> => {
+    const base = await getCoachBaseData();
+    const coachees = buildCoacheeSummaries(base);
+    const mapAssignment = createAssignmentMapper(base);
+    const assignments = base.assignments.slice(0, 6).map(mapAssignment);
+
+    return {
+      activityLogs: base.activityLogs.map((activity) => ({
+        action: activity.action,
+        createdAt: activity.created_at,
+        entityType: activity.entity_type,
+        id: activity.id,
+      })),
+      assignments,
+      calendarEvents: base.calendarEvents.map((event) => ({
+        endTime: event.end_time,
+        id: event.id,
+        startTime: event.start_time,
+        status: event.status,
+        title: event.title,
+        type: event.type,
+      })),
+      coachees: coachees.slice(0, 5),
+      metrics: {
+        activeCoacheesCount: coachees.length,
+        averageScore: average(
+          base.quizAttempts.map((attempt) => attempt.percentage),
+        ),
+        lateAssignmentsCount: base.assignmentProgress.filter(
+          (row) => row.status === "late" || row.is_late,
+        ).length,
+        pendingCorrectionsCount: base.quizAttempts.filter(
+          (attempt) => attempt.status === "pending_correction",
+        ).length,
+      },
+    };
+  });
+
+export const getCoachCoachees = cache(async () => {
+  const base = await getCoachBaseData();
+
+  return buildCoacheeSummaries(base);
+});
+
+export const getCoachCoacheeDetail = cache(
+  async (coacheeId: string): Promise<CoachCoacheeDetail | null> => {
+    const base = await getCoachBaseData();
+    const profile = buildCoacheeSummaries(base).find(
+      (coachee) => coachee.id === coacheeId,
+    );
+
+    if (!profile) {
+      return null;
+    }
+
+    const assignmentsById = new Map(
+      base.assignments.map((assignment) => [assignment.id, assignment]),
+    );
+    const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+
+    return {
+      notes: base.coachNotes
+        .filter((note) => note.coachee_id === coacheeId)
+        .map((note) => ({
+          createdAt: note.created_at,
+          id: note.id,
+          note: note.note,
+        })),
+      profile,
+      progress: base.assignmentProgress
+        .filter((row) => row.user_id === coacheeId)
+        .map((row) => {
+          const assignment = assignmentsById.get(row.assignment_id);
+
+          return {
+            assignmentDescription: ensureDescription(
+              assignment?.description ?? null,
+            ),
+            assignmentTitle: assignment?.title ?? "Assignation supprimée",
+            deadline: assignment?.deadline ?? row.updated_at,
+            id: row.id,
+            status: row.status,
+          };
+        }),
+      quizAttempts: base.quizAttempts
+        .filter((attempt) => attempt.user_id === coacheeId)
+        .map((attempt) => ({
+          id: attempt.id,
+          percentage: attempt.percentage,
+          quizTitle: quizzesById.get(attempt.quiz_id)?.title ?? "Quiz supprimé",
+          status: attempt.status,
+          submittedAt: attempt.submitted_at ?? attempt.created_at,
+        })),
+    };
+  },
+);
+
+export const getCoachCohorts = cache(async () => {
+  const base = await getCoachBaseData();
+
+  return buildCohortSummaries(base);
+});
+
+export const getCoachCohortDetail = cache(
+  async (cohortId: string): Promise<CoachCohortDetail | null> => {
+    const base = await getCoachBaseData();
+    const cohort = buildCohortSummaries(base).find((item) => item.id === cohortId);
+
+    if (!cohort) {
+      return null;
+    }
+
+    const coacheesById = new Map(
+      buildCoacheeSummaries(base).map((coachee) => [coachee.id, coachee]),
+    );
+    const cohortMembers = base.cohortMembers.filter(
+      (member) => member.cohort_id === cohortId,
+    );
+    const mapAssignment = createAssignmentMapper(base);
+
+    return {
+      ...cohort,
+      assignments: base.assignments
+        .filter((assignment) => assignment.assigned_to_cohort_id === cohortId)
+        .map(mapAssignment),
+      members: cohortMembers
+        .map((member) => coacheesById.get(member.user_id))
+        .filter(Boolean) as CoachCoacheeSummary[],
+    };
+  },
+);
+
+export const getCoachLibraryData = cache(async (): Promise<CoachLibraryData> => {
+  const base = await getCoachBaseData();
+  const themesById = new Map(base.themes.map((theme) => [theme.id, theme]));
+  const subthemesById = new Map(
+    base.subthemes.map((subtheme) => [subtheme.id, subtheme]),
+  );
+
+  return {
+    contents: base.contents.map((content) =>
+      mapContent(content, themesById, subthemesById),
+    ),
+    subthemes: base.subthemes.map((subtheme) => ({
+      description: subtheme.description ?? "",
+      id: subtheme.id,
+      themeId: subtheme.theme_id,
+      title: subtheme.title,
+    })),
+    themes: base.themes.map((theme) => ({
+      description: theme.description ?? "",
+      id: theme.id,
+      title: theme.title,
+    })),
+  };
+});
+
+export const getCoachContentEditorData = cache(
+  async (contentId?: string): Promise<CoachContentEditorData> => {
+    const library = await getCoachLibraryData();
+
+    return {
+      ...library,
+      content: contentId
+        ? library.contents.find((content) => content.id === contentId) ?? null
+        : null,
+    };
+  },
+);

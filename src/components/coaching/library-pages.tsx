@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { BookOpen, FileText, Filter, Plus, Search } from "lucide-react";
-import {
-  contents,
-  getSubthemeTitle,
-  getThemeTitle,
-  quizzes,
-  subthemes,
-  themes,
-} from "@/lib/demo-data";
-import { ActionButton } from "@/components/ui/action-button";
+import { ContentEditorForm } from "@/components/coaching/content-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import type {
+  CoachContentEditorData,
+  CoachLibraryData,
+} from "@/services/coach-service";
 import { contentTypeLabel } from "@/utils/format";
 
-export function LibraryPage() {
+export function LibraryPage({ data }: { data: CoachLibraryData }) {
   return (
     <>
       <PageHeader
@@ -35,27 +31,39 @@ export function LibraryPage() {
         <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-500">Thèmes</h2>
           <div className="mt-4 space-y-2">
-            {themes.map((theme) => (
-              <div className="rounded-lg bg-slate-50 p-3" key={theme.id}>
-                <p className="font-medium">{theme.title}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {theme.description}
-                </p>
-              </div>
-            ))}
+            {data.themes.length ? (
+              data.themes.map((theme) => (
+                <div className="rounded-lg bg-slate-50 p-3" key={theme.id}>
+                  <p className="font-medium">{theme.title}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {theme.description || "Aucune description"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">
+                Aucun thème.
+              </p>
+            )}
           </div>
           <h2 className="mt-6 text-sm font-semibold text-slate-500">
             Sous-thèmes
           </h2>
           <div className="mt-4 space-y-2">
-            {subthemes.map((subtheme) => (
-              <p
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
-                key={subtheme.id}
-              >
-                {subtheme.title}
+            {data.subthemes.length ? (
+              data.subthemes.map((subtheme) => (
+                <p
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
+                  key={subtheme.id}
+                >
+                  {subtheme.title}
+                </p>
+              ))
+            ) : (
+              <p className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+                Aucun sous-thème.
               </p>
-            ))}
+            )}
           </div>
         </aside>
 
@@ -76,9 +84,9 @@ export function LibraryPage() {
             </button>
           </div>
 
-          {contents.length ? (
+          {data.contents.length ? (
             <div className="grid gap-4 xl:grid-cols-2">
-              {contents.map((content) => (
+              {data.contents.map((content) => (
                 <article
                   className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                   key={content.id}
@@ -98,10 +106,10 @@ export function LibraryPage() {
                       {contentTypeLabel[content.type]}
                     </span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">
-                      {getThemeTitle(content.themeId)}
+                      {content.themeTitle}
                     </span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">
-                      {getSubthemeTitle(content.subthemeId)}
+                      {content.subthemeTitle}
                     </span>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-3">
@@ -111,13 +119,6 @@ export function LibraryPage() {
                     >
                       Modifier
                     </Link>
-                    <ActionButton
-                      confirmMessage="Supprimer ce contenu de démonstration ?"
-                      message="Suppression simulée"
-                      variant="danger"
-                    >
-                      Supprimer
-                    </ActionButton>
                   </div>
                 </article>
               ))}
@@ -135,71 +136,19 @@ export function LibraryPage() {
   );
 }
 
-export function ContentEditorPage({ contentId }: { contentId?: string }) {
-  const content = contents.find((item) => item.id === contentId);
-
+export function ContentEditorPage({ data }: { data: CoachContentEditorData }) {
   return (
     <>
       <PageHeader
         description="Formulaire V1 pour créer ou modifier cours, vidéos, liens et ressources."
-        title={content ? "Modifier le contenu" : "Nouveau contenu"}
+        title={data.content ? "Modifier le contenu" : "Nouveau contenu"}
       />
       <div className="p-6">
-        <form className="grid gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[1fr_320px]">
-          <div className="space-y-5">
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Titre</span>
-              <input
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-slate-950/10"
-                defaultValue={content?.title}
-                placeholder="Titre du contenu"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Description
-              </span>
-              <textarea
-                className="mt-2 min-h-24 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-slate-950/10"
-                defaultValue={content?.description}
-                placeholder="Résumé court visible dans la bibliothèque"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Corps du cours
-              </span>
-              <textarea
-                className="mt-2 min-h-64 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:ring-4 focus:ring-slate-950/10"
-                defaultValue={content?.body}
-                placeholder="Texte riche, liens, consignes, ressources..."
-              />
-            </label>
-          </div>
-          <aside className="space-y-5 rounded-xl bg-slate-50 p-5">
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Type</span>
-              <select className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm">
-                <option>Cours texte</option>
-                <option>Vidéo URL</option>
-                <option>Lien externe</option>
-                <option>Document</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Quiz associé</span>
-              <select className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm">
-                <option>Aucun quiz</option>
-                {quizzes.map((quiz) => (
-                  <option key={quiz.id}>{quiz.title}</option>
-                ))}
-              </select>
-            </label>
-            <ActionButton message="Contenu enregistré" variant="primary">
-              Enregistrer
-            </ActionButton>
-          </aside>
-        </form>
+        <ContentEditorForm
+          content={data.content}
+          subthemes={data.subthemes}
+          themes={data.themes}
+        />
       </div>
     </>
   );

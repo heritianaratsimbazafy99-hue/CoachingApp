@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import { ContentEditorPage } from "@/components/coaching/library-pages";
+import { getCoachContentEditorData } from "@/services/coach-service";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -6,6 +8,11 @@ type PageProps = {
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
+  const data = await getCoachContentEditorData(id);
 
-  return <ContentEditorPage contentId={id} />;
+  if (!data.content) {
+    notFound();
+  }
+
+  return <ContentEditorPage data={data} />;
 }
