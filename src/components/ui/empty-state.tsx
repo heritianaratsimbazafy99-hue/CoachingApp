@@ -14,7 +14,7 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <div className="rounded-2xl border border-dashed border-emerald-200 bg-white/90 p-8 text-center shadow-sm shadow-emerald-950/5">
+    <div className="rounded-2xl border border-dashed border-sky-200 bg-white/90 p-8 text-center shadow-sm shadow-sky-900/5">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
         <Icon className="h-6 w-6" />
       </div>

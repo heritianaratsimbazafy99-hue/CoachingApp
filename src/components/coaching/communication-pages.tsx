@@ -75,7 +75,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                     href={participant.href}
                     key={participant.userId}
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold text-white">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700">
                       {participant.fullName.slice(0, 1)}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -320,7 +320,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
       <label className="block">
         <span className="text-xs font-semibold uppercase text-slate-500">Type</span>
         <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={data.filters.type}
           name="type"
         >
@@ -338,7 +338,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
           Statut
         </span>
         <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={data.filters.status}
           name="status"
         >
@@ -356,7 +356,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
           Cible
         </span>
         <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={data.filters.target}
           name="target"
         >
@@ -372,7 +372,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
 
       <div className="flex items-end gap-2">
         <button
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700"
           type="submit"
         >
           <Filter className="h-4 w-4" />
@@ -463,7 +463,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
         actions={
           isCoach ? (
             <a
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
               href="#new-event"
             >
               <Plus className="h-4 w-4" />
@@ -641,7 +641,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_430px]">
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
           <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-xl font-semibold text-white">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
               {data.profile.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

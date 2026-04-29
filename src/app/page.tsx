@@ -43,7 +43,7 @@ const features = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f7f8fb] text-slate-950">
+    <main className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-indigo-50 text-slate-800">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Link href="/" className="text-lg font-semibold tracking-tight">
           Coaching Platform
@@ -58,7 +58,7 @@ export default function Home() {
           </Link>
           <Link
             href="/register"
-            className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+            className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
           >
             Créer un compte
           </Link>
@@ -79,7 +79,7 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800"
+              className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-5 py-3 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
             >
               Démarrer la démo
             </Link>

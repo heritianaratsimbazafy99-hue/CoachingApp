@@ -2,10 +2,8 @@ import Link from "next/link";
 import {
   CalendarDays,
   CheckCircle2,
-  MessageCircle,
   NotebookPen,
   PauseCircle,
-  Send,
   Target,
   Trash2,
   UserRound,
@@ -18,23 +16,19 @@ import {
   CoacheeGoalForm,
   CoachNoteForm,
 } from "@/components/coaching/coachee-goal-forms";
-import { ActionButton } from "@/components/ui/action-button";
+import { CoacheeQuickActions } from "@/components/coaching/coachee-quick-actions";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type {
+  CoachCoacheesData,
   CoachCoacheeDetail,
-  CoachCoacheeSummary,
 } from "@/services/coach-service";
 import { formatDate, formatDateTime, formatPercent } from "@/utils/format";
 import { cn } from "@/utils/cn";
 
-export function CoacheesPage({
-  coachees,
-}: {
-  coachees: CoachCoacheeSummary[];
-}) {
+export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
   return (
     <>
       <PageHeader
@@ -42,11 +36,11 @@ export function CoacheesPage({
         title="Mes coachés"
       />
       <div className="p-6">
-        {coachees.length ? (
+        {data.coachees.length ? (
           <div className="grid gap-4">
-            {coachees.map((coachee) => (
+            {data.coachees.map((coachee) => (
               <article
-                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[1.2fr_220px_140px_260px]"
+                className="grid gap-5 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 lg:grid-cols-[1.2fr_220px_140px_250px]"
                 key={coachee.id}
               >
                 <div>
@@ -74,16 +68,10 @@ export function CoacheesPage({
                     {formatPercent(coachee.scoreAverage)}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <ActionButton message={`Message préparé pour ${coachee.fullName}`}>
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Message
-                  </ActionButton>
-                  <ActionButton message={`Relance envoyée à ${coachee.fullName}`}>
-                    <Send className="mr-2 h-4 w-4" />
-                    Relancer
-                  </ActionButton>
-                </div>
+                <CoacheeQuickActions
+                  coacheeId={coachee.id}
+                  reminderTemplates={data.reminderTemplates}
+                />
               </article>
             ))}
           </div>
@@ -181,9 +169,13 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
     <>
       <PageHeader
         actions={
-          <ActionButton message={`Rendez-vous planifié avec ${data.profile.fullName}`}>
+          <Link
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+            href={`/coach/calendar?target=coachee:${data.profile.id}`}
+          >
+            <CalendarDays className="h-4 w-4" />
             Planifier un rendez-vous
-          </ActionButton>
+          </Link>
         }
         description="Profil détaillé, assignations, scores, notes privées et historique."
         title={data.profile.fullName}
@@ -205,7 +197,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-5">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-emerald-600" />
+                <Target className="h-5 w-5 text-sky-600" />
                 <h2 className="font-semibold">Objectifs de coaching</h2>
               </div>
               <span className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
@@ -310,7 +302,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
         <aside className="space-y-6">
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-emerald-600" />
+              <Target className="h-5 w-5 text-sky-600" />
               <h2 className="font-semibold">Nouvel objectif</h2>
             </div>
             <p className="mt-2 text-sm leading-6 text-slate-500">

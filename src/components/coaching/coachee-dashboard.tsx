@@ -15,13 +15,13 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
         title={`Bonjour ${data.firstName}`}
       />
       <div className="space-y-6 p-6">
-        <section className="rounded-2xl border border-emerald-900/10 bg-white p-6 shadow-sm shadow-emerald-950/5">
+        <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5">
           <div className="grid gap-6 md:grid-cols-[1fr_280px] md:items-center">
             <div>
-              <p className="text-sm font-semibold text-emerald-700">
+              <p className="text-sm font-semibold text-sky-700">
                 Progression globale
               </p>
-              <h2 className="mt-2 text-3xl font-semibold text-[#10231f]">
+              <h2 className="mt-2 text-3xl font-semibold text-slate-800">
                 {data.nextTask
                   ? "Continuez votre parcours"
                   : "Votre parcours est à jour"}
@@ -32,7 +32,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                   : "Aucune action prioritaire pour le moment."}
               </p>
               <Link
-                className="mt-5 inline-flex rounded-lg bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                className="mt-5 inline-flex rounded-lg bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
                 href={data.nextTask?.href ?? "/coachee/tasks"}
               >
                 {data.nextTask ? data.nextTask.ctaLabel : "Voir mes tâches"}

@@ -24,7 +24,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
         actions={
           <>
             <Link
-              className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
               href="/coach/assignments/new"
             >
               Nouvelle assignation

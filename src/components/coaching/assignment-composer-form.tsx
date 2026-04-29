@@ -16,7 +16,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-emerald-700 bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-emerald-900/10 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -42,13 +42,13 @@ export function AssignmentComposerForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-2xl border border-emerald-900/10 bg-white p-6 shadow-sm shadow-emerald-950/5 lg:grid-cols-[1fr_340px]"
+      className="grid gap-6 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5 lg:grid-cols-[1fr_340px]"
     >
       <div className="space-y-5">
         <label className="block">
           <span className="text-sm font-semibold text-slate-800">Titre</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             name="title"
             placeholder="Ex : Module posture + quiz"
             required
@@ -60,7 +60,7 @@ export function AssignmentComposerForm({
             Description courte
           </span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             name="description"
             placeholder="Objectif de l'assignation"
           />
@@ -71,7 +71,7 @@ export function AssignmentComposerForm({
             Instructions
           </span>
           <textarea
-            className="mt-2 min-h-36 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 min-h-36 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             name="instructions"
             placeholder="Message visible côté coaché"
           />
@@ -81,7 +81,7 @@ export function AssignmentComposerForm({
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Contenu</span>
             <select
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               name="contentId"
             >
               <option value="">Aucun contenu</option>
@@ -96,7 +96,7 @@ export function AssignmentComposerForm({
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Quiz</span>
             <select
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               name="quizId"
             >
               <option value="">Aucun quiz</option>
@@ -110,11 +110,11 @@ export function AssignmentComposerForm({
         </div>
       </div>
 
-      <aside className="space-y-5 rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5">
+      <aside className="space-y-5 rounded-2xl border border-sky-100 bg-sky-50/70 p-5">
         <label className="block">
           <span className="text-sm font-semibold text-slate-800">Cible</span>
           <select
-            className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             name="target"
             required
           >
@@ -135,7 +135,7 @@ export function AssignmentComposerForm({
         <label className="block">
           <span className="text-sm font-semibold text-slate-800">Deadline</span>
           <input
-            className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             min={minDate}
             name="deadline"
             type="date"
@@ -146,7 +146,7 @@ export function AssignmentComposerForm({
         <label className="block">
           <span className="text-sm font-semibold text-slate-800">Priorité</span>
           <select
-            className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue="normal"
             name="priority"
           >

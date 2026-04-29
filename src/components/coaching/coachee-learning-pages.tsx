@@ -69,7 +69,7 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                 {task.quizTitle || task.contentTitle || "Parcours"}
               </p>
               <Link
-                className="rounded-lg bg-slate-950 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="rounded-lg bg-sky-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-sky-700"
                 href={task.href}
               >
                 {task.ctaLabel}
@@ -154,7 +154,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
                 value={data.assignment?.id ?? ""}
               />
               <button
-                className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
                 type="submit"
               >
                 <CheckCircle2 className="h-4 w-4" />
@@ -172,7 +172,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
           </div>
         </article>
 
-        <aside className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+        <aside className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
           <h2 className="font-semibold text-slate-950">Progression</h2>
           <div className="mt-4 space-y-3 text-sm text-slate-600">
             <p>1. Lire le contenu</p>
@@ -329,7 +329,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
         <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
             <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-xl font-semibold text-white">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
                 {data.profile.avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img

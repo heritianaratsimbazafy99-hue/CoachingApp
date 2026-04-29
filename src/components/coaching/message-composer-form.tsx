@@ -19,7 +19,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-700 px-4 text-white shadow-sm shadow-emerald-900/10 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-sky-600 px-4 text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
       disabled={disabled || pending}
       type="submit"
     >
@@ -51,7 +51,7 @@ export function MessageComposerForm({
       <input name="receiverId" type="hidden" value={receiverId ?? ""} />
       <div className="flex gap-3">
         <textarea
-          className="max-h-36 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-5 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 disabled:cursor-not-allowed disabled:bg-slate-100"
+          className="max-h-36 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-5 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
           disabled={!receiverId}
           name="body"
           placeholder={

@@ -37,7 +37,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
             href="/coach/quizzes/new"
           >
             <Plus className="h-4 w-4" />
@@ -143,7 +143,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                   <p className="text-sm text-slate-500">{quiz.contentTitle}</p>
                   {quiz.isOwner ? (
                     <Link
-                      className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                      className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
                       href={`/coach/quizzes/${quiz.id}/edit`}
                     >
                       <Pencil className="h-4 w-4" />
@@ -162,7 +162,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <EmptyState
             action={
               <Link
-                className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
                 href="/coach/quizzes/new"
               >
                 <Plus className="h-4 w-4" />

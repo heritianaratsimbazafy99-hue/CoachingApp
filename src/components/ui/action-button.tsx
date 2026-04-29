@@ -27,9 +27,9 @@ export function ActionButton({
     danger:
       "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-100",
     primary:
-      "border-slate-950 bg-slate-950 text-white hover:bg-slate-800 focus:ring-slate-950/10",
+      "border-sky-600 bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-100",
     secondary:
-      "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-950/10",
+      "border-sky-100 bg-white text-slate-700 hover:bg-sky-50 focus:ring-sky-100",
   };
 
   return (

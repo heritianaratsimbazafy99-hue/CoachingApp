@@ -216,6 +216,17 @@ export type CoachCoacheeSummary = {
   scoreAverage: number;
 };
 
+export type CoachReminderTemplate = {
+  body: string;
+  id: string;
+  title: string;
+};
+
+export type CoachCoacheesData = {
+  coachees: CoachCoacheeSummary[];
+  reminderTemplates: CoachReminderTemplate[];
+};
+
 export type CoachAssignmentSummary = {
   contentTitle: string;
   createdAt: string;
@@ -1072,6 +1083,26 @@ export const getCoachCoachees = cache(async () => {
   const base = await getCoachBaseData();
 
   return buildCoacheeSummaries(base);
+});
+
+export const getCoachCoacheesData = cache(async (): Promise<CoachCoacheesData> => {
+  const base = await getCoachBaseData();
+  const supabase = await createServerSupabaseClient();
+  let templatesQuery = supabase
+    .from("reminder_templates")
+    .select("id,title,body")
+    .order("created_at", { ascending: false });
+
+  if (!base.isAdmin) {
+    templatesQuery = templatesQuery.eq("coach_id", base.currentUserId);
+  }
+
+  const templates = await getRows<CoachReminderTemplate>(templatesQuery);
+
+  return {
+    coachees: buildCoacheeSummaries(base),
+    reminderTemplates: templates,
+  };
 });
 
 export const getCoachCoacheeDetail = cache(

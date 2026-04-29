@@ -24,11 +24,11 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+    <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-[#10231f]">
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-800">
             {value}
           </p>
         </div>

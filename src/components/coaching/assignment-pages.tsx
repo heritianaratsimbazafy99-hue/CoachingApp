@@ -23,7 +23,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
             href="/coach/assignments/new"
           >
             <Plus className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
               <EmptyState
                 action={
                   <Link
-                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                    className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
                     href="/coach/assignments/new"
                   >
                     <Plus className="h-4 w-4" />

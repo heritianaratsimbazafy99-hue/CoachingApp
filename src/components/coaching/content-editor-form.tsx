@@ -39,7 +39,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-950 bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 items-center justify-center rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >

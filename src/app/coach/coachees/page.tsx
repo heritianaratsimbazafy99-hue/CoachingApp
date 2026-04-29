@@ -1,8 +1,8 @@
 import { CoacheesPage } from "@/components/coaching/coachee-pages";
-import { getCoachCoachees } from "@/services/coach-service";
+import { getCoachCoacheesData } from "@/services/coach-service";
 
 export default async function Page() {
-  const coachees = await getCoachCoachees();
+  const data = await getCoachCoacheesData();
 
-  return <CoacheesPage coachees={coachees} />;
+  return <CoacheesPage data={data} />;
 }

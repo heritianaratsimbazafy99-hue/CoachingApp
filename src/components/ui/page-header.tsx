@@ -12,12 +12,12 @@ export function PageHeader({
   title,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-5 border-b border-emerald-900/10 bg-[linear-gradient(135deg,#ffffff_0%,#ecfdf5_48%,#eef2ff_100%)] px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-5 border-b border-sky-100 bg-[linear-gradient(135deg,#ffffff_0%,#f0f9ff_52%,#f8fafc_100%)] px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
       <div>
         {eyebrow ? (
-          <p className="text-sm font-semibold text-emerald-700">{eyebrow}</p>
+          <p className="text-sm font-semibold text-sky-700">{eyebrow}</p>
         ) : null}
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#10231f]">
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-800">
           {title}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">

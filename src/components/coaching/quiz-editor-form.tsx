@@ -38,8 +38,8 @@ function SubmitButton({
       className={cn(
         "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60",
         tone === "emerald"
-          ? "border-emerald-700 bg-emerald-700 text-white shadow-emerald-900/10 hover:bg-emerald-800"
-          : "border-slate-950 bg-slate-950 text-white shadow-slate-900/10 hover:bg-slate-800",
+          ? "border-indigo-500 bg-indigo-500 text-white shadow-indigo-900/10 hover:bg-indigo-600"
+          : "border-sky-600 bg-sky-600 text-white shadow-sky-900/10 hover:bg-sky-700",
       )}
       disabled={pending}
       type="submit"
@@ -161,10 +161,10 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
       {data.quiz ? (
         <form
           action={questionFormAction}
-          className="space-y-4 rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5 shadow-sm shadow-emerald-950/5"
+          className="space-y-4 rounded-2xl border border-sky-100 bg-sky-50/70 p-5 shadow-sm shadow-sky-900/5"
         >
           <input name="quizId" type="hidden" value={data.quiz.id} />
-          <div className="flex items-center gap-2 text-emerald-800">
+          <div className="flex items-center gap-2 text-sky-800">
             <CheckCircle2 className="h-5 w-5" />
             <h2 className="text-sm font-semibold">Nouvelle question</h2>
           </div>
@@ -172,7 +172,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Type</span>
             <select
-              className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               name="questionType"
               onChange={(event) =>
                 setQuestionType(event.target.value as QuestionType)
@@ -190,7 +190,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Question</span>
             <textarea
-              className="mt-2 min-h-24 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 min-h-24 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               name="questionText"
               placeholder="Que doit maîtriser le coaché ?"
               required
@@ -200,7 +200,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Points</span>
             <input
-              className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               defaultValue={1}
               min={0}
               name="points"
@@ -211,7 +211,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           <label className="block">
             <span className="text-sm font-semibold text-slate-800">Options</span>
             <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 disabled:bg-slate-100 disabled:text-slate-400"
+              className="mt-2 min-h-28 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
               disabled={isOpenQuestion}
               name="options"
               placeholder={"Option A\nOption B\nOption C"}
@@ -223,7 +223,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
               Bonnes réponses
             </span>
             <input
-              className="mt-2 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 disabled:bg-slate-100 disabled:text-slate-400"
+              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
               disabled={isOpenQuestion}
               name="correctOptions"
               placeholder="1 ou 1,3"
@@ -235,7 +235,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
               Explication
             </span>
             <textarea
-              className="mt-2 min-h-20 w-full rounded-xl border border-emerald-900/10 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 min-h-20 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               name="explanation"
               placeholder="Feedback affichable après correction"
             />

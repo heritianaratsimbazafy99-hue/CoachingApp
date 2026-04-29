@@ -56,7 +56,7 @@ function ProfileSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -71,7 +71,7 @@ function TemplateSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -92,7 +92,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       <label className="block">
         <span className="text-sm font-semibold text-slate-800">Nom complet</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={profile.fullName}
           name="fullName"
           required
@@ -112,7 +112,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       <label className="block">
         <span className="text-sm font-semibold text-slate-800">Avatar URL</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={profile.avatarUrl}
           name="avatarUrl"
           placeholder="https://..."
@@ -144,7 +144,7 @@ export function ReminderTemplateForm() {
       <label className="block">
         <span className="text-sm font-semibold text-slate-800">Titre</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="title"
           placeholder="Ex : Relance quiz en retard"
           required
@@ -154,7 +154,7 @@ export function ReminderTemplateForm() {
       <label className="block">
         <span className="text-sm font-semibold text-slate-800">Message</span>
         <textarea
-          className="mt-2 min-h-32 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 min-h-32 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="body"
           placeholder="Bonjour, petit rappel..."
           required

@@ -15,7 +15,7 @@ const benefits = [
 
 export function AuthShell({ children, description, title }: AuthShellProps) {
   return (
-    <main className="min-h-screen bg-[#f7f8fb] text-slate-950">
+    <main className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-indigo-50 text-slate-800">
       <div className="mx-auto grid min-h-screen max-w-6xl px-6 py-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
         <section className="flex flex-col justify-between">
           <Link href="/" className="text-lg font-semibold tracking-tight">
@@ -44,14 +44,14 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
         </section>
 
         <aside className="hidden items-center lg:flex">
-          <div className="w-full rounded-3xl border border-slate-200 bg-slate-950 p-8 text-white shadow-sm">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+          <div className="w-full rounded-3xl border border-sky-100 bg-white/90 p-8 text-slate-800 shadow-sm shadow-sky-900/5">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
               <ShieldCheck className="h-6 w-6" />
             </div>
             <h2 className="mt-8 max-w-md text-4xl font-semibold tracking-tight">
               Un espace simple pour piloter chaque relation de coaching.
             </h2>
-            <p className="mt-5 max-w-lg text-sm leading-7 text-slate-300">
+            <p className="mt-5 max-w-lg text-sm leading-7 text-slate-500">
               Connectez les profils, centralisez les actions et gardez une vue
               nette sur les prochains suivis.
             </p>
@@ -60,9 +60,9 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
               {benefits.map((benefit) => (
                 <div
                   key={benefit}
-                  className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 text-sm text-slate-100"
+                  className="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-sm text-slate-700"
                 >
-                  <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                  <CheckCircle2 className="h-4 w-4 text-sky-600" />
                   {benefit}
                 </div>
               ))}

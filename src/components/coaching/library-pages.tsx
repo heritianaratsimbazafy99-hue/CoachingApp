@@ -16,7 +16,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
             href="/coach/library/new"
           >
             <Plus className="h-4 w-4" />
@@ -114,7 +114,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                   </div>
                   <div className="mt-5 flex flex-wrap gap-3">
                     <Link
-                      className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-medium text-white"
+                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
                       href={`/coach/library/${content.id}/edit`}
                     >
                       Modifier

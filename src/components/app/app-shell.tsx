@@ -64,22 +64,22 @@ const roleAccent: Record<
   }
 > = {
   admin: {
-    active: "bg-[#f97316] text-white shadow-sm shadow-orange-950/20",
-    avatar: "from-orange-400 to-rose-500",
-    dot: "bg-orange-400",
-    shell: "from-orange-50 via-[#f7f6ef] to-emerald-50",
+    active: "bg-orange-50 text-orange-700 ring-1 ring-orange-100",
+    avatar: "from-orange-200 to-rose-200 text-orange-900",
+    dot: "bg-orange-300",
+    shell: "from-white via-sky-50 to-orange-50",
   },
   coach: {
-    active: "bg-[#047857] text-white shadow-sm shadow-emerald-950/20",
-    avatar: "from-emerald-400 to-teal-500",
-    dot: "bg-emerald-400",
-    shell: "from-emerald-50 via-[#f7f6ef] to-indigo-50",
+    active: "bg-sky-50 text-sky-700 ring-1 ring-sky-100",
+    avatar: "from-sky-200 to-emerald-200 text-sky-900",
+    dot: "bg-sky-300",
+    shell: "from-white via-sky-50 to-emerald-50",
   },
   coachee: {
-    active: "bg-[#4f46e5] text-white shadow-sm shadow-indigo-950/20",
-    avatar: "from-indigo-400 to-sky-500",
-    dot: "bg-indigo-400",
-    shell: "from-indigo-50 via-[#f7f6ef] to-amber-50",
+    active: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100",
+    avatar: "from-indigo-200 to-sky-200 text-indigo-900",
+    dot: "bg-indigo-300",
+    shell: "from-white via-indigo-50 to-sky-50",
   },
 };
 
@@ -98,29 +98,29 @@ export function AppShell({
   return (
     <div
       className={cn(
-        "min-h-screen bg-gradient-to-br text-slate-950",
+        "min-h-screen bg-gradient-to-br text-slate-800",
         accent.shell,
       )}
     >
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-emerald-900/10 bg-[#10231f] text-white lg:block">
+        <aside className="hidden border-r border-sky-100 bg-white/92 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
           <div className="flex h-full flex-col">
-            <div className="border-b border-white/10 p-6">
+            <div className="border-b border-sky-100 p-6">
               <Link
                 href="/"
                 className="flex items-center gap-3 text-lg font-semibold tracking-tight"
               >
                 <span
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-bold text-white",
+                    "flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-bold",
                     accent.avatar,
                   )}
                 >
                   CP
                 </span>
-                <span>Coaching Platform</span>
+                <span className="text-slate-800">Coaching Platform</span>
               </Link>
-              <p className="mt-3 text-sm text-emerald-50/65">{subtitle}</p>
+              <p className="mt-3 text-sm text-slate-500">{subtitle}</p>
             </div>
 
             <nav className="flex-1 space-y-1 p-4">
@@ -136,7 +136,7 @@ export function AppShell({
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
                       isActive
                         ? accent.active
-                        : "text-emerald-50/72 hover:bg-white/8 hover:text-white",
+                        : "text-slate-500 hover:bg-sky-50 hover:text-sky-700",
                     )}
                     href={item.href}
                     key={item.href}
@@ -148,8 +148,8 @@ export function AppShell({
               })}
             </nav>
 
-            <div className="border-t border-white/10 p-4">
-              <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
+            <div className="border-t border-sky-100 p-4">
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
@@ -161,7 +161,7 @@ export function AppShell({
                     <p className="truncate text-sm font-semibold">
                       {accountName}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-emerald-50/65">
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
                   {roleLabel[role]} · {accountEmail}
                 </p>
                   </div>
@@ -172,23 +172,23 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-emerald-900/10 bg-white/82 px-4 py-3 backdrop-blur-xl lg:px-6">
+          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100 bg-white/88 px-4 py-3 backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/10 bg-white text-slate-700 shadow-sm lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 lg:hidden"
               type="button"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-emerald-900/10 bg-white px-3 py-2 shadow-sm shadow-emerald-950/5">
-              <Search className="h-4 w-4 shrink-0 text-emerald-700" />
+            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-white px-3 py-2 shadow-sm shadow-sky-900/5">
+              <Search className="h-4 w-4 shrink-0 text-sky-500" />
               <span className="ml-2 truncate text-sm text-slate-500">
                 Rechercher contenus, coachés, quiz...
               </span>
             </div>
             <button
               aria-label="Notifications"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/10 bg-white text-slate-700 shadow-sm shadow-emerald-950/5 transition hover:border-emerald-200 hover:text-emerald-700"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:text-sky-700"
               type="button"
             >
               <Bell className="h-5 w-5" />

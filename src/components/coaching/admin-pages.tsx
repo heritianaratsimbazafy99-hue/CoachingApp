@@ -343,7 +343,7 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
               <div className="mt-6 h-48">
                 <div className="flex h-full items-end rounded-lg bg-slate-50 px-5 pb-5">
                   <div
-                    className="w-full rounded-t-lg bg-slate-950 transition-all"
+                    className="w-full rounded-t-lg bg-sky-500 transition-all"
                     style={{ height: `${Math.max(8, panel.value)}%` }}
                   />
                 </div>

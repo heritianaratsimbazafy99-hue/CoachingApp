@@ -21,7 +21,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -127,7 +127,7 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
               className={cn(item.id === question.id ? "block" : "hidden")}
               key={item.id}
             >
-              <p className="text-sm font-semibold text-emerald-700">
+              <p className="text-sm font-semibold text-sky-700">
                 {item.points} points
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
@@ -137,7 +137,7 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
               <div className="mt-6 space-y-3">
                 {item.questionType === "open" ? (
                   <textarea
-                    className="min-h-40 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                    className="min-h-40 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
                     name={`open:${item.id}`}
                     placeholder="Votre réponse..."
                     required
@@ -151,7 +151,7 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
                         className={cn(
                           "block cursor-pointer rounded-xl border px-4 py-3 text-sm transition",
                           isSelected
-                            ? "border-emerald-700 bg-emerald-700 text-white"
+                            ? "border-sky-600 bg-sky-600 text-white"
                             : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
                         )}
                         key={option.id}
@@ -196,7 +196,7 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
               <SubmitButton />
             ) : (
               <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
                 onClick={() => setStep((current) => current + 1)}
                 type="button"
               >
@@ -208,13 +208,13 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
         </form>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm shadow-emerald-950/5">
+          <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
             <h2 className="font-semibold text-slate-950">Objectif</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Score minimum : {formatPercent(data.quiz.passingScore)}. Les
               questions ouvertes seront envoyées à votre coach pour correction.
             </p>
-            <div className="mt-4 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+            <div className="mt-4 rounded-xl bg-sky-50 p-4 text-sm text-sky-800">
               Barème total : {selectedScore.max} points
             </div>
           </section>

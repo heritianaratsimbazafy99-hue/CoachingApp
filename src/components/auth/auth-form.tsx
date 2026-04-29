@@ -156,7 +156,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             Nom complet
           </span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             name="fullName"
             onChange={(event) => setFullName(event.target.value)}
             placeholder="Marie Rakoto"
@@ -171,7 +171,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         <span className="text-sm font-medium text-slate-700">Email</span>
         <input
           autoComplete="email"
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/10"
+          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="email"
           onChange={(event) => setEmail(event.target.value)}
           placeholder="vous@exemple.com"
@@ -188,7 +188,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           </span>
           <input
             autoComplete={isRegister ? "new-password" : "current-password"}
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             minLength={6}
             name="password"
             onChange={(event) => setPassword(event.target.value)}
@@ -213,7 +213,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       ) : null}
 
       <button
-        className="inline-flex w-full items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-sky-600 px-5 py-3 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         disabled={isLoading}
         type="submit"
       >
@@ -224,7 +224,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         {isLogin ? (
           <>
             <Link
-              className="font-medium text-slate-950 hover:underline"
+              className="font-medium text-sky-700 hover:underline"
               href="/forgot-password"
             >
               Mot de passe oublié ?
@@ -232,7 +232,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             <p>
               Pas encore de compte ?{" "}
               <Link
-                className="font-medium text-slate-950 hover:underline"
+                className="font-medium text-sky-700 hover:underline"
                 href="/register"
               >
                 Créer un compte
@@ -245,7 +245,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <p>
             Déjà un compte ?{" "}
             <Link
-              className="font-medium text-slate-950 hover:underline"
+              className="font-medium text-sky-700 hover:underline"
               href="/login"
             >
               Se connecter
@@ -257,7 +257,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <p>
             Vous vous souvenez du mot de passe ?{" "}
             <Link
-              className="font-medium text-slate-950 hover:underline"
+              className="font-medium text-sky-700 hover:underline"
               href="/login"
             >
               Retour a la connexion

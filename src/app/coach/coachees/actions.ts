@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { canMessageUser } from "@/services/messaging-service";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -38,12 +39,22 @@ const noteSchema = z.object({
     .max(1600, "La note est trop longue."),
 });
 
+const reminderSchema = z.object({
+  coacheeId: z.string().trim().regex(uuidPattern, "Coaché invalide."),
+  templateId: z.string().trim().regex(uuidPattern, "Template invalide."),
+});
+
 export type CoachGoalActionState = {
   message: string;
   status: "error" | "idle" | "success";
 };
 
 export type CoachNoteActionState = {
+  message: string;
+  status: "error" | "idle" | "success";
+};
+
+export type CoachReminderActionState = {
   message: string;
   status: "error" | "idle" | "success";
 };
@@ -226,6 +237,95 @@ export async function createCoachNoteAction(
 
   return {
     message: "Note enregistrée.",
+    status: "success",
+  };
+}
+
+export async function sendReminderTemplateAction(
+  _previousState: CoachReminderActionState,
+  formData: FormData,
+): Promise<CoachReminderActionState> {
+  const currentUser = await requireRole(["admin", "coach"]);
+  const parsed = reminderSchema.safeParse({
+    coacheeId: formData.get("coacheeId"),
+    templateId: formData.get("templateId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      message:
+        parsed.error.issues[0]?.message ??
+        "La relance contient des champs invalides.",
+      status: "error",
+    };
+  }
+
+  const allowed = await canMessageUser(parsed.data.coacheeId);
+
+  if (!allowed) {
+    return {
+      message: "Cette conversation n'est pas autorisée.",
+      status: "error",
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  let templateQuery = supabase
+    .from("reminder_templates")
+    .select("id,title,body")
+    .eq("id", parsed.data.templateId);
+
+  if (currentUser.role !== "admin") {
+    templateQuery = templateQuery.eq("coach_id", currentUser.user.id);
+  }
+
+  const { data: template, error: templateError } = await templateQuery.maybeSingle();
+
+  if (templateError) {
+    return {
+      message: templateError.message,
+      status: "error",
+    };
+  }
+
+  if (!template) {
+    return {
+      message: "Template introuvable ou non autorisé.",
+      status: "error",
+    };
+  }
+
+  const { data: message, error } = await supabase
+    .from("messages")
+    .insert({
+      body: template.body,
+      receiver_id: parsed.data.coacheeId,
+      sender_id: currentUser.user.id,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    return {
+      message: error.message,
+      status: "error",
+    };
+  }
+
+  await supabase.from("activity_logs").insert({
+    action: `Relance envoyée : ${template.title}`,
+    entity_id: message.id,
+    entity_type: "message",
+    user_id: currentUser.user.id,
+  });
+
+  revalidatePath("/coach/coachees");
+  revalidatePath(`/coach/coachees/${parsed.data.coacheeId}`);
+  revalidatePath("/coach/messages");
+  revalidatePath("/coachee/messages");
+
+  return {
+    message: "Relance envoyée.",
     status: "success",
   };
 }

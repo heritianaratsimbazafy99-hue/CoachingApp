@@ -51,7 +51,7 @@ function GoalSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -66,7 +66,7 @@ function NoteSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -95,7 +95,7 @@ export function CoacheeGoalForm({ coacheeId }: { coacheeId: string }) {
       <label className="block">
         <span className="text-sm font-semibold text-slate-800">Objectif</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="title"
           placeholder="Ex : Finaliser le module posture"
           required
@@ -106,7 +106,7 @@ export function CoacheeGoalForm({ coacheeId }: { coacheeId: string }) {
           Échéance optionnelle
         </span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="dueDate"
           type="date"
         />
@@ -134,7 +134,7 @@ export function CoachNoteForm({ coacheeId }: { coacheeId: string }) {
     <form action={formAction} className="space-y-3" ref={formRef}>
       <input name="coacheeId" type="hidden" value={coacheeId} />
       <textarea
-        className="min-h-24 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+        className="min-h-24 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
         name="note"
         placeholder="Ajouter une note privée..."
         required
