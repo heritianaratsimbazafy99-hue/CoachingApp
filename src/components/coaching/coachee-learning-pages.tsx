@@ -1,13 +1,17 @@
 import Link from "next/link";
 import {
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   Clock,
   ExternalLink,
   FileText,
+  Target,
   Trophy,
+  UserRound,
 } from "lucide-react";
 import { completeContentAction } from "@/app/coachee/actions";
+import { ProfileForm } from "@/components/coaching/profile-settings-forms";
 import { QuizRunner } from "@/components/coaching/quiz-runner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -19,6 +23,7 @@ import type {
   CoacheeResultsData,
   CoacheeTasksData,
 } from "@/services/coachee-service";
+import type { CoacheeProfileData } from "@/services/profile-service";
 import {
   contentTypeLabel,
   formatDate,
@@ -266,20 +271,157 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
   );
 }
 
-export function CoacheeProfilePage() {
+const goalStatusLabel: Record<string, string> = {
+  active: "Actif",
+  completed: "Terminé",
+  paused: "En pause",
+};
+
+function GoalStatusBadge({ status }: { status: string }) {
+  const isCompleted = status === "completed";
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
+        isCompleted
+          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+          : "border-sky-200 bg-sky-50 text-sky-700"
+      }`}
+    >
+      {goalStatusLabel[status] ?? status}
+    </span>
+  );
+}
+
+export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
   return (
     <>
       <PageHeader
-        description="Vos informations de compte et préférences."
+        description="Vos informations de compte, avatar et objectifs suivis par votre coach."
         title="Mon profil"
       />
-      <div className="grid gap-6 p-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold">Informations personnelles</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-500">
-            Le profil réel sera branché dans le prochain passage avec édition
-            sécurisée des informations personnelles.
-          </p>
+
+      <div className="space-y-6 p-6">
+        <section className="grid gap-4 md:grid-cols-3">
+          <StatCard
+            helper="Objectifs suivis"
+            icon={Target}
+            label="Total"
+            tone="indigo"
+            value={String(data.metrics.goalsCount)}
+          />
+          <StatCard
+            helper="À travailler"
+            icon={Clock}
+            label="Actifs"
+            tone="sky"
+            value={String(data.metrics.activeGoalsCount)}
+          />
+          <StatCard
+            helper="Objectifs validés"
+            icon={CheckCircle2}
+            label="Terminés"
+            tone="emerald"
+            value={String(data.metrics.completedGoalsCount)}
+          />
+        </section>
+
+        <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+            <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-xl font-semibold text-white">
+                {data.profile.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt=""
+                    className="h-full w-full object-cover"
+                    src={data.profile.avatarUrl}
+                  />
+                ) : (
+                  data.profile.fullName.slice(0, 1)
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-emerald-700">
+                  Coaché
+                </p>
+                <h2 className="truncate text-xl font-semibold text-slate-950">
+                  {data.profile.fullName}
+                </h2>
+                <p className="mt-1 truncate text-sm text-slate-500">
+                  {data.profile.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <ProfileForm profile={data.profile} />
+            </div>
+          </section>
+
+          <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+            <div className="flex items-center gap-2">
+              <UserRound className="h-5 w-5 text-slate-500" />
+              <h2 className="font-semibold text-slate-950">Compte</h2>
+            </div>
+            <div className="mt-5 space-y-3 text-sm">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="font-medium text-slate-500">Email</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {data.profile.email}
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="font-medium text-slate-500">Profil créé le</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {formatDate(data.profile.createdAt)}
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-emerald-600" />
+            <h2 className="font-semibold text-slate-950">Objectifs</h2>
+          </div>
+
+          {data.goals.length ? (
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {data.goals.map((goal) => (
+                <article
+                  className="rounded-xl border border-slate-200 bg-white p-4"
+                  key={goal.id}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-950">
+                        {goal.title}
+                      </h3>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <GoalStatusBadge status={goal.status} />
+                        {goal.dueDate ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                            <CalendarDays className="h-3 w-3" />
+                            {formatDate(goal.dueDate)}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5">
+              <EmptyState
+                description="Vos objectifs apparaîtront ici dès que votre coach les ajoutera."
+                icon={Target}
+                title="Aucun objectif"
+              />
+            </div>
+          )}
         </section>
       </div>
     </>

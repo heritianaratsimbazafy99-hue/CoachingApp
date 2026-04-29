@@ -8,18 +8,24 @@ import {
   Filter,
   MessageCircle,
   Plus,
+  UserRound,
 } from "lucide-react";
 import { updateCalendarEventStatusAction } from "@/app/coach/calendar/actions";
 import { CalendarEventForm } from "@/components/coaching/calendar-event-form";
 import { MessageComposerForm } from "@/components/coaching/message-composer-form";
 import { MessageRealtimeBridge } from "@/components/coaching/message-realtime-bridge";
-import { ActionButton } from "@/components/ui/action-button";
+import {
+  ProfileForm,
+  ReminderTemplateForm,
+  ReminderTemplateList,
+} from "@/components/coaching/profile-settings-forms";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import type {
   CalendarAgendaEvent,
   CalendarPageData,
 } from "@/services/calendar-service";
+import type { CoachSettingsData } from "@/services/profile-service";
 import type {
   CalendarEventStatus,
   CalendarEventType,
@@ -28,6 +34,7 @@ import type { MessagingData } from "@/services/messaging-service";
 import {
   calendarStatusLabel,
   eventTypeLabel,
+  formatDate,
   formatDateTime,
   formatTime,
 } from "@/utils/format";
@@ -617,41 +624,100 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
   );
 }
 
-export function SettingsPage() {
+const roleLabel = {
+  admin: "Administrateur",
+  coach: "Coach",
+  coachee: "Coaché",
+};
+
+export function SettingsPage({ data }: { data: CoachSettingsData }) {
   return (
     <>
       <PageHeader
-        description="Préférences coach, templates de relance et réglages de notification."
+        description="Profil coach, avatar et messages de relance réutilisables branchés sur Supabase."
         title="Paramètres"
       />
-      <div className="grid gap-6 p-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold">Profil coach</h2>
-          <div className="mt-5 space-y-4">
-            <input
-              className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm"
-              defaultValue="Miora Coach"
-            />
-            <input
-              className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm"
-              defaultValue="coach@coaching.test"
-            />
-            <ActionButton message="Paramètres enregistrés" variant="primary">
-              Enregistrer
-            </ActionButton>
+
+      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_430px]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+          <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-xl font-semibold text-white">
+              {data.profile.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  alt=""
+                  className="h-full w-full object-cover"
+                  src={data.profile.avatarUrl}
+                />
+              ) : (
+                data.profile.fullName.slice(0, 1)
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-emerald-700">
+                {roleLabel[data.profile.role]}
+              </p>
+              <h2 className="truncate text-xl font-semibold text-slate-950">
+                {data.profile.fullName}
+              </h2>
+              <p className="mt-1 truncate text-sm text-slate-500">
+                {data.profile.email}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <ProfileForm profile={data.profile} />
           </div>
         </section>
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold">Notifications</h2>
-          <div className="mt-5 space-y-3 text-sm text-slate-600">
-            {["Messages non lus", "Quiz à corriger", "Deadlines dépassées"].map(
-              (item) => (
-                <label className="flex items-center gap-3" key={item}>
-                  <input defaultChecked type="checkbox" />
-                  {item}
-                </label>
-              ),
-            )}
+
+        <aside className="space-y-6">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+            <div className="flex items-center gap-2">
+              <UserRound className="h-5 w-5 text-slate-500" />
+              <h2 className="font-semibold text-slate-950">Compte</h2>
+            </div>
+            <div className="mt-5 grid gap-3 text-sm">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="font-medium text-slate-500">Rôle</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {roleLabel[data.profile.role]}
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="font-medium text-slate-500">Créé le</p>
+                <p className="mt-1 font-semibold text-slate-950">
+                  {formatDate(data.profile.createdAt)}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+            <h2 className="font-semibold text-slate-950">Nouveau template</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              Préparez les messages qui reviennent souvent dans le suivi.
+            </p>
+            <div className="mt-5">
+              <ReminderTemplateForm />
+            </div>
+          </section>
+        </aside>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5 xl:col-span-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="font-semibold text-slate-950">
+                Templates de relance
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {data.reminderTemplates.length} template(s) disponibles.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <ReminderTemplateList templates={data.reminderTemplates} />
           </div>
         </section>
       </div>
