@@ -23,7 +23,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
             href="/coach/assignments/new"
           >
             <Plus className="h-4 w-4" />
@@ -65,7 +65,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
           />
         </section>
 
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
           {data.assignments.length ? (
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
@@ -78,7 +78,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     <p className="mt-1 text-sm leading-6 text-slate-500">
                       {assignment.instructions || assignment.description}
                     </p>
-                    <p className="mt-2 text-xs font-medium text-emerald-700">
+                    <p className="mt-2 text-xs font-medium text-sky-700">
                       {assignment.contentTitle}
                     </p>
                   </div>

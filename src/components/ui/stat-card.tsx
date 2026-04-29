@@ -24,7 +24,7 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+    <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>
@@ -32,7 +32,7 @@ export function StatCard({
             {value}
           </p>
         </div>
-        <div className={`rounded-xl border p-2 ${toneStyles[tone]}`}>
+        <div className={`rounded-lg border p-2 ${toneStyles[tone]}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>

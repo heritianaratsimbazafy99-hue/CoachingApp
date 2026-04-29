@@ -52,10 +52,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="grid min-h-[720px] gap-0 p-6 lg:grid-cols-[340px_1fr]">
-        <aside className="overflow-hidden rounded-t-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5 lg:rounded-l-2xl lg:rounded-tr-none lg:border-r-0">
-          <div className="border-b border-slate-200 p-4">
-            <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-              <MessageCircle className="h-4 w-4 text-emerald-600" />
+        <aside className="overflow-hidden rounded-t-2xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5 lg:rounded-l-2xl lg:rounded-tr-none lg:border-r-0">
+          <div className="border-b border-sky-100 p-4">
+            <div className="flex items-center rounded-xl border border-sky-100 bg-sky-50 px-3 py-2">
+              <MessageCircle className="h-4 w-4 text-sky-600" />
               <span className="ml-2 text-sm font-medium text-slate-600">
                 Conversations
               </span>
@@ -70,7 +70,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 return (
                   <Link
                     className={`flex items-center gap-3 p-4 transition ${
-                      isSelected ? "bg-emerald-50" : "hover:bg-slate-50"
+                      isSelected ? "bg-sky-50" : "hover:bg-slate-50"
                     }`}
                     href={participant.href}
                     key={participant.userId}
@@ -94,7 +94,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       </p>
                     </div>
                     {participant.unreadCount ? (
-                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-emerald-600 px-2 text-xs font-semibold text-white">
+                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-sky-600 px-2 text-xs font-semibold text-white">
                         {participant.unreadCount}
                       </span>
                     ) : null}
@@ -113,8 +113,8 @@ export function MessagesPage({ data }: { data: MessagingData }) {
           </div>
         </aside>
 
-        <section className="flex min-h-[720px] flex-col overflow-hidden rounded-b-2xl border border-slate-200 bg-[#f3efe7] shadow-sm shadow-slate-950/5 lg:rounded-r-2xl lg:rounded-bl-none">
-          <div className="border-b border-slate-200 bg-white p-4">
+        <section className="flex min-h-[720px] flex-col overflow-hidden rounded-b-2xl border border-sky-100 bg-sky-50/60 shadow-sm shadow-sky-900/5 lg:rounded-r-2xl lg:rounded-bl-none">
+          <div className="border-b border-sky-100 bg-white p-4">
             {data.selectedParticipant ? (
               <>
                 <p className="font-semibold text-slate-950">
@@ -147,7 +147,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   <div
                     className={`max-w-[min(680px,85%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${
                       message.isOwn
-                        ? "rounded-br-sm bg-emerald-100 text-slate-900"
+                        ? "rounded-br-sm bg-sky-100 text-slate-900"
                         : "rounded-bl-sm bg-white text-slate-800"
                     }`}
                   >
@@ -155,7 +155,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                     <div className="mt-1 flex justify-end gap-1 text-[11px] text-slate-500">
                       {formatDateTime(message.createdAt)}
                       {message.isOwn && message.readAt ? (
-                        <Check className="h-3 w-3 text-emerald-700" />
+                        <Check className="h-3 w-3 text-sky-700" />
                       ) : null}
                     </div>
                   </div>
@@ -171,7 +171,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             )}
           </div>
 
-          <div className="border-t border-slate-200 bg-white p-4">
+          <div className="border-t border-sky-100 bg-white p-4">
             <MessageComposerForm
               receiverId={data.selectedParticipant?.userId ?? null}
             />
@@ -302,12 +302,12 @@ function MetricCard({
   value: number;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5">
+    <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-slate-500">{label}</p>
         <Icon className="h-4 w-4 text-slate-400" />
       </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-800">
         {value}
       </p>
     </div>
@@ -316,7 +316,7 @@ function MetricCard({
 
 function CalendarFilters({ data }: { data: CalendarPageData }) {
   return (
-    <form className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5 md:grid-cols-[1fr_1fr_1.4fr_auto]">
+    <form className="grid gap-3 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5 md:grid-cols-[1fr_1fr_1.4fr_auto]">
       <label className="block">
         <span className="text-xs font-semibold uppercase text-slate-500">Type</span>
         <select
@@ -422,7 +422,7 @@ function EventCard({
   event: CalendarAgendaEvent;
 }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5">
+    <article className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -463,7 +463,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
         actions={
           isCoach ? (
             <a
-              className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
               href="#new-event"
             >
               <Plus className="h-4 w-4" />
@@ -507,11 +507,11 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
 
         <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
           <section className="space-y-5">
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/5">
+            <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
                 {weekDays.map((day) => (
                   <div
-                    className="min-h-28 rounded-lg border border-slate-100 bg-slate-50 p-3"
+                    className="min-h-28 rounded-lg border border-sky-100 bg-sky-50/70 p-3"
                     key={day.key}
                   >
                     <p className="text-xs font-medium uppercase text-slate-400">
@@ -528,7 +528,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                       {day.count ? `${day.count} événement(s)` : "Libre"}
                     </p>
                     {day.nextEvent ? (
-                      <p className="mt-2 truncate rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-600">
+                      <p className="mt-2 truncate rounded-md bg-white px-2 py-1 text-xs font-medium text-sky-700 shadow-sm shadow-sky-900/5">
                         {day.nextEvent.title}
                       </p>
                     ) : null}
@@ -560,7 +560,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                   </section>
                 ))
               ) : (
-                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+                <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5">
                   <EmptyState
                     description={
                       isCoach
@@ -578,11 +578,11 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
           <aside className="space-y-5">
             {isCoach ? (
               <section
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5"
+                className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
                 id="new-event"
               >
                 <div className="mb-5 flex items-center gap-2">
-                  <CalendarDays className="h-5 w-5 text-emerald-600" />
+                  <CalendarDays className="h-5 w-5 text-sky-600" />
                   <h2 className="font-semibold text-slate-950">
                     Nouvel événement
                   </h2>
@@ -591,7 +591,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
               </section>
             ) : null}
 
-            <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+            <section className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-slate-500" />
                 <h2 className="font-semibold text-slate-950">
@@ -639,7 +639,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
       />
 
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_430px]">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+        <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5">
           <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
               {data.profile.avatarUrl ? (
@@ -654,7 +654,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-emerald-700">
+              <p className="text-sm font-semibold text-sky-700">
                 {roleLabel[data.profile.role]}
               </p>
               <h2 className="truncate text-xl font-semibold text-slate-950">
@@ -672,19 +672,19 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
         </section>
 
         <aside className="space-y-6">
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+          <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-2">
               <UserRound className="h-5 w-5 text-slate-500" />
               <h2 className="font-semibold text-slate-950">Compte</h2>
             </div>
             <div className="mt-5 grid gap-3 text-sm">
-              <div className="rounded-xl bg-slate-50 p-4">
+              <div className="rounded-xl bg-sky-50/70 p-4">
                 <p className="font-medium text-slate-500">Rôle</p>
                 <p className="mt-1 font-semibold text-slate-950">
                   {roleLabel[data.profile.role]}
                 </p>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
+              <div className="rounded-xl bg-sky-50/70 p-4">
                 <p className="font-medium text-slate-500">Créé le</p>
                 <p className="mt-1 font-semibold text-slate-950">
                   {formatDate(data.profile.createdAt)}
@@ -693,7 +693,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+          <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
             <h2 className="font-semibold text-slate-950">Nouveau template</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">
               Préparez les messages qui reviennent souvent dans le suivi.
@@ -704,7 +704,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
           </section>
         </aside>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5 xl:col-span-2">
+        <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5 xl:col-span-2">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="font-semibold text-slate-950">

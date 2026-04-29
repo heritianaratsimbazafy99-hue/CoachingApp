@@ -16,14 +16,17 @@ const benefits = [
 export function AuthShell({ children, description, title }: AuthShellProps) {
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-indigo-50 text-slate-800">
-      <div className="mx-auto grid min-h-screen max-w-6xl px-6 py-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
-        <section className="flex flex-col justify-between">
+      <div className="mx-auto grid min-h-screen w-full max-w-6xl px-6 py-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
+        <section className="flex min-w-0 flex-col gap-10 lg:justify-between">
           <Link href="/" className="text-lg font-semibold tracking-tight">
             Coaching Platform
           </Link>
 
-          <div className="py-12 lg:py-0">
-            <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="py-8 lg:py-0">
+            <div
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:w-full sm:p-8"
+              style={{ maxWidth: "28rem", width: "calc(100vw - 3rem)" }}
+            >
               <div>
                 <h1 className="text-3xl font-semibold tracking-tight">
                   {title}

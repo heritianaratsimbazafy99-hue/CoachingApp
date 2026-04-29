@@ -8,9 +8,13 @@ import { cn } from "@/utils/cn";
 
 type SignOutButtonProps = {
   className?: string;
+  display?: "desktop" | "inline";
 };
 
-export function SignOutButton({ className }: SignOutButtonProps) {
+export function SignOutButton({
+  className,
+  display = "desktop",
+}: SignOutButtonProps) {
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -25,7 +29,8 @@ export function SignOutButton({ className }: SignOutButtonProps) {
   return (
     <button
       className={cn(
-        "hidden items-center gap-2 rounded-xl border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex",
+        "items-center gap-2 rounded-xl border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60",
+        display === "desktop" ? "hidden sm:inline-flex" : "inline-flex",
         className,
       )}
       disabled={isSigningOut}

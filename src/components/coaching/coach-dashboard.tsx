@@ -8,7 +8,6 @@ import {
   Trophy,
   UsersRound,
 } from "lucide-react";
-import { ActionButton } from "@/components/ui/action-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -70,8 +69,8 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-200 p-5">
+          <div className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
+            <div className="flex items-center justify-between border-b border-sky-100 p-5">
               <div>
                 <h2 className="text-lg font-semibold">Coachés à suivre</h2>
                 <p className="mt-1 text-sm text-slate-500">
@@ -110,9 +109,12 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                       </div>
                       <ProgressBar value={coachee.progress} />
                     </div>
-                    <ActionButton message={`Relance envoyée à ${coachee.fullName}`}>
-                      Relancer
-                    </ActionButton>
+                    <Link
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+                      href={`/coach/coachees/${coachee.id}`}
+                    >
+                      Ouvrir le suivi
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -128,7 +130,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-slate-500" />
                 <h2 className="text-lg font-semibold">Prochains rendez-vous</h2>
@@ -136,7 +138,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               <div className="mt-4 space-y-3">
                 {data.calendarEvents.length ? (
                   data.calendarEvents.map((event) => (
-                    <div className="rounded-lg bg-slate-50 p-4" key={event.id}>
+                    <div className="rounded-lg bg-sky-50/70 p-4" key={event.id}>
                       <p className="font-medium">{event.title}</p>
                       <p className="mt-1 text-sm text-slate-500">
                         {formatDateTime(event.startTime)}
@@ -144,14 +146,14 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-500">
+                  <p className="rounded-lg bg-sky-50/70 p-4 text-sm text-slate-500">
                     Aucun rendez-vous planifié.
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
               <div className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5 text-slate-500" />
                 <h2 className="text-lg font-semibold">Activité récente</h2>
@@ -160,7 +162,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                 {data.activityLogs.length ? (
                   data.activityLogs.map((activity) => (
                     <div
-                      className="rounded-lg border border-slate-100 p-3"
+                      className="rounded-lg border border-sky-100 p-3"
                       key={activity.id}
                     >
                       <p className="text-sm font-medium">{activity.action}</p>
@@ -170,7 +172,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-lg border border-slate-100 p-3 text-sm text-slate-500">
+                  <p className="rounded-lg border border-sky-100 p-3 text-sm text-slate-500">
                     Aucune activité récente.
                   </p>
                 )}
@@ -179,8 +181,8 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center gap-2 border-b border-slate-200 p-5">
+        <section className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
+          <div className="flex items-center gap-2 border-b border-sky-100 p-5">
             <CheckSquare className="h-5 w-5 text-slate-500" />
             <h2 className="text-lg font-semibold">Assignations récentes</h2>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { type FormEvent, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Bell,
@@ -17,6 +18,7 @@ import {
   Search,
   Settings,
   UsersRound,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -83,6 +85,75 @@ const roleAccent: Record<
   },
 };
 
+function isActivePath(pathname: string, href: string, role: UserRole) {
+  return pathname === href || (href !== `/${role}` && pathname.startsWith(href));
+}
+
+function QuickNavigationSearch({ navItems }: { navItems: NavItem[] }) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const suggestions = useMemo(() => {
+    if (!normalizedQuery) {
+      return navItems.slice(0, 6);
+    }
+
+    return navItems
+      .filter((item) => item.label.toLowerCase().includes(normalizedQuery))
+      .slice(0, 6);
+  }, [navItems, normalizedQuery]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (suggestions[0]) {
+      router.push(suggestions[0].href);
+      setQuery("");
+    }
+  }
+
+  return (
+    <form
+      className="group relative flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-white px-3 py-2 shadow-sm shadow-sky-900/5 transition focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-100"
+      onSubmit={handleSubmit}
+    >
+      <Search className="h-4 w-4 shrink-0 text-sky-500" />
+      <label className="sr-only" htmlFor="app-shell-search">
+        Rechercher une page
+      </label>
+      <input
+        autoComplete="off"
+        className="ml-2 min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
+        id="app-shell-search"
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Rechercher une page..."
+        value={query}
+      />
+      <div className="invisible absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-xl border border-sky-100 bg-white opacity-0 shadow-xl shadow-sky-950/10 transition group-focus-within:visible group-focus-within:opacity-100">
+        {suggestions.length ? (
+          suggestions.map((item) => {
+            const Icon = iconMap[item.icon] ?? Home;
+
+            return (
+              <Link
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-sky-50 hover:text-sky-700"
+                href={item.href}
+                key={item.href}
+                onClick={() => setQuery("")}
+              >
+                <Icon className="h-4 w-4 text-sky-500" />
+                {item.label}
+              </Link>
+            );
+          })
+        ) : (
+          <p className="px-3 py-3 text-sm text-slate-500">Aucun résultat.</p>
+        )}
+      </div>
+    </form>
+  );
+}
+
 export function AppShell({
   account,
   children,
@@ -91,9 +162,11 @@ export function AppShell({
   subtitle,
 }: AppShellProps) {
   const pathname = usePathname();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const accountName = account?.fullName ?? roleLabel[role];
   const accountEmail = account?.email ?? "Session active";
   const accent = roleAccent[role];
+  const notificationHref = role === "admin" ? "/admin/stats" : `/${role}/messages`;
 
   return (
     <div
@@ -102,6 +175,12 @@ export function AppShell({
         accent.shell,
       )}
     >
+      <a
+        className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        href="#app-content"
+      >
+        Aller au contenu
+      </a>
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside className="hidden border-r border-sky-100 bg-white/92 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
           <div className="flex h-full flex-col">
@@ -125,9 +204,7 @@ export function AppShell({
 
             <nav className="flex-1 space-y-1 p-4">
               {navItems.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== `/${role}` && pathname.startsWith(item.href));
+                const isActive = isActivePath(pathname, item.href, role);
                 const Icon = iconMap[item.icon] ?? Home;
 
                 return (
@@ -162,8 +239,8 @@ export function AppShell({
                       {accountName}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {roleLabel[role]} · {accountEmail}
-                </p>
+                      {roleLabel[role]} · {accountEmail}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -175,28 +252,71 @@ export function AppShell({
           <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100 bg-white/88 px-4 py-3 backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
+              aria-expanded={isMobileNavOpen}
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 lg:hidden"
+              onClick={() => setIsMobileNavOpen((current) => !current)}
               type="button"
             >
-              <Menu className="h-5 w-5" />
+              {isMobileNavOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
-            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-white px-3 py-2 shadow-sm shadow-sky-900/5">
-              <Search className="h-4 w-4 shrink-0 text-sky-500" />
-              <span className="ml-2 truncate text-sm text-slate-500">
-                Rechercher contenus, coachés, quiz...
-              </span>
-            </div>
-            <button
+            <QuickNavigationSearch navItems={navItems} />
+            <Link
               aria-label="Notifications"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:text-sky-700"
-              type="button"
+              href={notificationHref}
             >
               <Bell className="h-5 w-5" />
-            </button>
+            </Link>
             <SignOutButton />
           </header>
 
-          <div className="mx-auto max-w-7xl">{children}</div>
+          {isMobileNavOpen ? (
+            <div className="border-b border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:hidden">
+              <nav className="grid gap-1">
+                {navItems.map((item) => {
+                  const isActive = isActivePath(pathname, item.href, role);
+                  const Icon = iconMap[item.icon] ?? Home;
+
+                  return (
+                    <Link
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                        isActive
+                          ? accent.active
+                          : "text-slate-500 hover:bg-sky-50 hover:text-sky-700",
+                      )}
+                      href={item.href}
+                      key={item.href}
+                      onClick={() => setIsMobileNavOpen(false)}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+              <div className="mt-4 rounded-xl border border-sky-100 bg-sky-50/70 p-3">
+                <p className="truncate text-sm font-semibold text-slate-800">
+                  {accountName}
+                </p>
+                <p className="mt-1 truncate text-xs text-slate-500">
+                  {roleLabel[role]} · {accountEmail}
+                </p>
+                <SignOutButton
+                  className="mt-3 w-full justify-center"
+                  display="inline"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <main className="mx-auto max-w-7xl" id="app-content">
+            {children}
+          </main>
         </div>
       </div>
     </div>

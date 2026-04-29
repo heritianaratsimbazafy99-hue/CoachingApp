@@ -44,31 +44,31 @@ const features = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-indigo-50 text-slate-800">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <header className="mx-auto flex w-full max-w-[342px] flex-col gap-4 py-6 sm:w-[calc(100vw-3rem)] sm:max-w-6xl sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="text-lg font-semibold tracking-tight">
           Coaching Platform
         </Link>
 
-        <nav className="flex items-center gap-3">
+        <nav className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
           <Link
             href="/login"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white"
+            className="inline-flex justify-center rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 sm:border-transparent sm:bg-transparent sm:px-4 sm:hover:bg-white"
           >
             Connexion
           </Link>
           <Link
             href="/register"
-            className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className="inline-flex justify-center rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 sm:px-4"
           >
             Créer un compte
           </Link>
         </nav>
       </header>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-16 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div>
+      <section className="mx-auto grid w-full max-w-[342px] gap-10 pb-16 pt-8 sm:w-[calc(100vw-3rem)] sm:max-w-6xl lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:pt-12">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-slate-500">SaaS de coaching</p>
-          <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight text-slate-950 sm:text-6xl">
+          <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
             Pilotez vos coachings sans complexité.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
@@ -92,8 +92,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="rounded-xl border border-slate-100 bg-slate-50 p-5">
+        <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
+          <div className="rounded-xl border border-sky-100 bg-sky-50/70 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -101,12 +101,12 @@ export default function Home() {
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold">Vue du jour</h2>
               </div>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-700">
                 Actif
               </span>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {[
                 ["24", "coachés"],
                 ["7", "retards"],
@@ -114,7 +114,7 @@ export default function Home() {
               ].map(([value, label]) => (
                 <div
                   key={label}
-                  className="rounded-xl border border-slate-200 bg-white p-4"
+                  className="rounded-xl border border-sky-100 bg-white p-4"
                 >
                   <p className="text-2xl font-semibold">{value}</p>
                   <p className="mt-1 text-xs font-medium text-slate-500">
@@ -132,7 +132,7 @@ export default function Home() {
               ].map(([title, status, color]) => (
                 <div
                   key={title}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4"
+                  className="flex items-center justify-between rounded-xl border border-sky-100 bg-white p-4"
                 >
                   <div>
                     <p className="text-sm font-medium">{title}</p>
@@ -154,11 +154,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-6 pb-20 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto grid w-full max-w-[342px] gap-4 pb-20 sm:w-[calc(100vw-3rem)] sm:max-w-6xl sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
           >
             <feature.icon className="h-5 w-5 text-slate-700" />
             <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>
