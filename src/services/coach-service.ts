@@ -169,11 +169,21 @@ export type CoachCoacheeSummary = {
 
 export type CoachAssignmentSummary = {
   contentTitle: string;
+  createdAt: string;
   deadline: string;
   description: string;
   id: string;
+  instructions: string;
   priority: Priority;
   status: AssignmentStatus;
+  targetLabel: string;
+  title: string;
+  type: AssignmentType;
+};
+
+export type CoachQuizOption = {
+  contentId: string;
+  id: string;
   title: string;
 };
 
@@ -284,6 +294,23 @@ export type CoachLibraryData = {
 
 export type CoachContentEditorData = CoachLibraryData & {
   content: CoachContent | null;
+};
+
+export type CoachAssignmentsData = {
+  assignments: CoachAssignmentSummary[];
+  metrics: {
+    dueThisWeekCount: number;
+    lateCount: number;
+    pendingCorrectionsCount: number;
+    totalCount: number;
+  };
+};
+
+export type CoachAssignmentComposerData = {
+  coachees: CoachCoacheeSummary[];
+  cohorts: CoachCohortSummary[];
+  contents: Array<Pick<CoachContent, "id" | "status" | "title" | "type">>;
+  quizzes: CoachQuizOption[];
 };
 
 type CoachBaseData = {
@@ -503,6 +530,10 @@ async function fetchAuthUsersById(userIds: string[]) {
 function createAssignmentMapper(base: CoachBaseData) {
   const contentsById = new Map(base.contents.map((content) => [content.id, content]));
   const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+  const coacheesById = new Map(
+    buildCoacheeSummaries(base).map((coachee) => [coachee.id, coachee]),
+  );
+  const cohortsById = new Map(base.cohorts.map((cohort) => [cohort.id, cohort]));
 
   return function mapAssignment(assignment: AssignmentRow): CoachAssignmentSummary {
     const contentTitle = assignment.content_id
@@ -510,15 +541,24 @@ function createAssignmentMapper(base: CoachBaseData) {
       : assignment.quiz_id
         ? quizzesById.get(assignment.quiz_id)?.title
         : null;
+    const targetLabel = assignment.assigned_to_user_id
+      ? coacheesById.get(assignment.assigned_to_user_id)?.fullName
+      : assignment.assigned_to_cohort_id
+        ? cohortsById.get(assignment.assigned_to_cohort_id)?.name
+        : null;
 
     return {
       contentTitle: contentTitle ?? "Ressource non renseignée",
+      createdAt: assignment.created_at,
       deadline: assignment.deadline,
       description: ensureDescription(assignment.description),
       id: assignment.id,
+      instructions: assignment.instructions ?? "",
       priority: assignment.priority,
       status: assignment.status,
+      targetLabel: targetLabel ?? "Cible non renseignée",
       title: assignment.title,
+      type: assignment.assignment_type,
     };
   };
 }
@@ -889,3 +929,59 @@ export const getCoachContentEditorData = cache(
     };
   },
 );
+
+export const getCoachAssignmentsData =
+  cache(async (): Promise<CoachAssignmentsData> => {
+    const base = await getCoachBaseData();
+    const mapAssignment = createAssignmentMapper(base);
+    const now = new Date();
+    const nextWeek = new Date(now);
+    nextWeek.setDate(now.getDate() + 7);
+
+    return {
+      assignments: base.assignments.map(mapAssignment),
+      metrics: {
+        dueThisWeekCount: base.assignments.filter((assignment) => {
+          const deadline = new Date(assignment.deadline);
+
+          return deadline >= now && deadline <= nextWeek;
+        }).length,
+        lateCount: base.assignments.filter(
+          (assignment) => assignment.status === "late",
+        ).length,
+        pendingCorrectionsCount: base.quizAttempts.filter(
+          (attempt) => attempt.status === "pending_correction",
+        ).length,
+        totalCount: base.assignments.length,
+      },
+    };
+  });
+
+export const getCoachAssignmentComposerData =
+  cache(async (): Promise<CoachAssignmentComposerData> => {
+    const base = await getCoachBaseData();
+    const themesById = new Map(base.themes.map((theme) => [theme.id, theme]));
+    const subthemesById = new Map(
+      base.subthemes.map((subtheme) => [subtheme.id, subtheme]),
+    );
+
+    return {
+      coachees: buildCoacheeSummaries(base),
+      cohorts: buildCohortSummaries(base),
+      contents: base.contents.map((content) => {
+        const mapped = mapContent(content, themesById, subthemesById);
+
+        return {
+          id: mapped.id,
+          status: mapped.status,
+          title: mapped.title,
+          type: mapped.type,
+        };
+      }),
+      quizzes: base.quizzes.map((quiz) => ({
+        contentId: quiz.content_id ?? "",
+        id: quiz.id,
+        title: quiz.title,
+      })),
+    };
+  });

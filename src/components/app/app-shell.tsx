@@ -54,6 +54,35 @@ const iconMap: Record<string, LucideIcon> = {
   users: UsersRound,
 };
 
+const roleAccent: Record<
+  UserRole,
+  {
+    active: string;
+    avatar: string;
+    dot: string;
+    shell: string;
+  }
+> = {
+  admin: {
+    active: "bg-[#f97316] text-white shadow-sm shadow-orange-950/20",
+    avatar: "from-orange-400 to-rose-500",
+    dot: "bg-orange-400",
+    shell: "from-orange-50 via-[#f7f6ef] to-emerald-50",
+  },
+  coach: {
+    active: "bg-[#047857] text-white shadow-sm shadow-emerald-950/20",
+    avatar: "from-emerald-400 to-teal-500",
+    dot: "bg-emerald-400",
+    shell: "from-emerald-50 via-[#f7f6ef] to-indigo-50",
+  },
+  coachee: {
+    active: "bg-[#4f46e5] text-white shadow-sm shadow-indigo-950/20",
+    avatar: "from-indigo-400 to-sky-500",
+    dot: "bg-indigo-400",
+    shell: "from-indigo-50 via-[#f7f6ef] to-amber-50",
+  },
+};
+
 export function AppShell({
   account,
   children,
@@ -64,17 +93,34 @@ export function AppShell({
   const pathname = usePathname();
   const accountName = account?.fullName ?? roleLabel[role];
   const accountEmail = account?.email ?? "Session active";
+  const accent = roleAccent[role];
 
   return (
-    <div className="min-h-screen bg-[#f7f8fb] text-slate-950">
+    <div
+      className={cn(
+        "min-h-screen bg-gradient-to-br text-slate-950",
+        accent.shell,
+      )}
+    >
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-slate-200 bg-white lg:block">
+        <aside className="hidden border-r border-emerald-900/10 bg-[#10231f] text-white lg:block">
           <div className="flex h-full flex-col">
-            <div className="border-b border-slate-200 p-6">
-              <Link href="/" className="text-lg font-semibold tracking-tight">
-                Coaching Platform
+            <div className="border-b border-white/10 p-6">
+              <Link
+                href="/"
+                className="flex items-center gap-3 text-lg font-semibold tracking-tight"
+              >
+                <span
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-bold text-white",
+                    accent.avatar,
+                  )}
+                >
+                  CP
+                </span>
+                <span>Coaching Platform</span>
               </Link>
-              <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+              <p className="mt-3 text-sm text-emerald-50/65">{subtitle}</p>
             </div>
 
             <nav className="flex-1 space-y-1 p-4">
@@ -89,8 +135,8 @@ export function AppShell({
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
                       isActive
-                        ? "bg-slate-950 text-white"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+                        ? accent.active
+                        : "text-emerald-50/72 hover:bg-white/8 hover:text-white",
                     )}
                     href={item.href}
                     key={item.href}
@@ -102,35 +148,47 @@ export function AppShell({
               })}
             </nav>
 
-            <div className="border-t border-slate-200 p-4">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="truncate text-sm font-semibold">{accountName}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
+            <div className="border-t border-white/10 p-4">
+              <div className="rounded-2xl border border-white/10 bg-white/8 p-4">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-1 h-2.5 w-2.5 rounded-full",
+                      accent.dot,
+                    )}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">
+                      {accountName}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-emerald-50/65">
                   {roleLabel[role]} · {accountEmail}
                 </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:px-6">
+          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-emerald-900/10 bg-white/82 px-4 py-3 backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/10 bg-white text-slate-700 shadow-sm lg:hidden"
               type="button"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <Search className="h-4 w-4 shrink-0 text-slate-400" />
+            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-emerald-900/10 bg-white px-3 py-2 shadow-sm shadow-emerald-950/5">
+              <Search className="h-4 w-4 shrink-0 text-emerald-700" />
               <span className="ml-2 truncate text-sm text-slate-500">
                 Rechercher contenus, coachés, quiz...
               </span>
             </div>
             <button
               aria-label="Notifications"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-900/10 bg-white text-slate-700 shadow-sm shadow-emerald-950/5 transition hover:border-emerald-200 hover:text-emerald-700"
               type="button"
             >
               <Bell className="h-5 w-5" />

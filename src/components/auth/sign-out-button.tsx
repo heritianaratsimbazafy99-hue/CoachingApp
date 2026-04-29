@@ -25,7 +25,7 @@ export function SignOutButton({ className }: SignOutButtonProps) {
   return (
     <button
       className={cn(
-        "hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex",
+        "hidden items-center gap-2 rounded-xl border border-emerald-900/10 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-emerald-950/5 transition hover:border-emerald-200 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:inline-flex",
         className,
       )}
       disabled={isSigningOut}

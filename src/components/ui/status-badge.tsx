@@ -16,14 +16,14 @@ type StatusBadgeProps = {
 };
 
 const statusStyles: Record<string, string> = {
-  assigned: "border-blue-200 bg-blue-50 text-blue-700",
+  assigned: "border-sky-200 bg-sky-50 text-sky-700",
   completed: "border-emerald-200 bg-emerald-50 text-emerald-700",
   draft: "border-slate-200 bg-slate-50 text-slate-600",
-  failed: "border-red-200 bg-red-50 text-red-700",
+  failed: "border-rose-200 bg-rose-50 text-rose-700",
   in_progress: "border-amber-200 bg-amber-50 text-amber-700",
-  late: "border-red-200 bg-red-50 text-red-700",
+  late: "border-rose-200 bg-rose-50 text-rose-700",
   passed: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  pending_correction: "border-purple-200 bg-purple-50 text-purple-700",
+  pending_correction: "border-indigo-200 bg-indigo-50 text-indigo-700",
   published: "border-emerald-200 bg-emerald-50 text-emerald-700",
 };
 
