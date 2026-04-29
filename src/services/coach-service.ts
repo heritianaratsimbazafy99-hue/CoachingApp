@@ -181,6 +181,16 @@ type CoachNoteRow = {
   note: string;
 };
 
+type CoacheeGoalRow = {
+  coachee_id: string;
+  coach_id: string;
+  created_at: string;
+  due_date: string | null;
+  id: string;
+  status: string;
+  title: string;
+};
+
 type ActivityLogRow = {
   action: string;
   created_at: string;
@@ -363,6 +373,13 @@ export type CoachDashboardData = {
 };
 
 export type CoachCoacheeDetail = {
+  goals: Array<{
+    createdAt: string;
+    dueDate: string | null;
+    id: string;
+    status: string;
+    title: string;
+  }>;
   notes: Array<{
     createdAt: string;
     id: string;
@@ -1072,8 +1089,28 @@ export const getCoachCoacheeDetail = cache(
       base.assignments.map((assignment) => [assignment.id, assignment]),
     );
     const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+    const supabase = await createServerSupabaseClient();
+    let goalsQuery = supabase
+      .from("coachee_goals")
+      .select("id,coach_id,coachee_id,title,status,due_date,created_at")
+      .eq("coachee_id", coacheeId)
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    if (!base.isAdmin) {
+      goalsQuery = goalsQuery.eq("coach_id", base.currentUserId);
+    }
+
+    const goals = await getRows<CoacheeGoalRow>(goalsQuery);
 
     return {
+      goals: goals.map((goal) => ({
+        createdAt: goal.created_at,
+        dueDate: goal.due_date,
+        id: goal.id,
+        status: goal.status,
+        title: goal.title,
+      })),
       notes: base.coachNotes
         .filter((note) => note.coachee_id === coacheeId)
         .map((note) => ({
