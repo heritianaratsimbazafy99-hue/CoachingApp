@@ -10,6 +10,7 @@ import type {
   ContentStatus,
   ContentType,
   Priority,
+  QuestionType,
   QuizAttemptStatus,
 } from "@/types/coaching";
 
@@ -74,8 +75,46 @@ type SubthemeRow = {
 
 type QuizRow = {
   content_id: string | null;
+  created_at: string;
+  created_by: string;
+  description: string | null;
   id: string;
+  passing_score: number;
   title: string;
+  updated_at: string;
+};
+
+type QuizQuestionRow = {
+  created_at: string;
+  explanation: string | null;
+  id: string;
+  points: number;
+  position: number;
+  question_text: string;
+  question_type: QuestionType;
+  quiz_id: string;
+};
+
+type QuizOptionRow = {
+  id: string;
+  is_correct: boolean;
+  option_text: string;
+  position: number;
+  question_id: string;
+};
+
+type QuizAnswerRow = {
+  answer_text: string | null;
+  attempt_id: string;
+  coach_feedback: string | null;
+  corrected_at: string | null;
+  corrected_by: string | null;
+  id: string;
+  is_correct: boolean | null;
+  needs_manual_correction: boolean;
+  points_obtained: number;
+  question_id: string;
+  selected_option_ids: string[];
 };
 
 type AssignmentRow = {
@@ -185,6 +224,113 @@ export type CoachQuizOption = {
   contentId: string;
   id: string;
   title: string;
+};
+
+export type CoachQuizQuestionOption = {
+  id: string;
+  isCorrect: boolean;
+  optionText: string;
+  position: number;
+};
+
+export type CoachQuizQuestion = {
+  explanation: string;
+  id: string;
+  options: CoachQuizQuestionOption[];
+  points: number;
+  position: number;
+  questionText: string;
+  questionType: QuestionType;
+};
+
+export type CoachQuiz = {
+  contentId: string;
+  contentTitle: string;
+  createdAt: string;
+  description: string;
+  id: string;
+  isOwner: boolean;
+  passingScore: number;
+  questions: CoachQuizQuestion[];
+  title: string;
+  updatedAt: string;
+};
+
+export type CoachQuizSummary = {
+  assignmentCount: number;
+  averageScore: number;
+  contentTitle: string;
+  createdAt: string;
+  description: string;
+  id: string;
+  isOwner: boolean;
+  passingScore: number;
+  pendingCorrectionsCount: number;
+  questionCount: number;
+  title: string;
+  updatedAt: string;
+};
+
+export type CoachQuizzesData = {
+  metrics: {
+    averageScore: number;
+    pendingCorrectionsCount: number;
+    publishedQuizCount: number;
+    totalQuizCount: number;
+  };
+  quizzes: CoachQuizSummary[];
+};
+
+export type CoachQuizEditorData = {
+  contents: Array<Pick<CoachContent, "id" | "status" | "title" | "type">>;
+  quiz: CoachQuiz | null;
+};
+
+export type CoachQuizResultRow = {
+  assignmentTitle: string;
+  coacheeEmail: string;
+  coacheeName: string;
+  correctedAt: string | null;
+  id: string;
+  passed: boolean;
+  percentage: number;
+  quizTitle: string;
+  scoreMax: number;
+  scoreObtained: number;
+  status: QuizAttemptStatus;
+  submittedAt: string;
+};
+
+export type CoachQuizResultsData = {
+  metrics: {
+    attemptsCount: number;
+    averageScore: number;
+    passedCount: number;
+    pendingCorrectionsCount: number;
+  };
+  results: CoachQuizResultRow[];
+};
+
+export type CoachCorrectionItem = {
+  answerId: string;
+  answerText: string;
+  attemptId: string;
+  coachFeedback: string;
+  coacheeEmail: string;
+  coacheeName: string;
+  pointsMax: number;
+  pointsObtained: number;
+  questionText: string;
+  quizTitle: string;
+  submittedAt: string;
+};
+
+export type CoachCorrectionsData = {
+  corrections: CoachCorrectionItem[];
+  metrics: {
+    pendingAnswersCount: number;
+    pendingAttemptsCount: number;
+  };
 };
 
 export type CoachCalendarEvent = {
@@ -323,6 +469,8 @@ type CoachBaseData = {
   cohortMembers: CohortMemberRow[];
   cohorts: CohortRow[];
   contents: ContentRow[];
+  currentUserId: string;
+  isAdmin: boolean;
   profiles: ProfileRow[];
   quizAttempts: QuizAttemptRow[];
   quizzes: QuizRow[];
@@ -452,6 +600,60 @@ async function fetchQuizAttempts(
         "id,quiz_id,assignment_id,user_id,score_obtained,score_max,percentage,status,passed,submitted_at,corrected_at,created_at",
       )
       .in("user_id", userIds),
+  );
+}
+
+async function fetchQuizQuestions(
+  supabase: SupabaseServerClient,
+  quizIds: string[],
+) {
+  if (!quizIds.length) {
+    return [];
+  }
+
+  return getRows<QuizQuestionRow>(
+    supabase
+      .from("quiz_questions")
+      .select(
+        "id,quiz_id,question_text,question_type,points,position,explanation,created_at",
+      )
+      .in("quiz_id", quizIds)
+      .order("position", { ascending: true }),
+  );
+}
+
+async function fetchQuizOptions(
+  supabase: SupabaseServerClient,
+  questionIds: string[],
+) {
+  if (!questionIds.length) {
+    return [];
+  }
+
+  return getRows<QuizOptionRow>(
+    supabase
+      .from("quiz_options")
+      .select("id,question_id,option_text,is_correct,position")
+      .in("question_id", questionIds)
+      .order("position", { ascending: true }),
+  );
+}
+
+async function fetchQuizAnswers(
+  supabase: SupabaseServerClient,
+  attemptIds: string[],
+) {
+  if (!attemptIds.length) {
+    return [];
+  }
+
+  return getRows<QuizAnswerRow>(
+    supabase
+      .from("quiz_answers")
+      .select(
+        "id,attempt_id,question_id,answer_text,selected_option_ids,points_obtained,is_correct,needs_manual_correction,coach_feedback,corrected_by,corrected_at",
+      )
+      .in("attempt_id", attemptIds),
   );
 }
 
@@ -591,6 +793,53 @@ function mapContent(
   };
 }
 
+function mapQuizQuestions(
+  questions: QuizQuestionRow[],
+  optionsByQuestion: Map<string, QuizOptionRow[]>,
+): CoachQuizQuestion[] {
+  return questions
+    .toSorted((a, b) => a.position - b.position)
+    .map((question) => ({
+      explanation: question.explanation ?? "",
+      id: question.id,
+      options: (optionsByQuestion.get(question.id) ?? [])
+        .toSorted((a, b) => a.position - b.position)
+        .map((option) => ({
+          id: option.id,
+          isCorrect: option.is_correct,
+          optionText: option.option_text,
+          position: option.position,
+        })),
+      points: Number(question.points),
+      position: question.position,
+      questionText: question.question_text,
+      questionType: question.question_type,
+    }));
+}
+
+function mapQuiz(
+  quiz: QuizRow,
+  contentsById: Map<string, ContentRow>,
+  questionsByQuiz: Map<string, QuizQuestionRow[]>,
+  optionsByQuestion: Map<string, QuizOptionRow[]>,
+  base: Pick<CoachBaseData, "currentUserId" | "isAdmin">,
+): CoachQuiz {
+  return {
+    contentId: quiz.content_id ?? "",
+    contentTitle: quiz.content_id
+      ? contentsById.get(quiz.content_id)?.title ?? "Contenu supprimé"
+      : "Sans contenu lié",
+    createdAt: quiz.created_at,
+    description: quiz.description ?? "",
+    id: quiz.id,
+    isOwner: base.isAdmin || quiz.created_by === base.currentUserId,
+    passingScore: Number(quiz.passing_score),
+    questions: mapQuizQuestions(questionsByQuiz.get(quiz.id) ?? [], optionsByQuestion),
+    title: quiz.title,
+    updatedAt: quiz.updated_at,
+  };
+}
+
 function buildCoacheeSummaries(base: CoachBaseData): CoachCoacheeSummary[] {
   const progressByUser = groupBy(base.assignmentProgress, (row) => row.user_id);
   const attemptsByUser = groupBy(base.quizAttempts, (row) => row.user_id);
@@ -707,7 +956,9 @@ const getCoachBaseData = cache(async (): Promise<CoachBaseData> => {
       getRows<QuizRow>(
         supabase
           .from("quizzes")
-          .select("id,title,content_id")
+          .select(
+            "id,title,description,content_id,passing_score,created_by,created_at,updated_at",
+          )
           .order("title", { ascending: true }),
       ),
       getRows<CalendarEventRow>(eventQuery),
@@ -751,6 +1002,8 @@ const getCoachBaseData = cache(async (): Promise<CoachBaseData> => {
     cohortMembers,
     cohorts,
     contents,
+    currentUserId: currentUser.user.id,
+    isAdmin,
     profiles,
     quizAttempts,
     quizzes,
@@ -983,5 +1236,206 @@ export const getCoachAssignmentComposerData =
         id: quiz.id,
         title: quiz.title,
       })),
+    };
+  });
+
+async function getQuizGraph(base: CoachBaseData) {
+  const supabase = await createServerSupabaseClient();
+  const contentsById = new Map(base.contents.map((content) => [content.id, content]));
+  const questions = await fetchQuizQuestions(
+    supabase,
+    base.quizzes.map((quiz) => quiz.id),
+  );
+  const options = await fetchQuizOptions(
+    supabase,
+    questions.map((question) => question.id),
+  );
+  const questionsByQuiz = groupBy(questions, (question) => question.quiz_id);
+  const optionsByQuestion = groupBy(options, (option) => option.question_id);
+  const quizzes = base.quizzes.map((quiz) =>
+    mapQuiz(quiz, contentsById, questionsByQuiz, optionsByQuestion, base),
+  );
+
+  return {
+    questions,
+    quizzes,
+  };
+}
+
+export const getCoachQuizzesData =
+  cache(async (): Promise<CoachQuizzesData> => {
+    const base = await getCoachBaseData();
+    const { quizzes } = await getQuizGraph(base);
+    const attemptsByQuiz = groupBy(base.quizAttempts, (attempt) => attempt.quiz_id);
+    const assignmentsByQuiz = groupBy(
+      base.assignments.filter((assignment) => assignment.quiz_id),
+      (assignment) => assignment.quiz_id ?? "",
+    );
+
+    const summaries = quizzes.map((quiz) => {
+      const attempts = attemptsByQuiz.get(quiz.id) ?? [];
+
+      return {
+        assignmentCount: assignmentsByQuiz.get(quiz.id)?.length ?? 0,
+        averageScore: average(attempts.map((attempt) => attempt.percentage)),
+        contentTitle: quiz.contentTitle,
+        createdAt: quiz.createdAt,
+        description: quiz.description,
+        id: quiz.id,
+        isOwner: quiz.isOwner,
+        passingScore: quiz.passingScore,
+        pendingCorrectionsCount: attempts.filter(
+          (attempt) => attempt.status === "pending_correction",
+        ).length,
+        questionCount: quiz.questions.length,
+        title: quiz.title,
+        updatedAt: quiz.updatedAt,
+      };
+    });
+
+    return {
+      metrics: {
+        averageScore: average(base.quizAttempts.map((attempt) => attempt.percentage)),
+        pendingCorrectionsCount: base.quizAttempts.filter(
+          (attempt) => attempt.status === "pending_correction",
+        ).length,
+        publishedQuizCount: summaries.filter((quiz) => quiz.questionCount > 0)
+          .length,
+        totalQuizCount: summaries.length,
+      },
+      quizzes: summaries,
+    };
+  });
+
+export const getCoachQuizEditorData = cache(
+  async (quizId?: string): Promise<CoachQuizEditorData> => {
+    const base = await getCoachBaseData();
+    const { quizzes } = await getQuizGraph(base);
+
+    return {
+      contents: base.contents.map((content) => ({
+        id: content.id,
+        status: content.status,
+        title: content.title,
+        type: content.type,
+      })),
+      quiz: quizId ? quizzes.find((quiz) => quiz.id === quizId) ?? null : null,
+    };
+  },
+);
+
+export const getCoachQuizResultsData =
+  cache(async (): Promise<CoachQuizResultsData> => {
+    const base = await getCoachBaseData();
+    const coacheesById = new Map(
+      buildCoacheeSummaries(base).map((coachee) => [coachee.id, coachee]),
+    );
+    const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+    const assignmentsById = new Map(
+      base.assignments.map((assignment) => [assignment.id, assignment]),
+    );
+
+    const results = base.quizAttempts
+      .toSorted(
+        (a, b) =>
+          new Date(b.submitted_at ?? b.created_at).getTime() -
+          new Date(a.submitted_at ?? a.created_at).getTime(),
+      )
+      .map((attempt) => {
+        const coachee = coacheesById.get(attempt.user_id);
+        const quiz = quizzesById.get(attempt.quiz_id);
+        const assignment = attempt.assignment_id
+          ? assignmentsById.get(attempt.assignment_id)
+          : null;
+
+        return {
+          assignmentTitle: assignment?.title ?? "Hors assignation",
+          coacheeEmail: coachee?.email ?? "Email non disponible",
+          coacheeName: coachee?.fullName ?? "Coaché supprimé",
+          correctedAt: attempt.corrected_at,
+          id: attempt.id,
+          passed: attempt.passed,
+          percentage: Number(attempt.percentage),
+          quizTitle: quiz?.title ?? "Quiz supprimé",
+          scoreMax: Number(attempt.score_max),
+          scoreObtained: Number(attempt.score_obtained),
+          status: attempt.status,
+          submittedAt: attempt.submitted_at ?? attempt.created_at,
+        };
+      });
+
+    return {
+      metrics: {
+        attemptsCount: results.length,
+        averageScore: average(results.map((result) => result.percentage)),
+        passedCount: results.filter((result) => result.passed).length,
+        pendingCorrectionsCount: results.filter(
+          (result) => result.status === "pending_correction",
+        ).length,
+      },
+      results,
+    };
+  });
+
+export const getCoachCorrectionsData =
+  cache(async (): Promise<CoachCorrectionsData> => {
+    const base = await getCoachBaseData();
+    const supabase = await createServerSupabaseClient();
+    const pendingAttempts = base.quizAttempts.filter(
+      (attempt) => attempt.status === "pending_correction",
+    );
+    const answers = (
+      await fetchQuizAnswers(
+        supabase,
+        pendingAttempts.map((attempt) => attempt.id),
+      )
+    ).filter((answer) => answer.needs_manual_correction);
+    const questionIds = unique(answers.map((answer) => answer.question_id));
+    const questions = questionIds.length
+      ? await getRows<QuizQuestionRow>(
+          supabase
+            .from("quiz_questions")
+            .select(
+              "id,quiz_id,question_text,question_type,points,position,explanation,created_at",
+            )
+            .in("id", questionIds),
+        )
+      : [];
+    const coacheesById = new Map(
+      buildCoacheeSummaries(base).map((coachee) => [coachee.id, coachee]),
+    );
+    const attemptsById = new Map(
+      pendingAttempts.map((attempt) => [attempt.id, attempt]),
+    );
+    const questionsById = new Map(
+      questions.map((question) => [question.id, question]),
+    );
+    const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+
+    return {
+      corrections: answers.map((answer) => {
+        const attempt = attemptsById.get(answer.attempt_id);
+        const question = questionsById.get(answer.question_id);
+        const coachee = attempt ? coacheesById.get(attempt.user_id) : null;
+        const quiz = attempt ? quizzesById.get(attempt.quiz_id) : null;
+
+        return {
+          answerId: answer.id,
+          answerText: answer.answer_text ?? "Réponse vide.",
+          attemptId: answer.attempt_id,
+          coachFeedback: answer.coach_feedback ?? "",
+          coacheeEmail: coachee?.email ?? "Email non disponible",
+          coacheeName: coachee?.fullName ?? "Coaché supprimé",
+          pointsMax: Number(question?.points ?? 0),
+          pointsObtained: Number(answer.points_obtained),
+          questionText: question?.question_text ?? "Question supprimée",
+          quizTitle: quiz?.title ?? "Quiz supprimé",
+          submittedAt: attempt?.submitted_at ?? attempt?.created_at ?? "",
+        };
+      }),
+      metrics: {
+        pendingAnswersCount: answers.length,
+        pendingAttemptsCount: pendingAttempts.length,
+      },
     };
   });
