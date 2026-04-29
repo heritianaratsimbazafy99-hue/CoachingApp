@@ -470,28 +470,34 @@ async function fetchAuthUsersById(userIds: string[]) {
     return new Map<string, AuthUserSummary>();
   }
 
-  const usersToKeep = new Set(filteredIds);
-  const adminSupabase = createServiceSupabaseClient();
-  const { data, error } = await adminSupabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
-  });
+  try {
+    const usersToKeep = new Set(filteredIds);
+    const adminSupabase = createServiceSupabaseClient();
+    const { data, error } = await adminSupabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
 
-  if (error) {
-    throw new Error(error.message);
+    if (error) {
+      console.error("Supabase Auth Admin listUsers failed:", error.message);
+      return new Map<string, AuthUserSummary>();
+    }
+
+    return new Map(
+      data.users
+        .filter((user) => usersToKeep.has(user.id))
+        .map((user) => [
+          user.id,
+          {
+            email: user.email ?? "Email non disponible",
+            lastSignInAt: user.last_sign_in_at ?? null,
+          },
+        ]),
+    );
+  } catch (error) {
+    console.error("Supabase Auth Admin unavailable:", error);
+    return new Map<string, AuthUserSummary>();
   }
-
-  return new Map(
-    data.users
-      .filter((user) => usersToKeep.has(user.id))
-      .map((user) => [
-        user.id,
-        {
-          email: user.email ?? "Email non disponible",
-          lastSignInAt: user.last_sign_in_at ?? null,
-        },
-      ]),
-  );
 }
 
 function createAssignmentMapper(base: CoachBaseData) {

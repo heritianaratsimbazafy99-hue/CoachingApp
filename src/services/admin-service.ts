@@ -89,24 +89,24 @@ export type AdminDashboardData = {
   users: AdminUser[];
 };
 
-function getProfileRole(profileRole: unknown, user: User): UserRole {
+function getProfileRole(profileRole: unknown, user?: User): UserRole {
   return (
     normalizeRole(profileRole) ??
-    normalizeRole(user.app_metadata?.role) ??
-    normalizeRole(user.user_metadata?.role) ??
+    normalizeRole(user?.app_metadata?.role) ??
+    normalizeRole(user?.user_metadata?.role) ??
     "coachee"
   );
 }
 
-function getUserDisplayName(profile: ProfileRow | undefined, user: User) {
+function getUserDisplayName(profile: ProfileRow | undefined, user?: User) {
   const metadataName =
-    typeof user.user_metadata?.full_name === "string"
+    typeof user?.user_metadata?.full_name === "string"
       ? user.user_metadata.full_name
-      : typeof user.user_metadata?.name === "string"
+      : typeof user?.user_metadata?.name === "string"
         ? user.user_metadata.name
         : "";
 
-  return profile?.full_name || metadataName || user.email || "Utilisateur";
+  return profile?.full_name || metadataName || user?.email || "Utilisateur";
 }
 
 function average(values: number[]) {
@@ -119,49 +119,72 @@ function average(values: number[]) {
   );
 }
 
+async function getAuthUsersSafely() {
+  try {
+    const adminSupabase = createServiceSupabaseClient();
+    const { data, error } = await adminSupabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+
+    if (error) {
+      console.error("Supabase Auth Admin listUsers failed:", error.message);
+      return [];
+    }
+
+    return data.users;
+  } catch (error) {
+    console.error("Supabase Auth Admin unavailable:", error);
+    return [];
+  }
+}
+
 export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
   await requireRole("admin");
 
   const supabase = await createServerSupabaseClient();
-  const adminSupabase = createServiceSupabaseClient();
 
-  const [profilesResponse, usersResponse] = await Promise.all([
+  const [profilesResponse, authUsers] = await Promise.all([
     supabase
       .from("profiles")
       .select("id,user_id,full_name,role,avatar_url,created_at")
       .order("created_at", { ascending: false }),
-    adminSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    getAuthUsersSafely(),
   ]);
 
   if (profilesResponse.error) {
     throw profilesResponse.error;
   }
 
-  if (usersResponse.error) {
-    throw usersResponse.error;
-  }
-
   const profiles = (profilesResponse.data ?? []) as ProfileRow[];
   const profilesByUserId = new Map(
     profiles.map((profile) => [profile.user_id, profile]),
   );
+  const authUsersById = new Map(authUsers.map((user) => [user.id, user]));
+  const userIds = [
+    ...new Set([
+      ...profiles.map((profile) => profile.user_id),
+      ...authUsers.map((user) => user.id),
+    ]),
+  ];
 
-  return usersResponse.data.users
-    .map((user) => {
-      const profile = profilesByUserId.get(user.id);
+  return userIds
+    .map((userId) => {
+      const profile = profilesByUserId.get(userId);
+      const user = authUsersById.get(userId);
 
       return {
         avatarUrl: profile?.avatar_url ?? null,
-        createdAt: profile?.created_at ?? user.created_at,
-        email: user.email ?? "Email non disponible",
+        createdAt: profile?.created_at ?? user?.created_at ?? new Date(0).toISOString(),
+        email: user?.email ?? "Email non disponible",
         fullName: getUserDisplayName(profile, user),
-        id: user.id,
-        lastSignInAt: user.last_sign_in_at ?? null,
+        id: userId,
+        lastSignInAt: user?.last_sign_in_at ?? null,
         profileId: profile?.id ?? null,
         role: getProfileRole(profile?.role, user),
       };
     })
-    .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+    .sort((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
 });
 
 export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
