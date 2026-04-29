@@ -1,0 +1,342 @@
+import { cache } from "react";
+import type { User } from "@supabase/supabase-js";
+import { requireRole } from "@/lib/auth/session";
+import { normalizeRole, type UserRole } from "@/lib/auth/roles";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import type { AssignmentStatus, QuizAttemptStatus } from "@/types/coaching";
+
+type ProfileRow = {
+  avatar_url: string | null;
+  created_at: string;
+  full_name: string;
+  id: string;
+  role: UserRole;
+  user_id: string;
+};
+
+type CohortRow = {
+  coach_id: string;
+  created_at: string;
+  description: string | null;
+  end_date: string | null;
+  id: string;
+  name: string;
+  start_date: string | null;
+};
+
+type CohortMemberRow = {
+  cohort_id: string;
+};
+
+type AssignmentRow = {
+  assigned_to_cohort_id: string | null;
+  id: string;
+  status: AssignmentStatus;
+};
+
+type AssignmentProgressRow = {
+  assignment_id: string;
+  status: AssignmentStatus;
+};
+
+type QuizAttemptRow = {
+  percentage: number;
+  status: QuizAttemptStatus;
+};
+
+export type AdminUser = {
+  avatarUrl: string | null;
+  createdAt: string;
+  email: string;
+  fullName: string;
+  id: string;
+  lastSignInAt: string | null;
+  profileId: string | null;
+  role: UserRole;
+};
+
+export type AdminCohort = {
+  coachId: string;
+  coachName: string;
+  description: string;
+  endDate: string | null;
+  id: string;
+  memberCount: number;
+  name: string;
+  progress: number;
+  startDate: string | null;
+};
+
+export type AdminMetrics = {
+  adminsCount: number;
+  assignmentsCount: number;
+  coachesCount: number;
+  coacheesCount: number;
+  cohortsCount: number;
+  completionRate: number;
+  contentsCount: number;
+  lateAssignmentsCount: number;
+  pendingCorrectionsCount: number;
+  quizzesCount: number;
+  quizScoreAverage: number;
+  usersCount: number;
+};
+
+export type AdminDashboardData = {
+  cohorts: AdminCohort[];
+  metrics: AdminMetrics;
+  users: AdminUser[];
+};
+
+function getProfileRole(profileRole: unknown, user: User): UserRole {
+  return (
+    normalizeRole(profileRole) ??
+    normalizeRole(user.app_metadata?.role) ??
+    normalizeRole(user.user_metadata?.role) ??
+    "coachee"
+  );
+}
+
+function getUserDisplayName(profile: ProfileRow | undefined, user: User) {
+  const metadataName =
+    typeof user.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : typeof user.user_metadata?.name === "string"
+        ? user.user_metadata.name
+        : "";
+
+  return profile?.full_name || metadataName || user.email || "Utilisateur";
+}
+
+function average(values: number[]) {
+  if (!values.length) {
+    return 0;
+  }
+
+  return Math.round(
+    values.reduce((sum, value) => sum + value, 0) / values.length,
+  );
+}
+
+export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
+  await requireRole("admin");
+
+  const supabase = await createServerSupabaseClient();
+  const adminSupabase = createServiceSupabaseClient();
+
+  const [profilesResponse, usersResponse] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id,user_id,full_name,role,avatar_url,created_at")
+      .order("created_at", { ascending: false }),
+    adminSupabase.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+  ]);
+
+  if (profilesResponse.error) {
+    throw profilesResponse.error;
+  }
+
+  if (usersResponse.error) {
+    throw usersResponse.error;
+  }
+
+  const profiles = (profilesResponse.data ?? []) as ProfileRow[];
+  const profilesByUserId = new Map(
+    profiles.map((profile) => [profile.user_id, profile]),
+  );
+
+  return usersResponse.data.users
+    .map((user) => {
+      const profile = profilesByUserId.get(user.id);
+
+      return {
+        avatarUrl: profile?.avatar_url ?? null,
+        createdAt: profile?.created_at ?? user.created_at,
+        email: user.email ?? "Email non disponible",
+        fullName: getUserDisplayName(profile, user),
+        id: user.id,
+        lastSignInAt: user.last_sign_in_at ?? null,
+        profileId: profile?.id ?? null,
+        role: getProfileRole(profile?.role, user),
+      };
+    })
+    .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+});
+
+export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
+  await requireRole("admin");
+
+  const supabase = await createServerSupabaseClient();
+  const [cohortsResponse, membersResponse, assignmentsResponse, progressResponse] =
+    await Promise.all([
+      supabase
+        .from("cohorts")
+        .select("id,name,description,start_date,end_date,coach_id,created_at")
+        .order("created_at", { ascending: false }),
+      supabase.from("cohort_members").select("cohort_id"),
+      supabase
+        .from("assignments")
+        .select("id,assigned_to_cohort_id,status")
+        .not("assigned_to_cohort_id", "is", null),
+      supabase.from("assignment_progress").select("assignment_id,status"),
+    ]);
+
+  if (cohortsResponse.error) {
+    throw cohortsResponse.error;
+  }
+
+  if (membersResponse.error) {
+    throw membersResponse.error;
+  }
+
+  if (assignmentsResponse.error) {
+    throw assignmentsResponse.error;
+  }
+
+  if (progressResponse.error) {
+    throw progressResponse.error;
+  }
+
+  const users = await getAdminUsers();
+  const usersById = new Map(users.map((user) => [user.id, user]));
+  const memberCounts = new Map<string, number>();
+  const assignmentToCohort = new Map<string, string>();
+  const progressByCohort = new Map<string, AssignmentProgressRow[]>();
+
+  ((membersResponse.data ?? []) as CohortMemberRow[]).forEach((member) => {
+    memberCounts.set(
+      member.cohort_id,
+      (memberCounts.get(member.cohort_id) ?? 0) + 1,
+    );
+  });
+
+  ((assignmentsResponse.data ?? []) as AssignmentRow[]).forEach((assignment) => {
+    if (assignment.assigned_to_cohort_id) {
+      assignmentToCohort.set(assignment.id, assignment.assigned_to_cohort_id);
+    }
+  });
+
+  ((progressResponse.data ?? []) as AssignmentProgressRow[]).forEach(
+    (progress) => {
+      const cohortId = assignmentToCohort.get(progress.assignment_id);
+
+      if (!cohortId) {
+        return;
+      }
+
+      const cohortProgress = progressByCohort.get(cohortId) ?? [];
+      cohortProgress.push(progress);
+      progressByCohort.set(cohortId, cohortProgress);
+    },
+  );
+
+  return ((cohortsResponse.data ?? []) as CohortRow[]).map((cohort) => {
+    const progressRows = progressByCohort.get(cohort.id) ?? [];
+    const completed = progressRows.filter(
+      (progress) => progress.status === "completed",
+    ).length;
+    const progress = progressRows.length
+      ? Math.round((completed / progressRows.length) * 100)
+      : 0;
+
+    return {
+      coachId: cohort.coach_id,
+      coachName: usersById.get(cohort.coach_id)?.fullName ?? "Coach inconnu",
+      description: cohort.description ?? "Aucune description renseignée.",
+      endDate: cohort.end_date,
+      id: cohort.id,
+      memberCount: memberCounts.get(cohort.id) ?? 0,
+      name: cohort.name,
+      progress,
+      startDate: cohort.start_date,
+    };
+  });
+});
+
+export const getAdminMetrics = cache(async (): Promise<AdminMetrics> => {
+  await requireRole("admin");
+
+  const supabase = await createServerSupabaseClient();
+  const [users, cohorts, contentsResponse, quizzesResponse, assignmentsResponse, progressResponse, attemptsResponse] =
+    await Promise.all([
+      getAdminUsers(),
+      getAdminCohorts(),
+      supabase.from("contents").select("id"),
+      supabase.from("quizzes").select("id"),
+      supabase.from("assignments").select("id,status"),
+      supabase.from("assignment_progress").select("status"),
+      supabase.from("quiz_attempts").select("percentage,status"),
+    ]);
+
+  if (contentsResponse.error) {
+    throw contentsResponse.error;
+  }
+
+  if (quizzesResponse.error) {
+    throw quizzesResponse.error;
+  }
+
+  if (assignmentsResponse.error) {
+    throw assignmentsResponse.error;
+  }
+
+  if (progressResponse.error) {
+    throw progressResponse.error;
+  }
+
+  if (attemptsResponse.error) {
+    throw attemptsResponse.error;
+  }
+
+  const assignments = (assignmentsResponse.data ?? []) as Pick<
+    AssignmentRow,
+    "id" | "status"
+  >[];
+  const progressRows = (progressResponse.data ?? []) as Pick<
+    AssignmentProgressRow,
+    "status"
+  >[];
+  const attempts = (attemptsResponse.data ?? []) as QuizAttemptRow[];
+  const completed = progressRows.filter(
+    (progress) => progress.status === "completed",
+  ).length;
+
+  return {
+    adminsCount: users.filter((user) => user.role === "admin").length,
+    assignmentsCount: assignments.length,
+    coachesCount: users.filter((user) => user.role === "coach").length,
+    coacheesCount: users.filter((user) => user.role === "coachee").length,
+    cohortsCount: cohorts.length,
+    completionRate: progressRows.length
+      ? Math.round((completed / progressRows.length) * 100)
+      : 0,
+    contentsCount: contentsResponse.data?.length ?? 0,
+    lateAssignmentsCount: assignments.filter(
+      (assignment) => assignment.status === "late",
+    ).length,
+    pendingCorrectionsCount: attempts.filter(
+      (attempt) => attempt.status === "pending_correction",
+    ).length,
+    quizzesCount: quizzesResponse.data?.length ?? 0,
+    quizScoreAverage: average(
+      attempts.map((attempt) => Number(attempt.percentage ?? 0)),
+    ),
+    usersCount: users.length,
+  };
+});
+
+export const getAdminDashboardData =
+  cache(async (): Promise<AdminDashboardData> => {
+    const [users, cohorts, metrics] = await Promise.all([
+      getAdminUsers(),
+      getAdminCohorts(),
+      getAdminMetrics(),
+    ]);
+
+    return {
+      cohorts,
+      metrics,
+      users,
+    };
+  });

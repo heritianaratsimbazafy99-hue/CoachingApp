@@ -1,5 +1,8 @@
 import { AdminUsersPage } from "@/components/coaching/admin-pages";
+import { getAdminUsers } from "@/services/admin-service";
 
-export default function Page() {
-  return <AdminUsersPage />;
+export default async function Page() {
+  const users = await getAdminUsers();
+
+  return <AdminUsersPage users={users} />;
 }

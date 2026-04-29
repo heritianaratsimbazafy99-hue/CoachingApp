@@ -1,17 +1,44 @@
-import { BarChart3, GraduationCap, UsersRound } from "lucide-react";
-import { cohorts, profiles, quizAttempts } from "@/lib/demo-data";
+import Link from "next/link";
+import {
+  BarChart3,
+  BookOpenCheck,
+  ClipboardCheck,
+  GraduationCap,
+  Layers3,
+  UsersRound,
+} from "lucide-react";
+import { AdminRoleForm } from "@/components/coaching/admin-role-form";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
 import { formatPercent } from "@/utils/format";
+import type {
+  AdminCohort,
+  AdminDashboardData,
+  AdminMetrics,
+  AdminUser,
+} from "@/services/admin-service";
 
-export function AdminDashboard() {
-  const coaches = profiles.filter((profile) => profile.role === "coach");
-  const coachees = profiles.filter((profile) => profile.role === "coachee");
-  const average =
-    quizAttempts.reduce((sum, attempt) => sum + attempt.percentage, 0) /
-    quizAttempts.length;
+const roleLabel: Record<AdminUser["role"], string> = {
+  admin: "Admin",
+  coach: "Coach",
+  coachee: "Coaché",
+};
 
+function formatDate(value: string | null) {
+  if (!value) {
+    return "Jamais";
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+export function AdminDashboard({ data }: { data: AdminDashboardData }) {
   return (
     <>
       <PageHeader
@@ -24,28 +51,56 @@ export function AdminDashboard() {
             helper="Utilisateurs coach"
             icon={GraduationCap}
             label="Coachs"
-            value={String(coaches.length)}
+            value={String(data.metrics.coachesCount)}
           />
           <StatCard
             helper="Comptes coachés actifs"
             icon={UsersRound}
             label="Coachés"
-            value={String(coachees.length)}
+            value={String(data.metrics.coacheesCount)}
           />
           <StatCard
             helper="Moyenne globale"
             icon={BarChart3}
             label="Score quiz"
-            value={formatPercent(average)}
+            value={formatPercent(data.metrics.quizScoreAverage)}
           />
         </section>
-        <AdminUsersPage compact />
+        <section className="grid gap-4 md:grid-cols-3">
+          <StatCard
+            helper="Cohortes actives ou historiques"
+            icon={Layers3}
+            label="Cohortes"
+            value={String(data.metrics.cohortsCount)}
+          />
+          <StatCard
+            helper="Modules et ressources"
+            icon={BookOpenCheck}
+            label="Contenus"
+            value={String(data.metrics.contentsCount)}
+          />
+          <StatCard
+            helper="Corrections manuelles"
+            icon={ClipboardCheck}
+            label="À corriger"
+            value={String(data.metrics.pendingCorrectionsCount)}
+          />
+        </section>
+        <AdminUsersPage compact users={data.users} />
       </div>
     </>
   );
 }
 
-export function AdminUsersPage({ compact = false }: { compact?: boolean }) {
+export function AdminUsersPage({
+  compact = false,
+  users,
+}: {
+  compact?: boolean;
+  users: AdminUser[];
+}) {
+  const visibleUsers = compact ? users.slice(0, 6) : users;
+
   return (
     <>
       {compact ? null : (
@@ -55,11 +110,28 @@ export function AdminUsersPage({ compact = false }: { compact?: boolean }) {
         />
       )}
       <div className={compact ? "" : "p-6"}>
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        {visibleUsers.length ? (
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            {compact ? (
+              <div className="flex items-center justify-between border-b border-slate-200 p-5">
+                <div>
+                  <h2 className="font-semibold">Utilisateurs récents</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Comptes Supabase synchronisés avec les profils.
+                  </p>
+                </div>
+                <Link
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  href="/admin/users"
+                >
+                  Tout voir
+                </Link>
+              </div>
+            ) : null}
           <div className="divide-y divide-slate-100">
-            {profiles.map((profile) => (
+            {visibleUsers.map((profile) => (
               <div
-                className="grid gap-3 p-5 md:grid-cols-[1fr_120px_180px]"
+                className="grid gap-4 p-5 md:grid-cols-[1fr_120px_170px_260px]"
                 key={profile.id}
               >
                 <div>
@@ -67,25 +139,49 @@ export function AdminUsersPage({ compact = false }: { compact?: boolean }) {
                   <p className="mt-1 text-sm text-slate-500">{profile.email}</p>
                 </div>
                 <p className="capitalize text-sm font-medium text-slate-600">
-                  {profile.role}
+                  {roleLabel[profile.role]}
                 </p>
-                <button
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700"
-                  type="button"
-                >
-                  Modifier le rôle
-                </button>
+                <p className="text-sm text-slate-500">
+                  Dernière connexion
+                  <span className="mt-1 block font-medium text-slate-700">
+                    {formatDate(profile.lastSignInAt)}
+                  </span>
+                </p>
+                {compact ? (
+                  <span className="text-sm text-slate-500">
+                    Créé le {formatDate(profile.createdAt)}
+                  </span>
+                ) : (
+                  <AdminRoleForm
+                    currentRole={profile.role}
+                    userId={profile.id}
+                  />
+                )}
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        ) : (
+          <EmptyState
+            description="Aucun compte n'a encore été synchronisé dans Supabase Auth."
+            icon={UsersRound}
+            title="Aucun utilisateur"
+          />
+        )}
       </div>
     </>
   );
 }
 
-export function AdminCoachesPage() {
-  const coaches = profiles.filter((profile) => profile.role === "coach");
+export function AdminCoachesPage({
+  cohorts,
+  users,
+}: {
+  cohorts: AdminCohort[];
+  users: AdminUser[];
+}) {
+  const coaches = users.filter((profile) => profile.role === "coach");
+
   return (
     <>
       <PageHeader
@@ -93,25 +189,38 @@ export function AdminCoachesPage() {
         title="Coachs"
       />
       <div className="grid gap-4 p-6 lg:grid-cols-2">
-        {coaches.map((coach) => (
-          <article
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-            key={coach.id}
-          >
-            <p className="text-lg font-semibold">{coach.fullName}</p>
-            <p className="mt-1 text-sm text-slate-500">{coach.email}</p>
-            <p className="mt-4 text-sm text-slate-600">
-              Cohortes responsables :{" "}
-              {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
-            </p>
-          </article>
-        ))}
+        {coaches.length ? (
+          coaches.map((coach) => (
+            <article
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              key={coach.id}
+            >
+              <p className="text-lg font-semibold">{coach.fullName}</p>
+              <p className="mt-1 text-sm text-slate-500">{coach.email}</p>
+              <p className="mt-4 text-sm text-slate-600">
+                Cohortes responsables :{" "}
+                {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                Dernière connexion : {formatDate(coach.lastSignInAt)}
+              </p>
+            </article>
+          ))
+        ) : (
+          <div className="lg:col-span-2">
+            <EmptyState
+              description="Aucun utilisateur n'a encore le rôle coach."
+              icon={GraduationCap}
+              title="Aucun coach"
+            />
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-export function AdminCohortsPage() {
+export function AdminCohortsPage({ cohorts }: { cohorts: AdminCohort[] }) {
   return (
     <>
       <PageHeader
@@ -119,54 +228,129 @@ export function AdminCohortsPage() {
         title="Cohortes"
       />
       <div className="grid gap-4 p-6 lg:grid-cols-2">
-        {cohorts.map((cohort) => (
-          <article
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-            key={cohort.id}
-          >
-            <p className="text-lg font-semibold">{cohort.name}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {cohort.description}
-            </p>
-            <div className="mt-5">
-              <div className="mb-2 flex justify-between text-xs text-slate-500">
-                <span>Progression</span>
-                <span>{cohort.progress}%</span>
+        {cohorts.length ? (
+          cohorts.map((cohort) => (
+            <article
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              key={cohort.id}
+            >
+              <p className="text-lg font-semibold">{cohort.name}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {cohort.description}
+              </p>
+              <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                <p>
+                  Coach
+                  <span className="mt-1 block font-medium text-slate-900">
+                    {cohort.coachName}
+                  </span>
+                </p>
+                <p>
+                  Membres
+                  <span className="mt-1 block font-medium text-slate-900">
+                    {cohort.memberCount}
+                  </span>
+                </p>
               </div>
-              <ProgressBar value={cohort.progress} />
-            </div>
-          </article>
-        ))}
+              <div className="mt-5">
+                <div className="mb-2 flex justify-between text-xs text-slate-500">
+                  <span>Progression</span>
+                  <span>{cohort.progress}%</span>
+                </div>
+                <ProgressBar value={cohort.progress} />
+              </div>
+            </article>
+          ))
+        ) : (
+          <div className="lg:col-span-2">
+            <EmptyState
+              description="Créez une cohorte côté coach ou depuis le module admin lorsque la création sera activée."
+              icon={Layers3}
+              title="Aucune cohorte"
+            />
+          </div>
+        )}
       </div>
     </>
   );
 }
 
-export function AdminStatsPage() {
+export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
+  const panels = [
+    {
+      label: "Taux de complétion",
+      value: metrics.completionRate,
+    },
+    {
+      label: "Retards",
+      value: metrics.assignmentsCount
+        ? Math.round(
+            (metrics.lateAssignmentsCount / metrics.assignmentsCount) * 100,
+          )
+        : 0,
+    },
+    {
+      label: "Scores quiz",
+      value: metrics.quizScoreAverage,
+    },
+  ];
+
   return (
     <>
       <PageHeader
-        description="Statistiques globales prêtes pour des graphiques réels Supabase."
+        description="Statistiques globales calculées depuis Supabase."
         title="Statistiques globales"
       />
-      <div className="grid gap-6 p-6 lg:grid-cols-3">
-        {["Taux de complétion", "Retards", "Scores quiz"].map((label, index) => (
-          <div
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-            key={label}
-          >
-            <p className="font-semibold">{label}</p>
-            <div className="mt-6 flex h-48 items-end gap-2">
-              {[42, 70, 54, 82, 66, 90].map((value) => (
-                <div
-                  className="flex-1 rounded-t-lg bg-slate-950"
-                  key={`${label}-${value}`}
-                  style={{ height: `${Math.max(24, value - index * 8)}%` }}
-                />
-              ))}
+      <div className="space-y-6 p-6">
+        <section className="grid gap-4 md:grid-cols-4">
+          <StatCard
+            helper="Tous rôles confondus"
+            icon={UsersRound}
+            label="Utilisateurs"
+            value={String(metrics.usersCount)}
+          />
+          <StatCard
+            helper="Contenus publiés ou brouillons"
+            icon={BookOpenCheck}
+            label="Contenus"
+            value={String(metrics.contentsCount)}
+          />
+          <StatCard
+            helper="Quiz disponibles"
+            icon={ClipboardCheck}
+            label="Quiz"
+            value={String(metrics.quizzesCount)}
+          />
+          <StatCard
+            helper="Assignations totales"
+            icon={BarChart3}
+            label="Assignations"
+            value={String(metrics.assignmentsCount)}
+          />
+        </section>
+        <section className="grid gap-6 lg:grid-cols-3">
+          {panels.map((panel) => (
+            <div
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              key={panel.label}
+            >
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{panel.label}</p>
+                <span className="text-sm font-semibold text-slate-500">
+                  {formatPercent(panel.value)}
+                </span>
+              </div>
+              <div className="mt-6 h-48">
+                <div className="flex h-full items-end rounded-lg bg-slate-50 px-5 pb-5">
+                  <div
+                    className="w-full rounded-t-lg bg-slate-950 transition-all"
+                    style={{ height: `${Math.max(8, panel.value)}%` }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </section>
       </div>
     </>
   );

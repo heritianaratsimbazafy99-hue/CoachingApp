@@ -1,5 +1,8 @@
 import { AdminCohortsPage } from "@/components/coaching/admin-pages";
+import { getAdminCohorts } from "@/services/admin-service";
 
-export default function Page() {
-  return <AdminCohortsPage />;
+export default async function Page() {
+  const cohorts = await getAdminCohorts();
+
+  return <AdminCohortsPage cohorts={cohorts} />;
 }
