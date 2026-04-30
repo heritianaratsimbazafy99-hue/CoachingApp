@@ -3,7 +3,6 @@ import type { User } from "@supabase/supabase-js";
 import { requireRole } from "@/lib/auth/session";
 import { normalizeRole, type UserRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { AssignmentStatus, QuizAttemptStatus } from "@/types/coaching";
 
 type ProfileRow = {
@@ -196,7 +195,7 @@ async function getAuthUsersSafely() {
 export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
   await requireRole("admin");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
 
   const [profilesResponse, authUsers] = await Promise.all([
     supabase
@@ -316,7 +315,7 @@ export const getAdminCoacheeAssignments =
 export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
   await requireRole("admin");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const [cohortsResponse, membersResponse, assignmentsResponse, progressResponse] =
     await Promise.all([
       supabase
@@ -428,7 +427,7 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
 export const getAdminMetrics = cache(async (): Promise<AdminMetrics> => {
   await requireRole("admin");
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const [users, cohorts, contentsResponse, quizzesResponse, assignmentsResponse, progressResponse, attemptsResponse] =
     await Promise.all([
       getAdminUsers(),

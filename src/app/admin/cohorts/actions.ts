@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -80,7 +80,7 @@ function revalidateAdminCohortPaths(cohortId?: string) {
 }
 
 async function ensureCoachExists(coachId: string) {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("full_name,user_id,role")
@@ -96,7 +96,7 @@ async function ensureCoachExists(coachId: string) {
 }
 
 async function ensureCoacheeExists(userId: string) {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("full_name,user_id,role")
@@ -112,7 +112,7 @@ async function ensureCoacheeExists(userId: string) {
 }
 
 async function getCohort(cohortId: string) {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const { data, error } = await supabase
     .from("cohorts")
     .select("id,name")
@@ -170,7 +170,7 @@ export async function createAdminCohortAction(
       };
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { data, error } = await supabase
       .from("cohorts")
       .insert({
@@ -257,7 +257,7 @@ export async function updateAdminCohortAction(
       };
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { error } = await supabase
       .from("cohorts")
       .update({
@@ -330,7 +330,7 @@ export async function deleteAdminCohortAction(
       };
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { error } = await supabase
       .from("cohorts")
       .delete()
@@ -406,7 +406,7 @@ export async function addAdminCohortMemberAction(
       };
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { error } = await supabase.from("cohort_members").insert({
       cohort_id: cohort.id,
       user_id: coachee.user_id,
@@ -476,7 +476,7 @@ export async function removeAdminCohortMemberAction(
       };
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createServiceSupabaseClient();
     const { error } = await supabase
       .from("cohort_members")
       .delete()
