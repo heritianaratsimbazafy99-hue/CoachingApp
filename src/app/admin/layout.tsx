@@ -14,6 +14,7 @@ export default async function Layout({
       account={{
         email: user.email,
         fullName: profile?.full_name ?? user.email,
+        userId: user.id,
       }}
       navItems={adminNav}
       role="admin"

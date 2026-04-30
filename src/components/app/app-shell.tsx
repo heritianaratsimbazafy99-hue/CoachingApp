@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { AppShellRealtimeBridge } from "@/components/app/app-shell-realtime-bridge";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import type {
   AppShellAlertTone,
@@ -35,6 +36,7 @@ type AppShellProps = {
   account?: {
     email?: string;
     fullName?: string;
+    userId?: string;
   };
   children: React.ReactNode;
   navItems: NavItem[];
@@ -229,6 +231,7 @@ export function AppShell({
         accent.shell,
       )}
     >
+      <AppShellRealtimeBridge role={role} userId={account?.userId} />
       <a
         className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         href="#app-content"
