@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import {
   sendMessageAction,
@@ -35,6 +36,7 @@ export function MessageComposerForm({
   receiverId: string | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
   const [state, formAction] = useActionState(
     sendMessageAction,
     initialSendMessageState,
@@ -43,8 +45,9 @@ export function MessageComposerForm({
   useEffect(() => {
     if (state.status === "success") {
       formRef.current?.reset();
+      router.refresh();
     }
-  }, [state.status]);
+  }, [router, state.status]);
 
   return (
     <form action={formAction} className="space-y-2" ref={formRef}>

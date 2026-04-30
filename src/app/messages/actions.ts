@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
 import { sendMessageReceivedEmail } from "@/services/transactional-email-service";
 
@@ -61,7 +60,7 @@ export async function sendMessageAction(
     };
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceSupabaseClient();
   const { error } = await supabase.from("messages").insert({
     body,
     receiver_id: receiverId,
@@ -69,8 +68,11 @@ export async function sendMessageAction(
   });
 
   if (error) {
+    console.error("Message insert failed:", error);
+
     return {
-      message: error.message,
+      message:
+        "Impossible d'envoyer le message pour le moment. Réessayez dans quelques instants.",
       status: "error",
     };
   }

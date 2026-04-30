@@ -134,9 +134,9 @@ async function fetchAllMessageableProfiles(currentUserId: string) {
   );
 }
 
-async function fetchMessages(supabase: SupabaseServerClient, currentUserId: string) {
+async function fetchMessages(currentUserId: string) {
   return getRows<MessageRow>(
-    supabase
+    createServiceSupabaseClient()
       .from("messages")
       .select("id,sender_id,receiver_id,body,read_at,created_at")
       .or(`sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`)
@@ -195,10 +195,9 @@ export const getMessagingData = cache(
     variant: MessagingVariant;
   }): Promise<MessagingData> => {
     const context = await getMessagingAccessContext();
-    const supabase = await createServerSupabaseClient();
     const [profiles, messages] = await Promise.all([
       fetchProfilesByUserIds(context.partnerIds),
-      fetchMessages(supabase, context.currentUserId),
+      fetchMessages(context.currentUserId),
     ]);
     const profileByUserId = new Map(
       profiles.map((profile) => [profile.user_id, profile]),

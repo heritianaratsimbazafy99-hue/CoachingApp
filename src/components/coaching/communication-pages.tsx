@@ -42,6 +42,13 @@ import {
 import { cn } from "@/utils/cn";
 
 export function MessagesPage({ data }: { data: MessagingData }) {
+  const noConversationTitle =
+    data.variant === "coach" ? "Aucun coaché disponible" : "Aucun coach disponible";
+  const noConversationDescription =
+    data.variant === "coach"
+      ? "Ajoutez un coaché à une de vos cohortes pour ouvrir une conversation sécurisée."
+      : "Votre coach apparaîtra ici dès qu'une cohorte vous sera attribuée.";
+
   return (
     <>
       <MessageRealtimeBridge
@@ -105,9 +112,9 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             ) : (
               <div className="p-4">
                 <EmptyState
-                  description="Ajoutez d'abord un coaché à une cohorte pour ouvrir une conversation."
+                  description={noConversationDescription}
                   icon={MessageCircle}
-                  title="Aucune conversation"
+                  title={noConversationTitle}
                 />
               </div>
             )}
@@ -139,7 +146,15 @@ export function MessagesPage({ data }: { data: MessagingData }) {
           </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            {data.messages.length ? (
+            {!data.selectedParticipant ? (
+              <div className="flex h-full items-center justify-center">
+                <EmptyState
+                  description={noConversationDescription}
+                  icon={CircleSlash}
+                  title="Conversation indisponible"
+                />
+              </div>
+            ) : data.messages.length ? (
               data.messages.map((message) => (
                 <div
                   className={`flex ${message.isOwn ? "justify-end" : "justify-start"}`}
@@ -173,9 +188,14 @@ export function MessagesPage({ data }: { data: MessagingData }) {
           </div>
 
           <div className="border-t border-sky-100 bg-white p-4">
-            <MessageComposerForm
-              receiverId={data.selectedParticipant?.userId ?? null}
-            />
+            {data.selectedParticipant ? (
+              <MessageComposerForm receiverId={data.selectedParticipant.userId} />
+            ) : (
+              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                Aucune conversation n&apos;est possible pour ce compte pour le
+                moment.
+              </p>
+            )}
           </div>
         </section>
       </div>
