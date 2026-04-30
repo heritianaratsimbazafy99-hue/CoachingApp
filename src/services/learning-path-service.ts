@@ -53,6 +53,7 @@ type ContentProgressRow = {
   content_id: string;
   status: AssignmentStatus;
   updated_at: string;
+  user_id: string;
 };
 
 type QuizAttemptRow = {
@@ -63,6 +64,18 @@ type QuizAttemptRow = {
   quiz_id: string;
   status: QuizAttemptStatus;
   submitted_at: string | null;
+  user_id: string;
+};
+
+type CohortMemberRow = {
+  cohort_id: string;
+  user_id: string;
+};
+
+type ProfileRow = {
+  avatar_url: string | null;
+  full_name: string;
+  user_id: string;
 };
 
 export type LearningPathItemKind = "content" | "quiz";
@@ -106,14 +119,38 @@ export type LearningPathProgress = {
   totalCount: number;
 };
 
+export type CoachLearningPathLearnerProgress = {
+  avatarUrl: string;
+  completedCount: number;
+  failedQuizCount: number;
+  fullName: string;
+  lastActivityAt: string | null;
+  nextLabel: string;
+  pendingCorrectionCount: number;
+  percentage: number;
+  status: "not_started" | "in_progress" | "completed" | "blocked";
+  totalCount: number;
+  userId: string;
+};
+
+export type CoachLearningPathSummary = {
+  averageProgress: number;
+  blockedLearnersCount: number;
+  completedLearnersCount: number;
+  inProgressLearnersCount: number;
+  learnerCount: number;
+};
+
 export type CoachLearningPath = {
   cohortId: string;
   cohortName: string;
+  coachSummary?: CoachLearningPathSummary;
   createdAt: string;
   description: string;
   id: string;
   itemCount: number;
   items: LearningPathItem[];
+  learnerProgress?: CoachLearningPathLearnerProgress[];
   progress?: LearningPathProgress;
   title: string;
 };
@@ -125,6 +162,12 @@ export type CoachLearningPathData = {
     name: string;
   }>;
   itemOptions: LearningPathItemOption[];
+  metrics: {
+    averageProgress: number;
+    blockedLearnersCount: number;
+    learnerCount: number;
+    pathCount: number;
+  };
   paths: CoachLearningPath[];
 };
 
@@ -157,6 +200,20 @@ function ensureText(value: string | null | undefined, fallback = "") {
 
 function itemValue(kind: LearningPathItemKind, id: string) {
   return `${kind}:${id}`;
+}
+
+function unique(values: Array<string | null | undefined>) {
+  return [...new Set(values.filter(Boolean) as string[])];
+}
+
+function average(values: number[]) {
+  if (!values.length) {
+    return 0;
+  }
+
+  return Math.round(
+    values.reduce((sum, value) => sum + Number(value ?? 0), 0) / values.length,
+  );
 }
 
 function groupBy<T>(items: T[], getKey: (item: T) => string) {
@@ -275,6 +332,133 @@ function pathProgress(items: LearningPathItem[]): LearningPathProgress | undefin
     nextLabel: nextItem?.label ?? "Parcours terminé",
     percentage: Math.round((completedCount / trackedItems.length) * 100),
     totalCount: trackedItems.length,
+  };
+}
+
+function progressKey(userId: string, resourceId: string) {
+  return `${userId}:${resourceId}`;
+}
+
+function lastActivity(items: LearningPathItem[]) {
+  const timestamps = items
+    .map((item) => item.progress?.submittedAt ?? item.progress?.completedAt)
+    .filter(Boolean) as string[];
+
+  if (!timestamps.length) {
+    return null;
+  }
+
+  return timestamps.toSorted(
+    (first, second) => new Date(second).getTime() - new Date(first).getTime(),
+  )[0];
+}
+
+function getLearnerStatus(
+  progress: LearningPathProgress | undefined,
+  items: LearningPathItem[],
+): CoachLearningPathLearnerProgress["status"] {
+  if (items.some((item) => item.progress?.status === "failed")) {
+    return "blocked";
+  }
+
+  if (!progress || progress.percentage === 0) {
+    return "not_started";
+  }
+
+  if (progress.percentage === 100) {
+    return "completed";
+  }
+
+  return "in_progress";
+}
+
+function getLearnerProgress(
+  path: LearningPathRow,
+  items: LearningPathItemRow[],
+  contentsById: Map<string, ContentRow>,
+  quizzesById: Map<string, QuizRow>,
+  profileByUserId: Map<string, ProfileRow>,
+  contentProgressByUserAndContentId: Map<string, ContentProgressRow[]>,
+  quizAttemptsByUserAndQuizId: Map<string, QuizAttemptRow[]>,
+  member: CohortMemberRow,
+): CoachLearningPathLearnerProgress {
+  const contentProgressByContentId = new Map<string, ContentProgressRow[]>();
+  const quizAttemptsByQuizId = new Map<string, QuizAttemptRow[]>();
+  const pathItemRows = items.filter((item) => item.learning_path_id === path.id);
+
+  pathItemRows.forEach((item) => {
+    if (item.content_id) {
+      contentProgressByContentId.set(
+        item.content_id,
+        contentProgressByUserAndContentId.get(
+          progressKey(member.user_id, item.content_id),
+        ) ?? [],
+      );
+    }
+
+    if (item.quiz_id) {
+      quizAttemptsByQuizId.set(
+        item.quiz_id,
+        quizAttemptsByUserAndQuizId.get(progressKey(member.user_id, item.quiz_id)) ??
+          [],
+      );
+    }
+  });
+
+  const learnerItems = getPathItems(path, pathItemRows, contentsById, quizzesById, {
+    contentProgressByContentId,
+    quizAttemptsByQuizId,
+  });
+  const progress = pathProgress(learnerItems);
+  const profile = profileByUserId.get(member.user_id);
+
+  return {
+    avatarUrl: profile?.avatar_url ?? "",
+    completedCount: progress?.completedCount ?? 0,
+    failedQuizCount: learnerItems.filter(
+      (item) => item.progress?.status === "failed",
+    ).length,
+    fullName: profile?.full_name ?? "Coaché",
+    lastActivityAt: lastActivity(learnerItems),
+    nextLabel: progress?.nextLabel ?? "Aucune étape",
+    pendingCorrectionCount: learnerItems.filter(
+      (item) => item.progress?.status === "pending_correction",
+    ).length,
+    percentage: progress?.percentage ?? 0,
+    status: getLearnerStatus(progress, learnerItems),
+    totalCount: progress?.totalCount ?? learnerItems.length,
+    userId: member.user_id,
+  };
+}
+
+function coachSummary(
+  learnerProgress: CoachLearningPathLearnerProgress[],
+): CoachLearningPathSummary {
+  return {
+    averageProgress: average(learnerProgress.map((learner) => learner.percentage)),
+    blockedLearnersCount: learnerProgress.filter(
+      (learner) => learner.status === "blocked",
+    ).length,
+    completedLearnersCount: learnerProgress.filter(
+      (learner) => learner.status === "completed",
+    ).length,
+    inProgressLearnersCount: learnerProgress.filter(
+      (learner) => learner.status === "in_progress",
+    ).length,
+    learnerCount: learnerProgress.length,
+  };
+}
+
+function getCoachLearningPathMetrics(paths: CoachLearningPath[]) {
+  const learnerProgress = paths.flatMap((path) => path.learnerProgress ?? []);
+
+  return {
+    averageProgress: average(learnerProgress.map((learner) => learner.percentage)),
+    blockedLearnersCount: learnerProgress.filter(
+      (learner) => learner.status === "blocked",
+    ).length,
+    learnerCount: new Set(learnerProgress.map((learner) => learner.userId)).size,
+    pathCount: paths.length,
   };
 }
 
@@ -408,7 +592,7 @@ async function fetchContentProgress(
   return getRows<ContentProgressRow>(
     supabase
       .from("content_progress")
-      .select("content_id,status,completed_at,updated_at")
+      .select("content_id,user_id,status,completed_at,updated_at")
       .eq("user_id", userId)
       .in("content_id", contentIds)
       .order("updated_at", { ascending: false }),
@@ -427,8 +611,76 @@ async function fetchQuizAttempts(
   return getRows<QuizAttemptRow>(
     supabase
       .from("quiz_attempts")
-      .select("id,quiz_id,percentage,status,passed,submitted_at,created_at")
+      .select("id,quiz_id,user_id,percentage,status,passed,submitted_at,created_at")
       .eq("user_id", userId)
+      .in("quiz_id", quizIds)
+      .order("created_at", { ascending: false }),
+  );
+}
+
+async function fetchCohortMembers(
+  supabase: SupabaseServerClient,
+  cohortIds: string[],
+) {
+  if (!cohortIds.length) {
+    return [];
+  }
+
+  return getRows<CohortMemberRow>(
+    supabase
+      .from("cohort_members")
+      .select("cohort_id,user_id")
+      .in("cohort_id", cohortIds),
+  );
+}
+
+async function fetchProfiles(supabase: SupabaseServerClient, userIds: string[]) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return getRows<ProfileRow>(
+    supabase
+      .from("profiles")
+      .select("user_id,full_name,avatar_url")
+      .in("user_id", userIds)
+      .order("full_name", { ascending: true }),
+  );
+}
+
+async function fetchContentProgressForUsers(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+  contentIds: string[],
+) {
+  if (!userIds.length || !contentIds.length) {
+    return [];
+  }
+
+  return getRows<ContentProgressRow>(
+    supabase
+      .from("content_progress")
+      .select("content_id,user_id,status,completed_at,updated_at")
+      .in("user_id", userIds)
+      .in("content_id", contentIds)
+      .order("updated_at", { ascending: false }),
+  );
+}
+
+async function fetchQuizAttemptsForUsers(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+  quizIds: string[],
+) {
+  if (!userIds.length || !quizIds.length) {
+    return [];
+  }
+
+  return getRows<QuizAttemptRow>(
+    supabase
+      .from("quiz_attempts")
+      .select("id,quiz_id,user_id,percentage,status,passed,submitted_at,created_at")
+      .in("user_id", userIds)
       .in("quiz_id", quizIds)
       .order("created_at", { ascending: false }),
   );
@@ -444,6 +696,12 @@ function buildPaths(
     contentProgressByContentId: Map<string, ContentProgressRow[]>;
     quizAttemptsByQuizId: Map<string, QuizAttemptRow[]>;
   },
+  coachProgressMaps?: {
+    contentProgressByUserAndContentId: Map<string, ContentProgressRow[]>;
+    membersByCohortId: Map<string, CohortMemberRow[]>;
+    profileByUserId: Map<string, ProfileRow>;
+    quizAttemptsByUserAndQuizId: Map<string, QuizAttemptRow[]>;
+  },
 ): CoachLearningPath[] {
   return paths.map((path) => {
     const pathItems = getPathItems(
@@ -454,15 +712,46 @@ function buildPaths(
       progressMaps,
     );
     const cohort = path.cohort_id ? cohortsById.get(path.cohort_id) : null;
+    const members = path.cohort_id
+      ? (coachProgressMaps?.membersByCohortId.get(path.cohort_id) ?? [])
+      : [];
+    const learnerProgress = coachProgressMaps
+      ? members
+          .map((member) =>
+            getLearnerProgress(
+              path,
+              items,
+              contentsById,
+              quizzesById,
+              coachProgressMaps.profileByUserId,
+              coachProgressMaps.contentProgressByUserAndContentId,
+              coachProgressMaps.quizAttemptsByUserAndQuizId,
+              member,
+            ),
+          )
+          .toSorted((first, second) => {
+            if (first.status === "blocked" && second.status !== "blocked") {
+              return -1;
+            }
+
+            if (first.status !== "blocked" && second.status === "blocked") {
+              return 1;
+            }
+
+            return first.percentage - second.percentage;
+          })
+      : undefined;
 
     return {
       cohortId: path.cohort_id ?? "",
       cohortName: cohort?.name ?? "Cohorte indisponible",
+      coachSummary: learnerProgress ? coachSummary(learnerProgress) : undefined,
       createdAt: path.created_at,
       description: ensureText(path.description, "Parcours sans description."),
       id: path.id,
       itemCount: pathItems.length,
       items: pathItems,
+      learnerProgress,
       progress: pathProgress(pathItems),
       title: path.title,
     };
@@ -499,9 +788,39 @@ export const getCoachLearningPathData = cache(
       supabase,
       paths.map((path) => path.id),
     );
+    const cohortIds = unique(paths.map((path) => path.cohort_id));
+    const members = await fetchCohortMembers(supabase, cohortIds);
+    const memberIds = unique(members.map((member) => member.user_id));
+    const contentIds = unique(items.map((item) => item.content_id));
+    const quizIds = unique(items.map((item) => item.quiz_id));
+    const [profiles, contentProgressRows, quizAttempts] = await Promise.all([
+      fetchProfiles(supabase, memberIds),
+      fetchContentProgressForUsers(supabase, memberIds, contentIds),
+      fetchQuizAttemptsForUsers(supabase, memberIds, quizIds),
+    ]);
     const cohortsById = new Map(cohorts.map((cohort) => [cohort.id, cohort]));
     const contentsById = new Map(contents.map((content) => [content.id, content]));
     const quizzesById = new Map(quizzes.map((quiz) => [quiz.id, quiz]));
+    const mappedPaths = buildPaths(
+      paths,
+      items,
+      cohortsById,
+      contentsById,
+      quizzesById,
+      undefined,
+      {
+        contentProgressByUserAndContentId: groupBy(contentProgressRows, (progress) =>
+          progressKey(progress.user_id, progress.content_id),
+        ),
+        membersByCohortId: groupBy(members, (member) => member.cohort_id),
+        profileByUserId: new Map(
+          profiles.map((profile) => [profile.user_id, profile]),
+        ),
+        quizAttemptsByUserAndQuizId: groupBy(quizAttempts, (attempt) =>
+          progressKey(attempt.user_id, attempt.quiz_id),
+        ),
+      },
+    );
 
     return {
       cohorts: cohorts.map((cohort) => ({
@@ -527,7 +846,8 @@ export const getCoachLearningPathData = cache(
           value: itemValue("quiz", quiz.id),
         })),
       ],
-      paths: buildPaths(paths, items, cohortsById, contentsById, quizzesById),
+      metrics: getCoachLearningPathMetrics(mappedPaths),
+      paths: mappedPaths,
     };
   },
 );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  AlertCircle,
   ArrowRight,
   BookOpenCheck,
   CheckCircle2,
@@ -10,7 +11,9 @@ import {
   ListChecks,
   Plus,
   RotateCcw,
+  TrendingUp,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import { deleteLearningPathAction } from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
@@ -21,6 +24,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import type {
   CoachLearningPath,
   CoachLearningPathData,
+  CoachLearningPathLearnerProgress,
   CoacheeLearningPathData,
   LearningPathItem,
   LearningPathItemProgress,
@@ -112,6 +116,165 @@ function stepCtaLabel(item: LearningPathItem) {
   }
 
   return "Passer";
+}
+
+const learnerStatusLabel: Record<
+  CoachLearningPathLearnerProgress["status"],
+  string
+> = {
+  blocked: "À surveiller",
+  completed: "Terminé",
+  in_progress: "En cours",
+  not_started: "Pas démarré",
+};
+
+const learnerStatusStyles: Record<
+  CoachLearningPathLearnerProgress["status"],
+  string
+> = {
+  blocked: "border-rose-100 bg-rose-50 text-rose-700",
+  completed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  in_progress: "border-sky-100 bg-sky-50 text-sky-700",
+  not_started: "border-slate-200 bg-white text-slate-600",
+};
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function LearnerStatusBadge({
+  status,
+}: {
+  status: CoachLearningPathLearnerProgress["status"];
+}) {
+  return (
+    <span
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-xs font-semibold",
+        learnerStatusStyles[status],
+      )}
+    >
+      {learnerStatusLabel[status]}
+    </span>
+  );
+}
+
+function CoachPathTracking({ path }: { path: CoachLearningPath }) {
+  const summary = path.coachSummary;
+
+  if (!summary) {
+    return null;
+  }
+
+  return (
+    <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+      <div className="grid gap-3 md:grid-cols-4">
+        <div>
+          <p className="text-xs font-medium text-slate-500">Coachés</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-950">
+            {summary.learnerCount}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500">Progression moyenne</p>
+          <p className="mt-1 text-2xl font-semibold text-sky-700">
+            {formatPercent(summary.averageProgress)}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500">En cours</p>
+          <p className="mt-1 text-2xl font-semibold text-indigo-700">
+            {summary.inProgressLearnersCount}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-medium text-slate-500">À surveiller</p>
+          <p className="mt-1 text-2xl font-semibold text-rose-700">
+            {summary.blockedLearnersCount}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <ProgressBar value={summary.averageProgress} />
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {path.learnerProgress?.length ? (
+          path.learnerProgress.slice(0, 6).map((learner) => (
+            <div
+              className="grid gap-3 rounded-lg border border-white bg-white p-3 shadow-sm shadow-slate-950/[0.03] md:grid-cols-[minmax(0,1fr)_140px_120px] md:items-center"
+              key={learner.userId}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
+                  {learner.avatarUrl ? (
+                    <span
+                      aria-hidden="true"
+                      className="h-full w-full rounded-lg bg-cover bg-center"
+                      style={{ backgroundImage: `url(${learner.avatarUrl})` }}
+                    />
+                  ) : (
+                    initials(learner.fullName)
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-slate-950">
+                    {learner.fullName}
+                  </p>
+                  <p className="truncate text-xs text-slate-500">
+                    Prochaine étape : {learner.nextLabel}
+                  </p>
+                  {learner.lastActivityAt ? (
+                    <p className="mt-1 text-xs text-slate-400">
+                      Dernière activité {formatDateTime(learner.lastActivityAt)}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              <div>
+                <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+                  <span>
+                    {learner.completedCount}/{learner.totalCount}
+                  </span>
+                  <span>{formatPercent(learner.percentage)}</span>
+                </div>
+                <ProgressBar value={learner.percentage} />
+              </div>
+              <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end">
+                <LearnerStatusBadge status={learner.status} />
+                {learner.pendingCorrectionCount ? (
+                  <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                    {learner.pendingCorrectionCount} correction
+                  </span>
+                ) : null}
+                {learner.failedQuizCount ? (
+                  <span className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                    {learner.failedQuizCount} reprise
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-lg border border-dashed border-slate-200 bg-white p-3 text-sm text-slate-500">
+            Aucun coaché dans cette cohorte pour le moment.
+          </p>
+        )}
+      </div>
+      {path.learnerProgress && path.learnerProgress.length > 6 ? (
+        <p className="mt-3 text-xs font-medium text-slate-500">
+          +{path.learnerProgress.length - 6} autre(s) coaché(s) dans cette cohorte.
+        </p>
+      ) : null}
+    </div>
+  );
 }
 
 function LearningPathItemRow({
@@ -260,6 +423,8 @@ function LearningPathCard({
         </div>
       ) : null}
 
+      {variant === "coach" ? <CoachPathTracking path={path} /> : null}
+
       <div className="mt-5 space-y-2">
         {path.items.length ? (
           path.items.map((item) => (
@@ -321,9 +486,42 @@ export function CoachLearningPathsPage({
 
         <section className="space-y-4">
           {data.paths.length ? (
-            data.paths.map((path) => (
-              <LearningPathCard key={path.id} path={path} variant="coach" />
-            ))
+            <>
+              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <StatCard
+                  helper="Parcours créés"
+                  icon={BookOpenCheck}
+                  label="Parcours"
+                  tone="sky"
+                  value={String(data.metrics.pathCount)}
+                />
+                <StatCard
+                  helper="Coachés uniques suivis"
+                  icon={UserRound}
+                  label="Coachés"
+                  tone="emerald"
+                  value={String(data.metrics.learnerCount)}
+                />
+                <StatCard
+                  helper="Toutes cohortes"
+                  icon={TrendingUp}
+                  label="Progression"
+                  tone="indigo"
+                  value={formatPercent(data.metrics.averageProgress)}
+                />
+                <StatCard
+                  helper="Quiz échoué ou reprise nécessaire"
+                  icon={AlertCircle}
+                  label="À surveiller"
+                  tone="rose"
+                  value={String(data.metrics.blockedLearnersCount)}
+                />
+              </section>
+
+              {data.paths.map((path) => (
+                <LearningPathCard key={path.id} path={path} variant="coach" />
+              ))}
+            </>
           ) : (
             <EmptyState
               action={
