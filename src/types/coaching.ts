@@ -20,6 +20,22 @@ export type NavItem = {
   label: string;
 };
 
+export type AppShellAlertTone = "amber" | "indigo" | "rose" | "sky";
+
+export type AppShellAlert = {
+  count: number;
+  href: string;
+  label: string;
+  title: string;
+  tone: AppShellAlertTone;
+};
+
+export type AppShellSignals = {
+  alerts: AppShellAlert[];
+  navBadges: Partial<Record<string, number>>;
+  notificationCount: number;
+};
+
 export type Profile = {
   avatarUrl?: string;
   email: string;

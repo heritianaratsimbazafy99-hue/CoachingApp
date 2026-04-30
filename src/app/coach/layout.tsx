@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/app/app-shell";
 import { requireRole } from "@/lib/auth/session";
 import { coachNav } from "@/lib/navigation";
+import { getCoachShellSignals } from "@/services/app-shell-service";
 
 export default async function Layout({
   children,
@@ -8,6 +9,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const { profile, user, role } = await requireRole(["admin", "coach"]);
+  const signals = await getCoachShellSignals(user.id);
 
   return (
     <AppShell
@@ -17,6 +19,7 @@ export default async function Layout({
       }}
       navItems={coachNav}
       role={role === "admin" ? "coach" : role}
+      signals={signals}
       subtitle="Cockpit coach"
     >
       {children}

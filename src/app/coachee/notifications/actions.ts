@@ -32,6 +32,7 @@ export async function markCoacheeNotificationMessagesReadAction(
   }
 
   revalidatePath("/coach/messages");
+  revalidatePath("/coachee", "layout");
   revalidatePath("/coachee");
   revalidatePath("/coachee/messages");
   revalidatePath("/coachee/notifications");

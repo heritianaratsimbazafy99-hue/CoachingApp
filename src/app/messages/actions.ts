@@ -20,7 +20,9 @@ const sendMessageSchema = z.object({
 });
 
 function revalidateMessagingPaths() {
+  revalidatePath("/coach", "layout");
   revalidatePath("/coach/messages");
+  revalidatePath("/coachee", "layout");
   revalidatePath("/coachee/messages");
 }
 

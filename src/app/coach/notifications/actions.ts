@@ -31,6 +31,7 @@ export async function markCoachNotificationMessagesReadAction(
     };
   }
 
+  revalidatePath("/coach", "layout");
   revalidatePath("/coach");
   revalidatePath("/coach/messages");
   revalidatePath("/coach/notifications");
