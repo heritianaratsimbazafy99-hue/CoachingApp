@@ -3,6 +3,7 @@ import {
   getCoachLearningPathData,
   getCoacheeLearningPathData,
 } from "@/services/learning-path-service";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { AppShellAlert, AppShellSignals } from "@/types/coaching";
 
@@ -38,6 +39,7 @@ function activeAlerts(alerts: AppShellAlert[]) {
 export const getCoachShellSignals = cache(
   async (userId: string): Promise<AppShellSignals> => {
     const supabase = await createServerSupabaseClient();
+    const adminSupabase = createServiceSupabaseClient();
     const [
       blockedPathData,
       lateAssignmentsCount,
@@ -58,7 +60,7 @@ export const getCoachShellSignals = cache(
           .eq("status", "pending_correction"),
       ),
       safeCount(
-        supabase
+        adminSupabase
           .from("messages")
           .select("id", { count: "exact", head: true })
           .eq("receiver_id", userId)
@@ -116,6 +118,7 @@ export const getCoachShellSignals = cache(
 export const getCoacheeShellSignals = cache(
   async (userId: string): Promise<AppShellSignals> => {
     const supabase = await createServerSupabaseClient();
+    const adminSupabase = createServiceSupabaseClient();
     const [learningPathData, openTasksCount, pendingResultsCount, unreadMessagesCount] =
       await Promise.all([
         getCoacheeLearningPathData(),
@@ -133,7 +136,7 @@ export const getCoacheeShellSignals = cache(
             .eq("status", "pending_correction"),
         ),
         safeCount(
-          supabase
+          adminSupabase
             .from("messages")
             .select("id", { count: "exact", head: true })
             .eq("receiver_id", userId)

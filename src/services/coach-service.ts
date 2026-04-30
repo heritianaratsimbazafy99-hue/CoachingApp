@@ -820,14 +820,11 @@ async function fetchActivityLogs(
   );
 }
 
-async function fetchDashboardUnreadMessages(
-  supabase: SupabaseServerClient,
-  payload: {
-    currentUserId: string;
-    limit?: number;
-    senderIds: string[];
-  },
-): Promise<DashboardUnreadMessages> {
+async function fetchDashboardUnreadMessages(payload: {
+  currentUserId: string;
+  limit?: number;
+  senderIds: string[];
+}): Promise<DashboardUnreadMessages> {
   if (!payload.senderIds.length) {
     return {
       count: 0,
@@ -835,6 +832,7 @@ async function fetchDashboardUnreadMessages(
     };
   }
 
+  const supabase = createServiceSupabaseClient();
   const { count, data, error } = await supabase
     .from("messages")
     .select("id,sender_id,body,created_at", { count: "exact" })
@@ -1477,13 +1475,12 @@ function buildCoachNotificationFilters(
 export const getCoachDashboardData =
   cache(async (): Promise<CoachDashboardData> => {
     const base = await getCoachBaseData();
-    const supabase = await createServerSupabaseClient();
     const coachees = buildCoacheeSummaries(base);
     const mapAssignment = createAssignmentMapper(base);
     const assignments = base.assignments.slice(0, 6).map(mapAssignment);
     const [pathData, unreadMessages] = await Promise.all([
       getCoachLearningPathData(),
-      fetchDashboardUnreadMessages(supabase, {
+      fetchDashboardUnreadMessages({
         currentUserId: base.currentUserId,
         senderIds: base.profiles.map((profile) => profile.user_id),
       }),
@@ -1550,7 +1547,7 @@ export const getCoachNotificationsData =
         userId: base.currentUserId,
       }),
       getCoachLearningPathData(),
-      fetchDashboardUnreadMessages(supabase, {
+      fetchDashboardUnreadMessages({
         currentUserId: base.currentUserId,
         limit: 30,
         senderIds: profileUserIds,
