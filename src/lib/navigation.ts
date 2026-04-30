@@ -18,6 +18,7 @@ export const coachNav: NavItem[] = [
 
 export const coacheeNav: NavItem[] = [
   { href: "/coachee", icon: "home", label: "Accueil" },
+  { href: "/coachee/notifications", icon: "bell", label: "Notifications" },
   { href: "/coachee/tasks", icon: "check", label: "Mes tâches" },
   { href: "/coachee/paths", icon: "route", label: "Mes parcours" },
   { href: "/coachee/results", icon: "chart", label: "Mes scores" },

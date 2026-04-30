@@ -177,7 +177,7 @@ export function AppShell({
       ? "/admin/stats"
       : role === "coach"
         ? "/coach/notifications"
-        : "/coachee/messages";
+        : "/coachee/notifications";
 
   return (
     <div

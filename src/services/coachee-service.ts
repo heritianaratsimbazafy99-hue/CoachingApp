@@ -1,6 +1,10 @@
 import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  getCoacheeLearningPathData,
+  type CoacheeLearningPathData,
+} from "@/services/learning-path-service";
 import type {
   AssignmentStatus,
   AssignmentType,
@@ -124,6 +128,18 @@ type ActivityLogRow = {
   entity_type: string;
   id: string;
   metadata: Record<string, unknown> | null;
+};
+
+type UnreadMessageRow = {
+  body: string;
+  created_at: string;
+  id: string;
+  sender_id: string;
+};
+
+type UnreadMessages = {
+  count: number;
+  latest: UnreadMessageRow[];
 };
 
 type LearningPathItemRow = {
@@ -276,6 +292,39 @@ export type CoacheeResultsData = {
   results: CoacheeResultRow[];
 };
 
+export type CoacheeNotificationCategory =
+  | "agenda"
+  | "messages"
+  | "paths"
+  | "results";
+
+export type CoacheeNotificationFilter = "all" | CoacheeNotificationCategory;
+
+export type CoacheeNotificationItem = {
+  category: CoacheeNotificationCategory;
+  createdAt: string;
+  description: string;
+  href: string;
+  id: string;
+  isUnread: boolean;
+  priority: "high" | "normal";
+  title: string;
+};
+
+export type CoacheeNotificationsData = {
+  filters: Array<{
+    count: number;
+    id: CoacheeNotificationFilter;
+    label: string;
+  }>;
+  metrics: {
+    highPriorityCount: number;
+    totalCount: number;
+    unreadMessagesCount: number;
+  };
+  notifications: CoacheeNotificationItem[];
+};
+
 type CoacheeBaseData = {
   activityLogs: ActivityLogRow[];
   assignments: AssignmentRow[];
@@ -301,6 +350,14 @@ function average(values: number[]) {
 
 function unique(values: Array<string | null | undefined>) {
   return [...new Set(values.filter(Boolean) as string[])];
+}
+
+function compactText(value: string, maxLength = 120) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+
+  return normalized.length > maxLength
+    ? `${normalized.slice(0, maxLength - 3)}...`
+    : normalized;
 }
 
 function groupBy<T>(items: T[], getKey: (item: T) => string) {
@@ -453,6 +510,29 @@ async function fetchActivityLogs(
       .order("created_at", { ascending: false })
       .limit(6),
   );
+}
+
+async function fetchUnreadMessages(
+  supabase: SupabaseServerClient,
+  userId: string,
+  limit = 20,
+): Promise<UnreadMessages> {
+  const { count, data, error } = await supabase
+    .from("messages")
+    .select("id,sender_id,body,created_at", { count: "exact" })
+    .eq("receiver_id", userId)
+    .is("read_at", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    count: count ?? (data ?? []).length,
+    latest: (data ?? []) as UnreadMessageRow[],
+  };
 }
 
 async function fetchLearningPathItems(supabase: SupabaseServerClient) {
@@ -670,6 +750,154 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
   };
 });
 
+function buildCoacheeNotificationFilters(
+  notifications: CoacheeNotificationItem[],
+): CoacheeNotificationsData["filters"] {
+  const countFor = (category: CoacheeNotificationCategory) =>
+    notifications.filter((notification) => notification.category === category)
+      .length;
+
+  return [
+    { count: notifications.length, id: "all", label: "Tout" },
+    { count: countFor("messages"), id: "messages", label: "Messages" },
+    { count: countFor("paths"), id: "paths", label: "Parcours" },
+    { count: countFor("agenda"), id: "agenda", label: "Agenda" },
+    { count: countFor("results"), id: "results", label: "Résultats" },
+  ];
+}
+
+function buildCoacheeNotifications({
+  base,
+  unreadMessages,
+}: {
+  base: CoacheeBaseData;
+  unreadMessages: UnreadMessages;
+}) {
+  const quizzesById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+  const messageNotifications = unreadMessages.latest.map((message) => ({
+    category: "messages" as const,
+    createdAt: message.created_at,
+    description: compactText(message.body),
+    href: `/coachee/messages?conversation=${message.sender_id}`,
+    id: `message:${message.id}`,
+    isUnread: true,
+    priority: "high" as const,
+    title: "Message non lu",
+  }));
+  const agendaNotifications = base.calendarEvents
+    .filter((event) => event.status === "scheduled")
+    .slice(0, 5)
+    .map((event) => {
+      const startsAt = new Date(event.start_time).getTime();
+      const soonLimit = Date.now() + 1000 * 60 * 60 * 48;
+
+      return {
+        category: "agenda" as const,
+        createdAt: event.start_time,
+        description: event.title,
+        href: "/coachee/calendar",
+        id: `agenda:${event.id}`,
+        isUnread: false,
+        priority: startsAt <= soonLimit ? ("high" as const) : ("normal" as const),
+        title: "Rendez-vous à venir",
+      };
+    });
+  const resultNotifications = base.quizAttempts.slice(0, 6).map((attempt) => {
+    const quizTitle = quizzesById.get(attempt.quiz_id)?.title ?? "Quiz";
+
+    return {
+      category: "results" as const,
+      createdAt: attempt.submitted_at ?? attempt.created_at,
+      description: `${quizTitle} · ${Math.round(Number(attempt.percentage))}%`,
+      href: "/coachee/results",
+      id: `result:${attempt.id}`,
+      isUnread: false,
+      priority:
+        attempt.status === "failed" || attempt.status === "pending_correction"
+          ? ("high" as const)
+          : ("normal" as const),
+      title:
+        attempt.status === "pending_correction"
+          ? "Résultat en correction"
+          : attempt.status === "failed"
+            ? "Quiz à reprendre"
+            : "Quiz réussi",
+    };
+  });
+
+  return [
+    ...messageNotifications,
+    ...agendaNotifications,
+    ...resultNotifications,
+  ];
+}
+
+function buildCoacheePathNotifications(
+  pathData: CoacheeLearningPathData,
+): CoacheeNotificationItem[] {
+  return pathData.paths
+    .filter((path) => (path.progress?.percentage ?? 0) < 100)
+    .slice(0, 8)
+    .map((path) => {
+      const failedItem = path.items.find(
+        (item) => item.progress?.status === "failed",
+      );
+      const pendingCorrectionItem = path.items.find(
+        (item) => item.progress?.status === "pending_correction",
+      );
+      const nextHref = failedItem?.href || path.progress?.nextHref || "/coachee/paths";
+      const nextLabel =
+        failedItem?.label ||
+        pendingCorrectionItem?.label ||
+        path.progress?.nextLabel ||
+        "Prochaine étape";
+
+      return {
+        category: "paths" as const,
+        createdAt: path.createdAt,
+        description: `${path.title} · ${nextLabel}`,
+        href: nextHref,
+        id: `path:${path.id}`,
+        isUnread: false,
+        priority: failedItem ? ("high" as const) : ("normal" as const),
+        title: failedItem ? "Parcours à reprendre" : "Prochaine étape parcours",
+      };
+    });
+}
+
+function mergeNotificationItems(
+  notifications: CoacheeNotificationItem[],
+): CoacheeNotificationItem[] {
+  const deduped = new Map<string, CoacheeNotificationItem>();
+
+  notifications.forEach((notification) => {
+    deduped.set(notification.id, notification);
+  });
+
+  return [...deduped.values()]
+    .toSorted((first, second) => {
+      const priorityDelta =
+        Number(second.priority === "high") - Number(first.priority === "high");
+
+      if (priorityDelta !== 0) {
+        return priorityDelta;
+      }
+
+      if (first.category === "agenda" && second.category === "agenda") {
+        return (
+          new Date(first.createdAt).getTime() -
+          new Date(second.createdAt).getTime()
+        );
+      }
+
+      return (
+        new Date(second.createdAt).getTime() -
+        new Date(first.createdAt).getTime()
+      );
+    })
+    .slice(0, 80);
+}
+
 export const getCoacheeDashboardData =
   cache(async (): Promise<CoacheeDashboardData> => {
     const base = await getCoacheeBaseData();
@@ -719,6 +947,33 @@ export const getCoacheeDashboardData =
       recentActivity: base.activityLogs.map(mapActivity),
       resources,
       tasks: tasks.slice(0, 5),
+    };
+  });
+
+export const getCoacheeNotificationsData =
+  cache(async (): Promise<CoacheeNotificationsData> => {
+    const base = await getCoacheeBaseData();
+    const supabase = await createServerSupabaseClient();
+    const [pathData, unreadMessages] = await Promise.all([
+      getCoacheeLearningPathData(),
+      fetchUnreadMessages(supabase, base.userId, 30),
+    ]);
+    const notifications = mergeNotificationItems([
+      ...buildCoacheeNotifications({ base, unreadMessages }),
+      ...buildCoacheePathNotifications(pathData),
+    ]);
+    const highPriorityCount = notifications.filter(
+      (notification) => notification.priority === "high",
+    ).length;
+
+    return {
+      filters: buildCoacheeNotificationFilters(notifications),
+      metrics: {
+        highPriorityCount,
+        totalCount: notifications.length,
+        unreadMessagesCount: unreadMessages.count,
+      },
+      notifications,
     };
   });
 
