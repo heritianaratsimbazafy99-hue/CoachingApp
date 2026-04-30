@@ -5,7 +5,7 @@ Application SaaS de coaching V1 démo avec Next.js 16, React, TypeScript, Tailwi
 ## Modules inclus
 
 - Auth Supabase : login, register, mot de passe oublié, redirection par rôle.
-- Admin : dashboard, utilisateurs, coachs, cohortes, statistiques globales.
+- Admin : dashboard, création d'utilisateurs, gestion des rôles, coachs, cohortes, statistiques globales.
 - Coach : cockpit, coachés, profil détaillé, cohortes, bibliothèque, quiz, assignations, résultats, corrections, messagerie, agenda, paramètres.
 - Coaché : dashboard, tâches, lecture contenu, quiz interactif, résultats, messages, agenda, profil.
 - Supabase SQL : tables, enums, index, triggers `updated_at`, fonctions métier, RLS policies.
@@ -100,6 +100,17 @@ admin
 coach
 coachee
 ```
+
+## Créer un utilisateur depuis l'admin
+
+La page `/admin/users` permet de créer un compte Supabase Auth avec :
+
+- nom complet ;
+- email ;
+- rôle initial ;
+- mot de passe temporaire.
+
+Le compte est confirmé immédiatement et synchronisé avec `public.profiles`.
 
 ## Lancement local
 

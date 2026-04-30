@@ -8,6 +8,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { AdminRoleForm } from "@/components/coaching/admin-role-form";
+import { AdminUserCreateForm } from "@/components/coaching/admin-user-create-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -110,6 +111,18 @@ export function AdminUsersPage({
         />
       )}
       <div className={compact ? "" : "p-6"}>
+        {compact ? null : (
+          <section className="mb-6 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+            <div className="mb-5">
+              <h2 className="font-semibold">Créer un utilisateur</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Le compte est créé dans Supabase Auth, confirmé immédiatement et
+                synchronisé avec le profil applicatif.
+              </p>
+            </div>
+            <AdminUserCreateForm />
+          </section>
+        )}
         {visibleUsers.length ? (
           <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
             {compact ? (
