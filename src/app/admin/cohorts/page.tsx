@@ -1,8 +1,11 @@
 import { AdminCohortsPage } from "@/components/coaching/admin-pages";
-import { getAdminCohorts } from "@/services/admin-service";
+import { getAdminCohorts, getAdminUsers } from "@/services/admin-service";
 
 export default async function Page() {
-  const cohorts = await getAdminCohorts();
+  const [cohorts, users] = await Promise.all([
+    getAdminCohorts(),
+    getAdminUsers(),
+  ]);
 
-  return <AdminCohortsPage cohorts={cohorts} />;
+  return <AdminCohortsPage cohorts={cohorts} users={users} />;
 }

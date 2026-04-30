@@ -7,6 +7,13 @@ import {
   Layers3,
   UsersRound,
 } from "lucide-react";
+import {
+  AdminCohortCreateForm,
+  AdminCohortDeleteForm,
+  AdminCohortEditForm,
+  AdminCohortMemberForm,
+  AdminCohortMemberRemoveForm,
+} from "@/components/coaching/admin-cohort-forms";
 import { AdminUserOnboardingActions } from "@/components/coaching/admin-user-onboarding-actions";
 import { AdminRoleForm } from "@/components/coaching/admin-role-form";
 import { AdminUserCreateForm } from "@/components/coaching/admin-user-create-form";
@@ -38,6 +45,10 @@ function formatDate(value: string | null) {
     month: "short",
     year: "numeric",
   }).format(new Date(value));
+}
+
+function formatCohortDate(value: string | null) {
+  return value ? formatDate(value) : "Non définie";
 }
 
 function getOnboardingStatus(profile: AdminUser) {
@@ -283,56 +294,174 @@ export function AdminCoachesPage({
   );
 }
 
-export function AdminCohortsPage({ cohorts }: { cohorts: AdminCohort[] }) {
+export function AdminCohortsPage({
+  cohorts,
+  users,
+}: {
+  cohorts: AdminCohort[];
+  users: AdminUser[];
+}) {
+  const coaches = users.filter((profile) => profile.role === "coach");
+  const coachees = users.filter((profile) => profile.role === "coachee");
+
   return (
     <>
       <PageHeader
-        description="Progression globale des cohortes et scores moyens."
+        actions={
+          <a
+            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            href="#admin-new-cohort"
+          >
+            <Layers3 className="h-4 w-4" />
+            Nouvelle cohorte
+          </a>
+        }
+        description="Création, coach responsable, membres et suivi opérationnel des cohortes."
         title="Cohortes"
       />
-      <div className="grid gap-4 p-6 lg:grid-cols-2">
-        {cohorts.length ? (
-          cohorts.map((cohort) => (
-            <article
-              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
-              key={cohort.id}
-            >
-              <p className="text-lg font-semibold">{cohort.name}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                {cohort.description}
-              </p>
-              <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                <p>
-                  Coach
-                  <span className="mt-1 block font-medium text-slate-900">
-                    {cohort.coachName}
-                  </span>
-                </p>
-                <p>
-                  Membres
-                  <span className="mt-1 block font-medium text-slate-900">
-                    {cohort.memberCount}
-                  </span>
-                </p>
-              </div>
-              <div className="mt-5">
-                <div className="mb-2 flex justify-between text-xs text-slate-500">
-                  <span>Progression</span>
-                  <span>{cohort.progress}%</span>
-                </div>
-                <ProgressBar value={cohort.progress} />
-              </div>
-            </article>
-          ))
-        ) : (
-          <div className="lg:col-span-2">
+      <div className="grid gap-6 p-6 xl:grid-cols-[380px_1fr]">
+        <section
+          className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
+          id="admin-new-cohort"
+        >
+          <div className="mb-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
+              Administration
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-950">
+              Nouvelle cohorte
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Créez la cohorte avec son coach responsable dès le départ.
+            </p>
+          </div>
+          <AdminCohortCreateForm coaches={coaches} />
+        </section>
+
+        <section className="space-y-4">
+          {cohorts.length ? (
+            cohorts.map((cohort) => {
+              const memberIds = new Set(
+                cohort.members.map((member) => member.id),
+              );
+              const availableCoachees = coachees.filter(
+                (coachee) => !memberIds.has(coachee.id),
+              );
+
+              return (
+                <article
+                  className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
+                  key={cohort.id}
+                >
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-lg font-semibold">{cohort.name}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {cohort.description}
+                      </p>
+                    </div>
+                    <AdminCohortDeleteForm cohort={cohort} />
+                  </div>
+
+                  <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
+                    <p>
+                      Coach
+                      <span className="mt-1 block font-medium text-slate-900">
+                        {cohort.coachName}
+                      </span>
+                    </p>
+                    <p>
+                      Membres
+                      <span className="mt-1 block font-medium text-slate-900">
+                        {cohort.memberCount}
+                      </span>
+                    </p>
+                    <p>
+                      Assignations
+                      <span className="mt-1 block font-medium text-slate-900">
+                        {cohort.assignmentCount}
+                      </span>
+                    </p>
+                    <p>
+                      Dates
+                      <span className="mt-1 block font-medium text-slate-900">
+                        {formatCohortDate(cohort.startDate)} →{" "}
+                        {formatCohortDate(cohort.endDate)}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="mt-5">
+                    <div className="mb-2 flex justify-between text-xs text-slate-500">
+                      <span>Progression</span>
+                      <span>{cohort.progress}%</span>
+                    </div>
+                    <ProgressBar value={cohort.progress} />
+                  </div>
+
+                  <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                    <details className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
+                      <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                        Modifier la cohorte
+                      </summary>
+                      <div className="mt-4">
+                        <AdminCohortEditForm
+                          coaches={coaches}
+                          cohort={cohort}
+                        />
+                      </div>
+                    </details>
+
+                    <details className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
+                      <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                        Gérer les coachés
+                      </summary>
+                      <div className="mt-4 space-y-4">
+                        <AdminCohortMemberForm
+                          cohortId={cohort.id}
+                          options={availableCoachees}
+                        />
+                        <div className="divide-y divide-slate-100 rounded-lg border border-sky-100 bg-white">
+                          {cohort.members.length ? (
+                            cohort.members.map((member) => (
+                              <div
+                                className="grid grid-cols-[1fr_auto] items-center gap-3 p-3"
+                                key={member.id}
+                              >
+                                <div>
+                                  <p className="text-sm font-medium text-slate-800">
+                                    {member.fullName}
+                                  </p>
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {member.email}
+                                  </p>
+                                </div>
+                                <AdminCohortMemberRemoveForm
+                                  cohortId={cohort.id}
+                                  memberId={member.id}
+                                />
+                              </div>
+                            ))
+                          ) : (
+                            <p className="p-3 text-sm text-slate-500">
+                              Aucun coaché dans cette cohorte.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                </article>
+              );
+            })
+          ) : (
             <EmptyState
-              description="Créez une cohorte côté coach ou depuis le module admin lorsque la création sera activée."
+              description="Créez une première cohorte avec un coach responsable et ajoutez les coachés concernés."
               icon={Layers3}
               title="Aucune cohorte"
             />
-          </div>
-        )}
+          )}
+        </section>
       </div>
     </>
   );

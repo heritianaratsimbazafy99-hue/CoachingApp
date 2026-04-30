@@ -27,6 +27,7 @@ type CohortRow = {
 
 type CohortMemberRow = {
   cohort_id: string;
+  user_id: string;
 };
 
 type AssignmentRow = {
@@ -61,15 +62,23 @@ export type AdminUser = {
 };
 
 export type AdminCohort = {
+  assignmentCount: number;
   coachId: string;
   coachName: string;
   description: string;
   endDate: string | null;
   id: string;
   memberCount: number;
+  members: AdminCohortMember[];
   name: string;
   progress: number;
   startDate: string | null;
+};
+
+export type AdminCohortMember = {
+  email: string;
+  fullName: string;
+  id: string;
 };
 
 export type AdminMetrics = {
@@ -206,7 +215,7 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
         .from("cohorts")
         .select("id,name,description,start_date,end_date,coach_id,created_at")
         .order("created_at", { ascending: false }),
-      supabase.from("cohort_members").select("cohort_id"),
+      supabase.from("cohort_members").select("cohort_id,user_id"),
       supabase
         .from("assignments")
         .select("id,assigned_to_cohort_id,status")
@@ -232,11 +241,25 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
 
   const users = await getAdminUsers();
   const usersById = new Map(users.map((user) => [user.id, user]));
+  const membersByCohort = new Map<string, AdminCohortMember[]>();
   const memberCounts = new Map<string, number>();
+  const assignmentCounts = new Map<string, number>();
   const assignmentToCohort = new Map<string, string>();
   const progressByCohort = new Map<string, AssignmentProgressRow[]>();
 
   ((membersResponse.data ?? []) as CohortMemberRow[]).forEach((member) => {
+    const user = usersById.get(member.user_id);
+
+    if (user) {
+      const cohortMembers = membersByCohort.get(member.cohort_id) ?? [];
+      cohortMembers.push({
+        email: user.email,
+        fullName: user.fullName,
+        id: user.id,
+      });
+      membersByCohort.set(member.cohort_id, cohortMembers);
+    }
+
     memberCounts.set(
       member.cohort_id,
       (memberCounts.get(member.cohort_id) ?? 0) + 1,
@@ -246,6 +269,10 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
   ((assignmentsResponse.data ?? []) as AssignmentRow[]).forEach((assignment) => {
     if (assignment.assigned_to_cohort_id) {
       assignmentToCohort.set(assignment.id, assignment.assigned_to_cohort_id);
+      assignmentCounts.set(
+        assignment.assigned_to_cohort_id,
+        (assignmentCounts.get(assignment.assigned_to_cohort_id) ?? 0) + 1,
+      );
     }
   });
 
@@ -273,12 +300,16 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
       : 0;
 
     return {
+      assignmentCount: assignmentCounts.get(cohort.id) ?? 0,
       coachId: cohort.coach_id,
       coachName: usersById.get(cohort.coach_id)?.fullName ?? "Coach inconnu",
       description: cohort.description ?? "Aucune description renseignée.",
       endDate: cohort.end_date,
       id: cohort.id,
       memberCount: memberCounts.get(cohort.id) ?? 0,
+      members: (membersByCohort.get(cohort.id) ?? []).toSorted((a, b) =>
+        a.fullName.localeCompare(b.fullName, "fr"),
+      ),
       name: cohort.name,
       progress,
       startDate: cohort.start_date,
