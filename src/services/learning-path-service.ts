@@ -171,6 +171,18 @@ export type CoachLearningPathData = {
   paths: CoachLearningPath[];
 };
 
+export type CoachLearningPathEditorData = {
+  cohorts: CoachLearningPathData["cohorts"];
+  itemOptions: LearningPathItemOption[];
+  path: {
+    cohortId: string;
+    description: string;
+    id: string;
+    items: string[];
+    title: string;
+  };
+};
+
 export type CoacheeLearningPathData = {
   metrics: {
     completedItemCount: number;
@@ -580,6 +592,27 @@ async function fetchQuizzes(
   return getRows<QuizRow>(query);
 }
 
+function getItemOptions(contents: ContentRow[], quizzes: QuizRow[]) {
+  return [
+    ...contents.map((content) => ({
+      description: ensureText(content.description, "Contenu sans description."),
+      id: content.id,
+      kind: "content" as const,
+      label: content.title,
+      meta: `${content.type} · ${content.status}`,
+      value: itemValue("content", content.id),
+    })),
+    ...quizzes.map((quiz) => ({
+      description: ensureText(quiz.description, "Quiz sans description."),
+      id: quiz.id,
+      kind: "quiz" as const,
+      label: quiz.title,
+      meta: "Quiz",
+      value: itemValue("quiz", quiz.id),
+    })),
+  ];
+}
+
 async function fetchContentProgress(
   supabase: SupabaseServerClient,
   userId: string,
@@ -828,26 +861,76 @@ export const getCoachLearningPathData = cache(
         id: cohort.id,
         name: cohort.name,
       })),
-      itemOptions: [
-        ...contents.map((content) => ({
-          description: ensureText(content.description, "Contenu sans description."),
-          id: content.id,
-          kind: "content" as const,
-          label: content.title,
-          meta: `${content.type} · ${content.status}`,
-          value: itemValue("content", content.id),
-        })),
-        ...quizzes.map((quiz) => ({
-          description: ensureText(quiz.description, "Quiz sans description."),
-          id: quiz.id,
-          kind: "quiz" as const,
-          label: quiz.title,
-          meta: "Quiz",
-          value: itemValue("quiz", quiz.id),
-        })),
-      ],
+      itemOptions: getItemOptions(contents, quizzes),
       metrics: getCoachLearningPathMetrics(mappedPaths),
       paths: mappedPaths,
+    };
+  },
+);
+
+export const getCoachLearningPathEditorData = cache(
+  async (pathId: string): Promise<CoachLearningPathEditorData | null> => {
+    const currentUser = await requireRole(["admin", "coach"]);
+    const supabase = await createServerSupabaseClient();
+    const isAdmin = currentUser.role === "admin";
+
+    let pathQuery = supabase
+      .from("learning_paths")
+      .select("id,title,description,cohort_id,created_by")
+      .eq("id", pathId);
+    let cohortsQuery = supabase
+      .from("cohorts")
+      .select("id,name,description,coach_id")
+      .order("name", { ascending: true });
+
+    if (!isAdmin) {
+      pathQuery = pathQuery.eq("created_by", currentUser.user.id);
+      cohortsQuery = cohortsQuery.eq("coach_id", currentUser.user.id);
+    }
+
+    const [pathResponse, cohorts, contents, quizzes, items] = await Promise.all([
+      pathQuery.maybeSingle<{
+        cohort_id: string | null;
+        created_by: string;
+        description: string | null;
+        id: string;
+        title: string;
+      }>(),
+      getRows<CohortRow>(cohortsQuery),
+      fetchContents(supabase, undefined, isAdmin ? undefined : currentUser.user.id),
+      fetchQuizzes(supabase, undefined, isAdmin ? undefined : currentUser.user.id),
+      fetchPathItems(supabase, [pathId]),
+    ]);
+
+    if (pathResponse.error) {
+      throw new Error(pathResponse.error.message);
+    }
+
+    if (!pathResponse.data) {
+      return null;
+    }
+
+    return {
+      cohorts: cohorts.map((cohort) => ({
+        description: ensureText(cohort.description, "Aucune description"),
+        id: cohort.id,
+        name: cohort.name,
+      })),
+      itemOptions: getItemOptions(contents, quizzes),
+      path: {
+        cohortId: pathResponse.data.cohort_id ?? "",
+        description: pathResponse.data.description ?? "",
+        id: pathResponse.data.id,
+        items: items
+          .toSorted((first, second) => first.position - second.position)
+          .map((item) =>
+            item.content_id
+              ? itemValue("content", item.content_id)
+              : itemValue("quiz", item.quiz_id ?? ""),
+          )
+          .filter((value) => !value.endsWith(":")),
+        title: pathResponse.data.title,
+      },
     };
   },
 );

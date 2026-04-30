@@ -5,17 +5,22 @@ import {
   BookOpenCheck,
   CheckCircle2,
   Circle,
+  Copy,
   FileText,
   GraduationCap,
   Layers3,
   ListChecks,
+  Pencil,
   Plus,
   RotateCcw,
   TrendingUp,
   Trash2,
   UserRound,
 } from "lucide-react";
-import { deleteLearningPathAction } from "@/app/coach/paths/actions";
+import {
+  deleteLearningPathAction,
+  duplicateLearningPathAction,
+} from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -24,6 +29,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import type {
   CoachLearningPath,
   CoachLearningPathData,
+  CoachLearningPathEditorData,
   CoachLearningPathLearnerProgress,
   CoacheeLearningPathData,
   LearningPathItem,
@@ -380,16 +386,35 @@ function LearningPathCard({
         </div>
 
         {variant === "coach" ? (
-          <form action={deleteLearningPathAction}>
-            <input name="pathId" type="hidden" value={path.id} />
-            <button
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100"
-              title="Supprimer le parcours"
-              type="submit"
+          <div className="flex items-center gap-2">
+            <Link
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
+              href={`/coach/paths/${path.id}/edit`}
+              title="Modifier le parcours"
             >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </form>
+              <Pencil className="h-4 w-4" />
+            </Link>
+            <form action={duplicateLearningPathAction}>
+              <input name="pathId" type="hidden" value={path.id} />
+              <button
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100"
+                title="Dupliquer le parcours"
+                type="submit"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </form>
+            <form action={deleteLearningPathAction}>
+              <input name="pathId" type="hidden" value={path.id} />
+              <button
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100"
+                title="Supprimer le parcours"
+                type="submit"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
         ) : null}
       </div>
 
@@ -474,8 +499,7 @@ export function CoachLearningPathsPage({
               Nouveau parcours
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              L&apos;ordre des éléments suit l&apos;ordre des cases cochées dans
-              le formulaire.
+              Ajoutez les étapes puis réordonnez-les avant publication.
             </p>
           </div>
           <LearningPathForm
@@ -538,6 +562,41 @@ export function CoachLearningPathsPage({
               title="Aucun parcours"
             />
           )}
+        </section>
+      </div>
+    </>
+  );
+}
+
+export function CoachLearningPathEditPage({
+  data,
+}: {
+  data: CoachLearningPathEditorData;
+}) {
+  return (
+    <>
+      <PageHeader
+        actions={
+          <Link
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            href="/coach/paths"
+          >
+            <ArrowRight className="h-4 w-4 rotate-180" />
+            Retour
+          </Link>
+        }
+        description="Ajustez la cohorte, les étapes et l'ordre exact du parcours."
+        title="Modifier le parcours"
+      />
+
+      <div className="p-6">
+        <section className="mx-auto max-w-3xl rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <LearningPathForm
+            cohorts={data.cohorts}
+            defaultValues={data.path}
+            itemOptions={data.itemOptions}
+            mode="edit"
+          />
         </section>
       </div>
     </>
