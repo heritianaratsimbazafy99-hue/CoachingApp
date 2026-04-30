@@ -785,20 +785,25 @@ async function fetchQuizAnswers(
 }
 
 async function fetchCoachNotes(
-  supabase: SupabaseServerClient,
+  currentUserId: string,
+  isAdmin: boolean,
   userIds: string[],
 ) {
   if (!userIds.length) {
     return [];
   }
 
-  return getRows<CoachNoteRow>(
-    supabase
-      .from("coach_notes")
-      .select("id,coach_id,coachee_id,note,created_at")
-      .in("coachee_id", userIds)
-      .order("created_at", { ascending: false }),
-  );
+  let query = createServiceSupabaseClient()
+    .from("coach_notes")
+    .select("id,coach_id,coachee_id,note,created_at")
+    .in("coachee_id", userIds)
+    .order("created_at", { ascending: false });
+
+  if (!isAdmin) {
+    query = query.eq("coach_id", currentUserId);
+  }
+
+  return getRows<CoachNoteRow>(query);
 }
 
 async function fetchActivityLogs(
@@ -1170,7 +1175,7 @@ const getCoachBaseData = cache(async (): Promise<CoachBaseData> => {
       assignments.map((assignment) => assignment.id),
     ),
     fetchQuizAttempts(supabase, profileUserIds),
-    fetchCoachNotes(supabase, profileUserIds),
+    fetchCoachNotes(currentUser.user.id, isAdmin, profileUserIds),
     fetchActivityLogs(supabase, profileUserIds),
     fetchAuthUsersById(profileUserIds),
   ]);

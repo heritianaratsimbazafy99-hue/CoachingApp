@@ -707,6 +707,8 @@ create index if not exists assignment_progress_user_idx on public.assignment_pro
 create index if not exists quiz_attempts_user_idx on public.quiz_attempts(user_id, status);
 create index if not exists messages_participants_idx on public.messages(sender_id, receiver_id, created_at desc);
 create index if not exists calendar_events_user_idx on public.calendar_events(coach_id, coachee_id, cohort_id, start_time);
+create index if not exists coach_notes_coachee_created_idx on public.coach_notes(coachee_id, created_at desc);
+create index if not exists coach_notes_coach_created_idx on public.coach_notes(coach_id, created_at desc);
 create index if not exists activity_logs_user_idx on public.activity_logs(user_id, created_at desc);
 create index if not exists email_logs_recipient_idx on public.email_logs(recipient_user_id, created_at desc);
 create index if not exists email_logs_type_idx on public.email_logs(email_type, created_at desc);

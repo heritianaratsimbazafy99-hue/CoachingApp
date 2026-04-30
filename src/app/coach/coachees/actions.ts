@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
 import { sendPathReminderEmail } from "@/services/transactional-email-service";
@@ -34,11 +35,22 @@ const deleteGoalSchema = z.object({
 
 const noteSchema = z.object({
   coacheeId: z.string().trim().regex(uuidPattern, "Coaché invalide."),
+  interviewDate: z.string().trim().optional(),
+  nextSteps: z
+    .string()
+    .trim()
+    .max(900, "Les prochaines étapes sont trop longues.")
+    .optional(),
   note: z
     .string()
     .trim()
-    .min(2, "La note doit contenir au moins 2 caractères.")
+    .min(8, "La synthèse doit contenir au moins 8 caractères.")
     .max(1600, "La note est trop longue."),
+  topic: z
+    .string()
+    .trim()
+    .min(2, "Le sujet doit contenir au moins 2 caractères.")
+    .max(120, "Le sujet est trop long."),
 });
 
 const reminderSchema = z.object({
@@ -69,6 +81,77 @@ function revalidateCoacheePaths(coacheeId: string) {
   revalidatePath("/coach/coachees");
   revalidatePath(`/coach/coachees/${coacheeId}`);
   revalidatePath("/coachee/profile");
+}
+
+function buildInterviewNote({
+  interviewDate,
+  nextSteps,
+  note,
+  topic,
+}: z.infer<typeof noteSchema>) {
+  const lines = [
+    interviewDate
+      ? `Entretien individuel du ${interviewDate}`
+      : "Entretien individuel",
+    `Sujet : ${topic}`,
+    "",
+    "Synthèse",
+    note,
+  ];
+
+  if (nextSteps) {
+    lines.push("", "Prochaines étapes", nextSteps);
+  }
+
+  return lines.join("\n");
+}
+
+async function canWritePrivateCoacheeNote({
+  coacheeId,
+  currentUserId,
+  role,
+}: {
+  coacheeId: string;
+  currentUserId: string;
+  role: "admin" | "coach" | "coachee";
+}) {
+  if (role === "admin") {
+    return true;
+  }
+
+  if (role !== "coach") {
+    return false;
+  }
+
+  const supabase = createServiceSupabaseClient();
+  const { data: cohorts, error: cohortsError } = await supabase
+    .from("cohorts")
+    .select("id")
+    .eq("coach_id", currentUserId);
+
+  if (cohortsError) {
+    throw new Error(cohortsError.message);
+  }
+
+  const cohortIds = (cohorts ?? []).map((cohort) => cohort.id);
+
+  if (!cohortIds.length) {
+    return false;
+  }
+
+  const { data: member, error: memberError } = await supabase
+    .from("cohort_members")
+    .select("id")
+    .eq("user_id", coacheeId)
+    .in("cohort_id", cohortIds)
+    .limit(1)
+    .maybeSingle();
+
+  if (memberError) {
+    throw new Error(memberError.message);
+  }
+
+  return Boolean(member);
 }
 
 export async function createCoacheeGoalAction(
@@ -198,7 +281,10 @@ export async function createCoachNoteAction(
   const currentUser = await requireRole(["admin", "coach"]);
   const parsed = noteSchema.safeParse({
     coacheeId: formData.get("coacheeId"),
+    interviewDate: formData.get("interviewDate"),
+    nextSteps: formData.get("nextSteps"),
     note: formData.get("note"),
+    topic: formData.get("topic"),
   });
 
   if (!parsed.success) {
@@ -210,13 +296,27 @@ export async function createCoachNoteAction(
     };
   }
 
-  const supabase = await createServerSupabaseClient();
+  const allowed = await canWritePrivateCoacheeNote({
+    coacheeId: parsed.data.coacheeId,
+    currentUserId: currentUser.user.id,
+    role: currentUser.role,
+  });
+
+  if (!allowed) {
+    return {
+      message:
+        "Vous pouvez ajouter une note uniquement pour un coaché rattaché à vos cohortes.",
+      status: "error",
+    };
+  }
+
+  const supabase = createServiceSupabaseClient();
   const { data, error } = await supabase
     .from("coach_notes")
     .insert({
       coach_id: currentUser.user.id,
       coachee_id: parsed.data.coacheeId,
-      note: parsed.data.note,
+      note: buildInterviewNote(parsed.data),
     })
     .select("id")
     .single();

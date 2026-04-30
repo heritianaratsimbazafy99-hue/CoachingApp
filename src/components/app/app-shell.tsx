@@ -84,24 +84,24 @@ const roleAccent: Record<
 > = {
   admin: {
     active:
-      "border-orange-100 bg-orange-50/90 text-orange-700 shadow-sm shadow-orange-900/5 ring-1 ring-orange-100",
-    avatar: "from-orange-200 to-rose-200 text-orange-900",
-    dot: "bg-orange-300",
-    shell: "from-[#fbfdff] via-[#f3fbff] to-[#fff7ed]",
+      "border-indigo-100 bg-indigo-50/90 text-indigo-800 shadow-sm shadow-indigo-900/5 ring-1 ring-indigo-100",
+    avatar: "from-indigo-100 to-sky-200 text-sky-950",
+    dot: "bg-indigo-300",
+    shell: "from-[#f8f1e6] via-[#f5f7ef] to-[#e8f3ef]",
   },
   coach: {
     active:
-      "border-sky-100 bg-sky-50/95 text-sky-700 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
-    avatar: "from-sky-200 to-emerald-200 text-sky-900",
-    dot: "bg-sky-300",
-    shell: "from-[#fbfdff] via-[#effaff] to-[#f2fff8]",
+      "border-sky-100 bg-sky-50/95 text-sky-800 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
+    avatar: "from-sky-200 to-indigo-100 text-sky-950",
+    dot: "bg-sky-400",
+    shell: "from-[#f7efe2] via-[#f5f8ef] to-[#e8f3ef]",
   },
   coachee: {
     active:
-      "border-indigo-100 bg-indigo-50/90 text-indigo-700 shadow-sm shadow-indigo-900/5 ring-1 ring-indigo-100",
-    avatar: "from-indigo-200 to-sky-200 text-indigo-900",
-    dot: "bg-indigo-300",
-    shell: "from-[#fbfdff] via-[#f5f7ff] to-[#effaff]",
+      "border-sky-100 bg-sky-50/90 text-sky-800 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
+    avatar: "from-sky-100 to-indigo-200 text-sky-950",
+    dot: "bg-sky-300",
+    shell: "from-[#f8f1e6] via-[#f6f7ec] to-[#edf7f3]",
   },
 };
 
@@ -157,7 +157,7 @@ function QuickNavigationSearch({
 
   return (
     <form
-      className="group relative flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-white px-3 py-2 shadow-sm shadow-sky-900/5 transition focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-100"
+      className="group relative flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-[#fffaf2] px-3 py-2 shadow-sm shadow-sky-900/5 transition focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-100"
       onSubmit={handleSubmit}
     >
       <Search className="h-4 w-4 shrink-0 text-sky-500" />
@@ -172,7 +172,7 @@ function QuickNavigationSearch({
         placeholder="Rechercher une page..."
         value={query}
       />
-      <div className="invisible absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-xl border border-sky-100 bg-white opacity-0 shadow-xl shadow-sky-950/10 transition group-focus-within:visible group-focus-within:opacity-100">
+      <div className="invisible absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-xl border border-sky-100 bg-[#fffaf2] opacity-0 shadow-xl shadow-sky-950/10 transition group-focus-within:visible group-focus-within:opacity-100">
         {suggestions.length ? (
           suggestions.map((item) => {
             const badge = navBadge(navBadges, item.href);
@@ -233,13 +233,13 @@ export function AppShell({
     >
       <AppShellRealtimeBridge role={role} userId={account?.userId} />
       <a
-        className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-50 rounded-lg bg-[#fffaf2] px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         href="#app-content"
       >
         Aller au contenu
       </a>
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-sky-100/80 bg-white/88 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
+        <aside className="hidden border-r border-sky-100/80 bg-[#fffaf2]/90 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
           <div className="flex h-full flex-col">
             <div className="border-b border-sky-100 p-6">
               <Link
@@ -312,11 +312,11 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100/80 bg-white/86 px-4 py-3 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl lg:px-6">
+          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100/80 bg-[#fffaf2]/88 px-4 py-3 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
               aria-expanded={isMobileNavOpen}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-[#fffaf2] text-slate-600 shadow-sm shadow-sky-900/5 lg:hidden"
               onClick={() => setIsMobileNavOpen((current) => !current)}
               type="button"
             >
@@ -329,7 +329,7 @@ export function AppShell({
             <QuickNavigationSearch navBadges={navBadges} navItems={navItems} />
             <Link
               aria-label="Notifications"
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-white text-slate-600 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:text-sky-700"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-[#fffaf2] text-slate-600 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:text-sky-700"
               href={notificationHref}
             >
               <Bell className="h-5 w-5" />
@@ -343,7 +343,7 @@ export function AppShell({
           </header>
 
           {signals.alerts.length ? (
-            <div className="border-b border-sky-100/80 bg-white/72 px-4 py-2 backdrop-blur-xl lg:px-6">
+            <div className="border-b border-sky-100/80 bg-[#fffaf2]/78 px-4 py-2 backdrop-blur-xl lg:px-6">
               <div className="flex gap-2 overflow-x-auto">
                 {signals.alerts.slice(0, 4).map((alert) => (
                   <Link
@@ -365,7 +365,7 @@ export function AppShell({
           ) : null}
 
           {isMobileNavOpen ? (
-            <div className="border-b border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:hidden">
+            <div className="border-b border-sky-100 bg-[#fffaf2]/95 p-4 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:hidden">
               <nav className="grid gap-1">
                 {navItems.map((item) => {
                   const badge = navBadge(navBadges, item.href);

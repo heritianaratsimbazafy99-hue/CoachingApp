@@ -12,7 +12,7 @@ export function PageHeader({
   title,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-5 border-b border-sky-100/80 bg-white/72 px-4 py-6 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:py-8">
+    <div className="flex flex-col gap-5 border-b border-sky-100/80 bg-[#fffaf2]/76 px-4 py-6 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:py-8">
       <div className="min-w-0">
         {eyebrow ? (
           <p className="text-sm font-semibold text-sky-700">{eyebrow}</p>

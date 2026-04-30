@@ -43,7 +43,7 @@ const features = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-indigo-50 text-slate-800">
+    <main className="min-h-screen bg-gradient-to-br from-[#fffaf2] via-sky-50 to-indigo-50 text-slate-800">
       <header className="mx-auto flex w-full max-w-[342px] flex-col gap-4 py-6 sm:w-[calc(100vw-3rem)] sm:max-w-6xl sm:flex-row sm:items-center sm:justify-between">
         <Link href="/" className="text-lg font-semibold tracking-tight">
           Coaching Platform
@@ -52,7 +52,7 @@ export default function Home() {
         <nav className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
           <Link
             href="/login"
-            className="inline-flex justify-center rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 sm:border-transparent sm:bg-transparent sm:px-4 sm:hover:bg-white"
+            className="inline-flex justify-center rounded-lg border border-sky-100 bg-[#fffaf2] px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 sm:border-transparent sm:bg-transparent sm:px-4 sm:hover:bg-[#fffaf2]"
           >
             Connexion
           </Link>
@@ -85,14 +85,14 @@ export default function Home() {
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-[#fffaf2] px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
             >
               Se connecter
             </Link>
           </div>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
+        <div className="min-w-0 rounded-2xl border border-sky-100 bg-[#fffaf2] p-4 shadow-sm shadow-sky-900/5">
           <div className="rounded-xl border border-sky-100 bg-sky-50/70 p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -114,7 +114,7 @@ export default function Home() {
               ].map(([value, label]) => (
                 <div
                   key={label}
-                  className="rounded-xl border border-sky-100 bg-white p-4"
+                  className="rounded-xl border border-sky-100 bg-[#fffaf2] p-4"
                 >
                   <p className="text-2xl font-semibold">{value}</p>
                   <p className="mt-1 text-xs font-medium text-slate-500">
@@ -132,7 +132,7 @@ export default function Home() {
               ].map(([title, status, color]) => (
                 <div
                   key={title}
-                  className="flex items-center justify-between rounded-xl border border-sky-100 bg-white p-4"
+                  className="flex items-center justify-between rounded-xl border border-sky-100 bg-[#fffaf2] p-4"
                 >
                   <div>
                     <p className="text-sm font-medium">{title}</p>
@@ -158,7 +158,7 @@ export default function Home() {
         {features.map((feature) => (
           <div
             key={feature.title}
-            className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
+            className="rounded-xl border border-sky-100 bg-[#fffaf2] p-5 shadow-sm shadow-sky-900/5"
           >
             <feature.icon className="h-5 w-5 text-slate-700" />
             <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>

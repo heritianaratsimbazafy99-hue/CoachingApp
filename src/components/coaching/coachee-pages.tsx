@@ -316,25 +316,31 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
 
           <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-2">
-              <NotebookPen className="h-5 w-5 text-slate-500" />
-              <h2 className="font-semibold">Notes privées coach</h2>
+              <NotebookPen className="h-5 w-5 text-sky-700" />
+              <h2 className="font-semibold">Entretiens individuels</h2>
             </div>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Notes privées visibles uniquement par les coachs autorisés et les
+              admins.
+            </p>
             <div className="mt-4 space-y-3">
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-lg border border-sky-100 bg-sky-50/60 p-3 text-sm leading-6 text-slate-600"
+                    className="rounded-lg border border-sky-100 bg-sky-50/70 p-3 text-sm leading-6 text-slate-600"
                     key={note.id}
                   >
-                    <p>{note.note}</p>
-                    <p className="mt-2 text-xs font-medium text-slate-400">
+                    <p className="whitespace-pre-line break-words">
+                      {note.note}
+                    </p>
+                    <p className="mt-3 border-t border-sky-100 pt-2 text-xs font-medium text-slate-400">
                       {formatDateTime(note.createdAt)}
                     </p>
                   </div>
                 ))
               ) : (
                 <p className="rounded-lg border border-sky-100 bg-sky-50/60 p-3 text-sm text-slate-500">
-                  Aucune note privée.
+                  Aucun entretien individuel enregistré.
                 </p>
               )}
             </div>

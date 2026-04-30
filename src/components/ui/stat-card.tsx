@@ -24,7 +24,7 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-sky-100/80 bg-white/95 p-5 shadow-sm shadow-sky-900/[0.04] ring-1 ring-white/70 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5">
+    <div className="rounded-xl border border-sky-100/80 bg-[#fffaf2]/95 p-5 shadow-sm shadow-sky-900/[0.04] ring-1 ring-white/70 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>

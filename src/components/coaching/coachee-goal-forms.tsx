@@ -66,7 +66,7 @@ function NoteSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-700 px-4 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -131,14 +131,48 @@ export function CoachNoteForm({ coacheeId }: { coacheeId: string }) {
   }, [state.status]);
 
   return (
-    <form action={formAction} className="space-y-3" ref={formRef}>
+    <form action={formAction} className="space-y-4" ref={formRef}>
       <input name="coacheeId" type="hidden" value={coacheeId} />
-      <textarea
-        className="min-h-24 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-        name="note"
-        placeholder="Ajouter une note privée..."
-        required
-      />
+      <label className="block">
+        <span className="text-sm font-semibold text-slate-800">
+          Sujet de l&apos;entretien
+        </span>
+        <input
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          name="topic"
+          placeholder="Ex : Entretien mensuel, blocage module 2..."
+          required
+        />
+      </label>
+      <label className="block">
+        <span className="text-sm font-semibold text-slate-800">
+          Date de l&apos;entretien
+        </span>
+        <input
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          name="interviewDate"
+          type="date"
+        />
+      </label>
+      <label className="block">
+        <span className="text-sm font-semibold text-slate-800">Synthèse</span>
+        <textarea
+          className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          name="note"
+          placeholder="Points abordés, posture observée, décisions prises..."
+          required
+        />
+      </label>
+      <label className="block">
+        <span className="text-sm font-semibold text-slate-800">
+          Prochaines étapes
+        </span>
+        <textarea
+          className="mt-2 min-h-20 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          name="nextSteps"
+          placeholder="Actions à suivre avant le prochain échange..."
+        />
+      </label>
       <StateMessage message={state.message} status={state.status} />
       <NoteSubmitButton />
     </form>
