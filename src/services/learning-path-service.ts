@@ -78,6 +78,16 @@ type ProfileRow = {
   user_id: string;
 };
 
+type ActivityLogRow = {
+  action: string;
+  created_at: string;
+  entity_id: string | null;
+  entity_type: string;
+  id: string;
+  metadata: Record<string, unknown> | null;
+  user_id: string;
+};
+
 export type LearningPathItemKind = "content" | "quiz";
 
 export type LearningPathItemProgress = {
@@ -155,6 +165,29 @@ export type CoachLearningPath = {
   title: string;
 };
 
+export type CoachLearningPathRecentEvent = {
+  action: string;
+  coacheeId: string;
+  coacheeName: string;
+  createdAt: string;
+  detail: string;
+  href: string;
+  id: string;
+  pathTitle: string;
+};
+
+export type CoachLearningPathAttentionItem = {
+  coacheeId: string;
+  coacheeName: string;
+  cohortName: string;
+  href: string;
+  id: string;
+  lastActivityAt: string | null;
+  pathTitle: string;
+  percentage: number;
+  reason: string;
+};
+
 export type CoachLearningPathData = {
   cohorts: Array<{
     description: string;
@@ -169,6 +202,11 @@ export type CoachLearningPathData = {
     pathCount: number;
   };
   paths: CoachLearningPath[];
+  signals: {
+    blockedLearners: CoachLearningPathAttentionItem[];
+    pendingCorrections: CoachLearningPathAttentionItem[];
+    recentEvents: CoachLearningPathRecentEvent[];
+  };
 };
 
 export type CoachLearningPathEditorData = {
@@ -474,6 +512,90 @@ function getCoachLearningPathMetrics(paths: CoachLearningPath[]) {
   };
 }
 
+function metadataText(
+  metadata: Record<string, unknown> | null,
+  key: string,
+  fallback = "",
+) {
+  const value = metadata?.[key];
+
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+function getCoachLearningPathSignals(
+  paths: CoachLearningPath[],
+  activityLogs: ActivityLogRow[],
+  profileByUserId: Map<string, ProfileRow>,
+) {
+  const recentEvents = activityLogs.map((activity) => {
+    const profile = profileByUserId.get(activity.user_id);
+    const pathTitle = metadataText(
+      activity.metadata,
+      "learningPathTitle",
+      "Parcours",
+    );
+    const resourceTitle = metadataText(activity.metadata, "resourceTitle");
+
+    return {
+      action: activity.action,
+      coacheeId: activity.user_id,
+      coacheeName: profile?.full_name ?? "Coaché",
+      createdAt: activity.created_at,
+      detail: resourceTitle || pathTitle,
+      href: `/coach/coachees/${activity.user_id}`,
+      id: activity.id,
+      pathTitle,
+    };
+  });
+  const blockedLearners = paths
+    .flatMap((path) =>
+      (path.learnerProgress ?? [])
+        .filter((learner) => learner.status === "blocked")
+        .map((learner) => ({
+          coacheeId: learner.userId,
+          coacheeName: learner.fullName,
+          cohortName: path.cohortName,
+          href: `/coach/coachees/${learner.userId}`,
+          id: `${path.id}:${learner.userId}:blocked`,
+          lastActivityAt: learner.lastActivityAt,
+          pathTitle: path.title,
+          percentage: learner.percentage,
+          reason: `${learner.failedQuizCount} quiz à reprendre`,
+        })),
+    )
+    .toSorted((first, second) => first.percentage - second.percentage)
+    .slice(0, 5);
+  const pendingCorrections = paths
+    .flatMap((path) =>
+      (path.learnerProgress ?? [])
+        .filter((learner) => learner.pendingCorrectionCount > 0)
+        .map((learner) => ({
+          coacheeId: learner.userId,
+          coacheeName: learner.fullName,
+          cohortName: path.cohortName,
+          href: "/coach/corrections",
+          id: `${path.id}:${learner.userId}:correction`,
+          lastActivityAt: learner.lastActivityAt,
+          pathTitle: path.title,
+          percentage: learner.percentage,
+          reason: `${learner.pendingCorrectionCount} correction en attente`,
+        })),
+    )
+    .toSorted((first, second) => {
+      const firstTime = new Date(first.lastActivityAt ?? "").getTime() || 0;
+      const secondTime = new Date(second.lastActivityAt ?? "").getTime() || 0;
+
+      return secondTime - firstTime;
+    })
+    .slice(0, 5);
+
+  return {
+    blockedLearners,
+    pendingCorrections,
+    recentEvents,
+  };
+}
+
 function getPathItems(
   path: LearningPathRow,
   items: LearningPathItemRow[],
@@ -681,6 +803,25 @@ async function fetchProfiles(supabase: SupabaseServerClient, userIds: string[]) 
   );
 }
 
+async function fetchLearningPathActivityLogs(
+  supabase: SupabaseServerClient,
+  userIds: string[],
+) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return getRows<ActivityLogRow>(
+    supabase
+      .from("activity_logs")
+      .select("id,user_id,action,entity_type,entity_id,metadata,created_at")
+      .in("user_id", userIds)
+      .in("entity_type", ["learning_path", "learning_path_item"])
+      .order("created_at", { ascending: false })
+      .limit(8),
+  );
+}
+
 async function fetchContentProgressForUsers(
   supabase: SupabaseServerClient,
   userIds: string[],
@@ -826,14 +967,19 @@ export const getCoachLearningPathData = cache(
     const memberIds = unique(members.map((member) => member.user_id));
     const contentIds = unique(items.map((item) => item.content_id));
     const quizIds = unique(items.map((item) => item.quiz_id));
-    const [profiles, contentProgressRows, quizAttempts] = await Promise.all([
-      fetchProfiles(supabase, memberIds),
-      fetchContentProgressForUsers(supabase, memberIds, contentIds),
-      fetchQuizAttemptsForUsers(supabase, memberIds, quizIds),
-    ]);
+    const [profiles, activityLogs, contentProgressRows, quizAttempts] =
+      await Promise.all([
+        fetchProfiles(supabase, memberIds),
+        fetchLearningPathActivityLogs(supabase, memberIds),
+        fetchContentProgressForUsers(supabase, memberIds, contentIds),
+        fetchQuizAttemptsForUsers(supabase, memberIds, quizIds),
+      ]);
     const cohortsById = new Map(cohorts.map((cohort) => [cohort.id, cohort]));
     const contentsById = new Map(contents.map((content) => [content.id, content]));
     const quizzesById = new Map(quizzes.map((quiz) => [quiz.id, quiz]));
+    const profileByUserId = new Map(
+      profiles.map((profile) => [profile.user_id, profile]),
+    );
     const mappedPaths = buildPaths(
       paths,
       items,
@@ -846,9 +992,7 @@ export const getCoachLearningPathData = cache(
           progressKey(progress.user_id, progress.content_id),
         ),
         membersByCohortId: groupBy(members, (member) => member.cohort_id),
-        profileByUserId: new Map(
-          profiles.map((profile) => [profile.user_id, profile]),
-        ),
+        profileByUserId,
         quizAttemptsByUserAndQuizId: groupBy(quizAttempts, (attempt) =>
           progressKey(attempt.user_id, attempt.quiz_id),
         ),
@@ -864,6 +1008,11 @@ export const getCoachLearningPathData = cache(
       itemOptions: getItemOptions(contents, quizzes),
       metrics: getCoachLearningPathMetrics(mappedPaths),
       paths: mappedPaths,
+      signals: getCoachLearningPathSignals(
+        mappedPaths,
+        activityLogs,
+        profileByUserId,
+      ),
     };
   },
 );

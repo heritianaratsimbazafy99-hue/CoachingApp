@@ -117,6 +117,15 @@ type CalendarEventRow = {
   type: CalendarEventType;
 };
 
+type ActivityLogRow = {
+  action: string;
+  created_at: string;
+  entity_id: string | null;
+  entity_type: string;
+  id: string;
+  metadata: Record<string, unknown> | null;
+};
+
 type LearningPathItemRow = {
   content_id: string | null;
   id: string;
@@ -153,6 +162,14 @@ export type CoacheeCalendarEvent = {
   type: CalendarEventType;
 };
 
+export type CoacheeActivity = {
+  action: string;
+  createdAt: string;
+  detail: string;
+  href: string;
+  id: string;
+};
+
 export type CoacheeDashboardData = {
   calendarEvents: CoacheeCalendarEvent[];
   firstName: string;
@@ -164,6 +181,7 @@ export type CoacheeDashboardData = {
     progress: number;
   };
   nextTask: CoacheeTask | null;
+  recentActivity: CoacheeActivity[];
   resources: Array<{
     description: string;
     href: string;
@@ -259,6 +277,7 @@ export type CoacheeResultsData = {
 };
 
 type CoacheeBaseData = {
+  activityLogs: ActivityLogRow[];
   assignments: AssignmentRow[];
   assignmentProgress: AssignmentProgressRow[];
   calendarEvents: CalendarEventRow[];
@@ -293,6 +312,16 @@ function groupBy<T>(items: T[], getKey: (item: T) => string) {
 
     return map;
   }, new Map<string, T[]>());
+}
+
+function metadataText(
+  metadata: Record<string, unknown> | null,
+  key: string,
+  fallback = "",
+) {
+  const value = metadata?.[key];
+
+  return typeof value === "string" && value.trim() ? value : fallback;
 }
 
 async function getRows<T>(
@@ -409,6 +438,20 @@ async function fetchCalendarEvents(supabase: SupabaseServerClient) {
       .gte("start_time", new Date().toISOString())
       .order("start_time", { ascending: true })
       .limit(4),
+  );
+}
+
+async function fetchActivityLogs(
+  supabase: SupabaseServerClient,
+  userId: string,
+) {
+  return getRows<ActivityLogRow>(
+    supabase
+      .from("activity_logs")
+      .select("id,action,entity_type,entity_id,metadata,created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(6),
   );
 }
 
@@ -541,6 +584,39 @@ function buildTasks(base: CoacheeBaseData): CoacheeTask[] {
   });
 }
 
+function activityHref(activity: ActivityLogRow) {
+  const pathId = metadataText(activity.metadata, "learningPathId");
+
+  if (pathId) {
+    return "/coachee/paths";
+  }
+
+  if (activity.entity_type === "quiz_attempt" && activity.entity_id) {
+    return `/coachee/results?attempt=${activity.entity_id}`;
+  }
+
+  if (activity.entity_type === "content" && activity.entity_id) {
+    return `/coachee/contents/${activity.entity_id}`;
+  }
+
+  return "/coachee/tasks";
+}
+
+function mapActivity(activity: ActivityLogRow): CoacheeActivity {
+  const detail =
+    metadataText(activity.metadata, "resourceTitle") ||
+    metadataText(activity.metadata, "learningPathTitle") ||
+    (activity.entity_type === "quiz_attempt" ? "Quiz" : "Activité");
+
+  return {
+    action: activity.action,
+    createdAt: activity.created_at,
+    detail,
+    href: activityHref(activity),
+    id: activity.id,
+  };
+}
+
 const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
   const currentUser = await requireRole(["admin", "coachee"]);
   const supabase = await createServerSupabaseClient();
@@ -566,6 +642,7 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
     quizzes,
     quizAttempts,
     calendarEvents,
+    activityLogs,
   ] = await Promise.all([
     fetchAssignmentProgress(supabase, assignmentIds, userId),
     fetchContentProgress(supabase, contentIds, userId),
@@ -573,12 +650,14 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
     fetchQuizzes(supabase, quizIds),
     fetchQuizAttempts(supabase, userId),
     fetchCalendarEvents(supabase),
+    fetchActivityLogs(supabase, userId),
   ]);
 
   const displayName =
     currentUser.profile?.full_name || currentUser.user.email || "Coaché";
 
   return {
+    activityLogs,
     assignments,
     assignmentProgress,
     calendarEvents,
@@ -637,6 +716,7 @@ export const getCoacheeDashboardData =
           : 0,
       },
       nextTask: openTasks[0] ?? tasks[0] ?? null,
+      recentActivity: base.activityLogs.map(mapActivity),
       resources,
       tasks: tasks.slice(0, 5),
     };

@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { CalendarDays, CheckSquare, MessageCircle, Trophy } from "lucide-react";
+import {
+  CalendarDays,
+  CheckSquare,
+  History,
+  MessageCircle,
+  Trophy,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
@@ -106,46 +112,82 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-sky-600" />
-              <h2 className="font-semibold text-slate-950">
-                Ressources importantes
-              </h2>
-            </div>
-            <div className="mt-5 space-y-3">
-              {data.resources.length ? (
-                data.resources.map((resource) => (
-                  <Link
-                    className="block rounded-xl border border-sky-100 bg-white p-4 transition hover:bg-sky-50"
-                    href={resource.href}
-                    key={resource.id}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-slate-950">
-                        {resource.title}
-                      </p>
-                      <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                        {contentTypeLabel[resource.type]}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      {resource.description || "Ressource de votre parcours."}
-                    </p>
-                  </Link>
-                ))
-              ) : (
-                <p className="rounded-xl border border-sky-100 bg-sky-50/70 p-4 text-sm text-slate-500">
-                  Les ressources assignées apparaîtront ici.
-                </p>
-              )}
-            </div>
-            {data.calendarEvents[0] ? (
-              <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
-                Prochain rendez-vous :{" "}
-                {formatDateTime(data.calendarEvents[0].startTime)}
+          <aside className="space-y-6">
+            <div className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5 text-sky-600" />
+                <h2 className="font-semibold text-slate-950">
+                  Ressources importantes
+                </h2>
               </div>
-            ) : null}
+              <div className="mt-5 space-y-3">
+                {data.resources.length ? (
+                  data.resources.map((resource) => (
+                    <Link
+                      className="block rounded-xl border border-sky-100 bg-white p-4 transition hover:bg-sky-50"
+                      href={resource.href}
+                      key={resource.id}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-semibold text-slate-950">
+                          {resource.title}
+                        </p>
+                        <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                          {contentTypeLabel[resource.type]}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                        {resource.description || "Ressource de votre parcours."}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="rounded-xl border border-sky-100 bg-sky-50/70 p-4 text-sm text-slate-500">
+                    Les ressources assignées apparaîtront ici.
+                  </p>
+                )}
+              </div>
+              {data.calendarEvents[0] ? (
+                <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+                  Prochain rendez-vous :{" "}
+                  {formatDateTime(data.calendarEvents[0].startTime)}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+              <div className="flex items-center gap-2">
+                <History className="h-5 w-5 text-indigo-600" />
+                <h2 className="font-semibold text-slate-950">
+                  Dernières actions
+                </h2>
+              </div>
+              <div className="mt-5 space-y-3">
+                {data.recentActivity.length ? (
+                  data.recentActivity.map((activity) => (
+                    <Link
+                      className="block rounded-xl border border-slate-200 bg-white p-3 transition hover:bg-slate-50"
+                      href={activity.href}
+                      key={activity.id}
+                    >
+                      <p className="text-sm font-semibold text-slate-950">
+                        {activity.action}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {activity.detail}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-400">
+                        {formatDateTime(activity.createdAt)}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
+                    Vos prochaines actions apparaîtront ici.
+                  </p>
+                )}
+              </div>
+            </div>
           </aside>
         </section>
       </div>

@@ -2,9 +2,11 @@ import Link from "next/link";
 import {
   AlertCircle,
   ArrowRight,
+  BellRing,
   BookOpenCheck,
   CheckCircle2,
   Circle,
+  Clock3,
   Copy,
   FileText,
   GraduationCap,
@@ -168,6 +170,118 @@ function LearnerStatusBadge({
     >
       {learnerStatusLabel[status]}
     </span>
+  );
+}
+
+function CoachPathSignals({
+  signals,
+}: {
+  signals: CoachLearningPathData["signals"];
+}) {
+  return (
+    <section className="grid gap-4 xl:grid-cols-3">
+      <div className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+        <div className="flex items-center gap-2">
+          <BellRing className="h-5 w-5 text-sky-600" />
+          <h2 className="font-semibold text-slate-950">Derniers événements</h2>
+        </div>
+        <div className="mt-4 space-y-3">
+          {signals.recentEvents.length ? (
+            signals.recentEvents.map((event) => (
+              <Link
+                className="block rounded-xl border border-sky-100 bg-sky-50/50 p-3 transition hover:bg-sky-50"
+                href={event.href}
+                key={event.id}
+              >
+                <p className="text-sm font-semibold text-slate-950">
+                  {event.action}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {event.coacheeName} · {event.detail}
+                </p>
+                <p className="mt-1 text-xs font-medium text-slate-400">
+                  {formatDateTime(event.createdAt)}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <p className="rounded-xl border border-dashed border-sky-200 bg-sky-50/50 p-3 text-sm text-slate-500">
+              Les actions de parcours apparaîtront ici.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-rose-100 bg-white/95 p-5 shadow-sm shadow-rose-900/5">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-rose-600" />
+          <h2 className="font-semibold text-slate-950">Coachés bloqués</h2>
+        </div>
+        <div className="mt-4 space-y-3">
+          {signals.blockedLearners.length ? (
+            signals.blockedLearners.map((item) => (
+              <Link
+                className="block rounded-xl border border-rose-100 bg-rose-50/50 p-3 transition hover:bg-rose-50"
+                href={item.href}
+                key={item.id}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-950">
+                      {item.coacheeName}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.pathTitle} · {item.reason}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
+                    {formatPercent(item.percentage)}
+                  </span>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/40 p-3 text-sm text-slate-500">
+              Aucun blocage détecté sur les parcours.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-900/5">
+        <div className="flex items-center gap-2">
+          <Clock3 className="h-5 w-5 text-indigo-600" />
+          <h2 className="font-semibold text-slate-950">Corrections parcours</h2>
+        </div>
+        <div className="mt-4 space-y-3">
+          {signals.pendingCorrections.length ? (
+            signals.pendingCorrections.map((item) => (
+              <Link
+                className="block rounded-xl border border-indigo-100 bg-indigo-50/50 p-3 transition hover:bg-indigo-50"
+                href={item.href}
+                key={item.id}
+              >
+                <p className="text-sm font-semibold text-slate-950">
+                  {item.coacheeName}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {item.pathTitle} · {item.reason}
+                </p>
+                {item.lastActivityAt ? (
+                  <p className="mt-1 text-xs font-medium text-slate-400">
+                    Soumis le {formatDateTime(item.lastActivityAt)}
+                  </p>
+                ) : null}
+              </Link>
+            ))
+          ) : (
+            <p className="rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-3 text-sm text-slate-500">
+              Aucune correction liée aux parcours.
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -541,6 +655,8 @@ export function CoachLearningPathsPage({
                   value={String(data.metrics.blockedLearnersCount)}
                 />
               </section>
+
+              <CoachPathSignals signals={data.signals} />
 
               {data.paths.map((path) => (
                 <LearningPathCard key={path.id} path={path} variant="coach" />

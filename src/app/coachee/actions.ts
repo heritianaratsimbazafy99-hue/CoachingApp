@@ -34,8 +34,349 @@ export type CoacheeActionState = {
   status: "error" | "idle";
 };
 
+type LearningPathResourceKind = "content" | "quiz";
+
+type LearningPathContext = {
+  cohortId: string | null;
+  itemId: string;
+  pathId: string;
+  pathTitle: string;
+  position: number;
+  resourceTitle: string;
+};
+
+type LearningPathProgressSnapshot = {
+  activeCount: number;
+  completedCount: number;
+  totalCount: number;
+};
+
 function formValue(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value : "";
+}
+
+function uniqueStrings(values: Array<string | null | undefined>) {
+  return [...new Set(values.filter(Boolean) as string[])];
+}
+
+function latestByDate<T>(
+  items: T[],
+  getDate: (item: T) => string | null,
+) {
+  if (!items.length) {
+    return null;
+  }
+
+  return items.toSorted((first, second) => {
+    const firstTime = new Date(getDate(first) ?? "").getTime() || 0;
+    const secondTime = new Date(getDate(second) ?? "").getTime() || 0;
+
+    return secondTime - firstTime;
+  })[0];
+}
+
+async function getResourceTitle(
+  supabase: SupabaseServerClient,
+  kind: LearningPathResourceKind,
+  resourceId: string,
+) {
+  if (kind === "content") {
+    const { data, error } = await supabase
+      .from("contents")
+      .select("title")
+      .eq("id", resourceId)
+      .maybeSingle<{ title: string }>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data?.title ?? "Contenu du parcours";
+  }
+
+  const { data, error } = await supabase
+    .from("quizzes")
+    .select("title")
+    .eq("id", resourceId)
+    .maybeSingle<{ title: string }>();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.title ?? "Quiz du parcours";
+}
+
+async function findLearningPathContexts(
+  supabase: SupabaseServerClient,
+  kind: LearningPathResourceKind,
+  resourceId: string,
+): Promise<LearningPathContext[]> {
+  const resourceColumn = kind === "content" ? "content_id" : "quiz_id";
+  const [{ data: items, error: itemError }, resourceTitle] = await Promise.all([
+    supabase
+      .from("learning_path_items")
+      .select("id,learning_path_id,position")
+      .eq(resourceColumn, resourceId),
+    getResourceTitle(supabase, kind, resourceId),
+  ]);
+
+  if (itemError) {
+    throw new Error(itemError.message);
+  }
+
+  const pathIds = uniqueStrings(
+    (items ?? []).map((item) => item.learning_path_id),
+  );
+
+  if (!pathIds.length) {
+    return [];
+  }
+
+  const { data: paths, error: pathError } = await supabase
+    .from("learning_paths")
+    .select("id,title,cohort_id")
+    .in("id", pathIds);
+
+  if (pathError) {
+    throw new Error(pathError.message);
+  }
+
+  const pathsById = new Map(
+    (paths ?? []).map((path) => [
+      path.id,
+      {
+        cohortId: path.cohort_id,
+        title: path.title,
+      },
+    ]),
+  );
+
+  return (items ?? [])
+    .map((item) => {
+      const path = pathsById.get(item.learning_path_id);
+
+      if (!path) {
+        return null;
+      }
+
+      return {
+        cohortId: path.cohortId,
+        itemId: item.id,
+        pathId: item.learning_path_id,
+        pathTitle: path.title,
+        position: item.position,
+        resourceTitle,
+      };
+    })
+    .filter(Boolean) as LearningPathContext[];
+}
+
+async function getLearningPathProgressSnapshots(
+  supabase: SupabaseServerClient,
+  pathIds: string[],
+  userId: string,
+) {
+  const uniquePathIds = uniqueStrings(pathIds);
+
+  if (!uniquePathIds.length) {
+    return new Map<string, LearningPathProgressSnapshot>();
+  }
+
+  const { data: items, error: itemError } = await supabase
+    .from("learning_path_items")
+    .select("learning_path_id,content_id,quiz_id")
+    .in("learning_path_id", uniquePathIds);
+
+  if (itemError) {
+    throw new Error(itemError.message);
+  }
+
+  const pathItems = items ?? [];
+  const contentIds = uniqueStrings(pathItems.map((item) => item.content_id));
+  const quizIds = uniqueStrings(pathItems.map((item) => item.quiz_id));
+  const [contentProgressResponse, quizAttemptsResponse] = await Promise.all([
+    contentIds.length
+      ? supabase
+          .from("content_progress")
+          .select("content_id,status,completed_at,created_at")
+          .eq("user_id", userId)
+          .in("content_id", contentIds)
+      : Promise.resolve({ data: [], error: null }),
+    quizIds.length
+      ? supabase
+          .from("quiz_attempts")
+          .select("quiz_id,status,submitted_at,created_at")
+          .eq("user_id", userId)
+          .in("quiz_id", quizIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (contentProgressResponse.error) {
+    throw new Error(contentProgressResponse.error.message);
+  }
+
+  if (quizAttemptsResponse.error) {
+    throw new Error(quizAttemptsResponse.error.message);
+  }
+
+  const contentProgressById = new Map<string, typeof contentProgressResponse.data>();
+  const quizAttemptsById = new Map<string, typeof quizAttemptsResponse.data>();
+
+  (contentProgressResponse.data ?? []).forEach((progress) => {
+    const bucket = contentProgressById.get(progress.content_id) ?? [];
+    bucket.push(progress);
+    contentProgressById.set(progress.content_id, bucket);
+  });
+
+  (quizAttemptsResponse.data ?? []).forEach((attempt) => {
+    const bucket = quizAttemptsById.get(attempt.quiz_id) ?? [];
+    bucket.push(attempt);
+    quizAttemptsById.set(attempt.quiz_id, bucket);
+  });
+
+  return uniquePathIds.reduce((snapshots, pathId) => {
+    const currentItems = pathItems.filter((item) => item.learning_path_id === pathId);
+    const snapshot = currentItems.reduce<LearningPathProgressSnapshot>(
+      (progress, item) => {
+        if (item.content_id) {
+          const contentProgress = contentProgressById.get(item.content_id) ?? [];
+          const isCompleted = contentProgress.some(
+            (row) => row.status === "completed",
+          );
+
+          return {
+            activeCount: progress.activeCount + (contentProgress.length ? 1 : 0),
+            completedCount: progress.completedCount + (isCompleted ? 1 : 0),
+            totalCount: progress.totalCount + 1,
+          };
+        }
+
+        if (item.quiz_id) {
+          const latestAttempt = latestByDate(
+            quizAttemptsById.get(item.quiz_id) ?? [],
+            (attempt) => attempt.submitted_at ?? attempt.created_at,
+          );
+          const isCompleted =
+            latestAttempt?.status === "passed" ||
+            latestAttempt?.status === "pending_correction";
+
+          return {
+            activeCount: progress.activeCount + (latestAttempt ? 1 : 0),
+            completedCount: progress.completedCount + (isCompleted ? 1 : 0),
+            totalCount: progress.totalCount + 1,
+          };
+        }
+
+        return progress;
+      },
+      {
+        activeCount: 0,
+        completedCount: 0,
+        totalCount: 0,
+      },
+    );
+
+    snapshots.set(pathId, snapshot);
+
+    return snapshots;
+  }, new Map<string, LearningPathProgressSnapshot>());
+}
+
+async function logLearningPathActivity(
+  supabase: SupabaseServerClient,
+  payload: {
+    beforeSnapshots: Map<string, LearningPathProgressSnapshot>;
+    contexts: LearningPathContext[];
+    event: "path_content_completed" | "path_quiz_submitted";
+    quizStatus?: string;
+    userId: string;
+  },
+) {
+  if (!payload.contexts.length) {
+    return;
+  }
+
+  const afterSnapshots = await getLearningPathProgressSnapshots(
+    supabase,
+    payload.contexts.map((context) => context.pathId),
+    payload.userId,
+  );
+  const logs = payload.contexts.flatMap((context) => {
+    const before = payload.beforeSnapshots.get(context.pathId) ?? {
+      activeCount: 0,
+      completedCount: 0,
+      totalCount: 0,
+    };
+    const after = afterSnapshots.get(context.pathId) ?? before;
+    const progressPercentage = after.totalCount
+      ? Math.round((after.completedCount / after.totalCount) * 100)
+      : 0;
+    const metadata: Record<string, unknown> = {
+      cohortId: context.cohortId,
+      completedCount: after.completedCount,
+      event: payload.event,
+      learningPathId: context.pathId,
+      learningPathItemId: context.itemId,
+      learningPathTitle: context.pathTitle,
+      position: context.position,
+      progressPercentage,
+      quizStatus: payload.quizStatus ?? null,
+      resourceTitle: context.resourceTitle,
+      totalCount: after.totalCount,
+    };
+    const itemAction =
+      payload.event === "path_content_completed"
+        ? `Contenu de parcours terminé : ${context.resourceTitle}`
+        : `Quiz de parcours soumis : ${context.resourceTitle}`;
+    const rows = [
+      {
+        action: itemAction,
+        entity_id: context.itemId,
+        entity_type: "learning_path_item",
+        metadata,
+        user_id: payload.userId,
+      },
+    ];
+
+    if (before.activeCount === 0 && after.activeCount > 0) {
+      rows.push({
+        action: `Parcours démarré : ${context.pathTitle}`,
+        entity_id: context.pathId,
+        entity_type: "learning_path",
+        metadata: {
+          ...metadata,
+          event: "path_started",
+        },
+        user_id: payload.userId,
+      });
+    }
+
+    if (
+      after.totalCount > 0 &&
+      before.completedCount < after.totalCount &&
+      after.completedCount === after.totalCount
+    ) {
+      rows.push({
+        action: `Parcours terminé : ${context.pathTitle}`,
+        entity_id: context.pathId,
+        entity_type: "learning_path",
+        metadata: {
+          ...metadata,
+          event: "path_completed",
+        },
+        user_id: payload.userId,
+      });
+    }
+
+    return rows;
+  });
+
+  const { error } = await supabase.from("activity_logs").insert(logs);
+
+  if (error) {
+    console.error("Learning path activity log failed:", error.message);
+  }
 }
 
 async function findAssignmentForContent(
@@ -201,6 +542,16 @@ export async function completeContentAction(formData: FormData) {
   const supabase = await createServerSupabaseClient();
   const assignment = await findAssignmentForContent(contentId, assignmentId);
   const now = new Date().toISOString();
+  const learningPathContexts = await findLearningPathContexts(
+    supabase,
+    "content",
+    contentId,
+  );
+  const learningPathProgressBefore = await getLearningPathProgressSnapshots(
+    supabase,
+    learningPathContexts.map((context) => context.pathId),
+    currentUser.user.id,
+  );
 
   try {
     await saveContentProgress(supabase, {
@@ -232,6 +583,15 @@ export async function completeContentAction(formData: FormData) {
     user_id: currentUser.user.id,
   });
 
+  await logLearningPathActivity(supabase, {
+    beforeSnapshots: learningPathProgressBefore,
+    contexts: learningPathContexts,
+    event: "path_content_completed",
+    userId: currentUser.user.id,
+  });
+
+  revalidatePath("/coach");
+  revalidatePath("/coach/paths");
   revalidatePath("/coachee");
   revalidatePath("/coachee/paths");
   revalidatePath("/coachee/tasks");
@@ -302,9 +662,9 @@ export async function submitQuizAction(
 
   const { data: quiz, error: quizError } = await supabase
     .from("quizzes")
-    .select("id,passing_score")
+    .select("id,passing_score,title")
     .eq("id", quizId)
-    .maybeSingle<{ id: string; passing_score: number }>();
+    .maybeSingle<{ id: string; passing_score: number; title: string }>();
 
   if (quizError) {
     return { message: quizError.message, status: "error" };
@@ -330,6 +690,17 @@ export async function submitQuizAction(
       status: "error",
     };
   }
+
+  const learningPathContexts = await findLearningPathContexts(
+    supabase,
+    "quiz",
+    quizId,
+  );
+  const learningPathProgressBefore = await getLearningPathProgressSnapshots(
+    supabase,
+    learningPathContexts.map((context) => context.pathId),
+    currentUser.user.id,
+  );
 
   const { data: options, error: optionError } = await supabase
     .from("quiz_options")
@@ -443,6 +814,16 @@ export async function submitQuizAction(
     user_id: currentUser.user.id,
   });
 
+  await logLearningPathActivity(supabase, {
+    beforeSnapshots: learningPathProgressBefore,
+    contexts: learningPathContexts,
+    event: "path_quiz_submitted",
+    quizStatus: savedAttempt?.status,
+    userId: currentUser.user.id,
+  });
+
+  revalidatePath("/coach");
+  revalidatePath("/coach/paths");
   revalidatePath("/coachee");
   revalidatePath("/coachee/paths");
   revalidatePath("/coachee/tasks");
