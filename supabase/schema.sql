@@ -134,7 +134,6 @@ stable
 as $$
   select coalesce(
     auth.jwt() -> 'app_metadata' ->> 'role',
-    auth.jwt() -> 'user_metadata' ->> 'role',
     ''
   );
 $$;
@@ -324,15 +323,11 @@ language sql
 immutable
 as $$
   with metadata as (
-    select
-      coalesce(app_meta, '{}'::jsonb) as safe_app_meta,
-      coalesce(user_meta, '{}'::jsonb) as safe_user_meta
+    select coalesce(app_meta, '{}'::jsonb) as safe_app_meta
   )
   select case
     when safe_app_meta ->> 'role' in ('admin', 'coach', 'coachee')
       then (safe_app_meta ->> 'role')::public.user_role
-    when safe_user_meta ->> 'role' in ('admin', 'coach', 'coachee')
-      then (safe_user_meta ->> 'role')::public.user_role
     else 'coachee'::public.user_role
   end
   from metadata;
@@ -414,6 +409,32 @@ set
     public.profiles.notification_preferences,
     '{}'::jsonb
   );
+
+create or replace function public.prevent_profile_role_escalation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  if auth.role() = 'service_role' or public.is_admin() then
+    return new;
+  end if;
+
+  if old.user_id is distinct from new.user_id
+    or old.role is distinct from new.role then
+    raise exception 'Modification non autorisée des champs protégés du profil.'
+      using errcode = '42501';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_prevent_role_escalation on public.profiles;
+create trigger profiles_prevent_role_escalation
+before update of user_id, role on public.profiles
+for each row execute function public.prevent_profile_role_escalation();
 
 create table if not exists public.cohorts (
   id uuid primary key default gen_random_uuid(),
@@ -1040,20 +1061,41 @@ alter table public.learning_path_items enable row level security;
 
 drop policy if exists "profiles_select" on public.profiles;
 create policy "profiles_select" on public.profiles
-for select using (
+for select to authenticated using (
   public.is_admin()
-  or user_id = auth.uid()
+  or user_id = (select auth.uid())
   or public.is_coach()
 );
 
 drop policy if exists "profiles_insert_self" on public.profiles;
 create policy "profiles_insert_self" on public.profiles
-for insert with check (public.is_admin() or user_id = auth.uid());
+for insert to authenticated with check (
+  public.is_admin()
+  or (
+    user_id = (select auth.uid())
+    and role = case
+      when public.jwt_role() in ('admin', 'coach', 'coachee')
+        then public.jwt_role()::public.user_role
+      else 'coachee'::public.user_role
+    end
+  )
+);
 
 drop policy if exists "profiles_update_self_or_admin" on public.profiles;
 create policy "profiles_update_self_or_admin" on public.profiles
-for update using (public.is_admin() or user_id = auth.uid())
-with check (public.is_admin() or user_id = auth.uid());
+for update to authenticated using (
+  public.is_admin()
+  or user_id = (select auth.uid())
+)
+with check (
+  public.is_admin()
+  or user_id = (select auth.uid())
+);
+
+revoke update on public.profiles from anon;
+revoke update on public.profiles from authenticated;
+grant update (full_name, avatar_url, notification_preferences) on public.profiles to authenticated;
+grant update on public.profiles to service_role;
 
 drop policy if exists "cohorts_select" on public.cohorts;
 create policy "cohorts_select" on public.cohorts
@@ -1070,7 +1112,7 @@ with check (public.is_admin() or coach_id = (select auth.uid()));
 
 drop policy if exists "cohort_members_select" on public.cohort_members;
 create policy "cohort_members_select" on public.cohort_members
-for select using (
+for select to authenticated using (
   public.is_admin()
   or user_id = (select auth.uid())
   or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
@@ -1078,13 +1120,21 @@ for select using (
 
 drop policy if exists "cohort_members_write_coach" on public.cohort_members;
 create policy "cohort_members_write_coach" on public.cohort_members
-for all using (
+for all to authenticated using (
   public.is_admin()
   or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
 )
 with check (
-  public.is_admin()
-  or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+  (
+    public.is_admin()
+    or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+  )
+  and exists (
+    select 1
+    from public.profiles p
+    where p.user_id = cohort_members.user_id
+      and p.role = 'coachee'
+  )
 );
 
 drop policy if exists "themes_select_all_authenticated" on public.themes;

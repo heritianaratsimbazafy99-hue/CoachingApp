@@ -242,8 +242,7 @@ async function resolveEmailRecipient(
       user_id: string;
     }>();
 
-  const authRole =
-    authData.user.app_metadata?.role ?? authData.user.user_metadata?.role;
+  const authRole = authData.user.app_metadata?.role;
   const role = isUserRole(profile?.role)
     ? profile.role
     : isUserRole(authRole)

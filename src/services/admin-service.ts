@@ -146,7 +146,6 @@ function getProfileRole(profileRole: unknown, user?: User): UserRole {
   return (
     normalizeRole(profileRole) ??
     normalizeRole(user?.app_metadata?.role) ??
-    normalizeRole(user?.user_metadata?.role) ??
     "coachee"
   );
 }

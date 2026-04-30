@@ -184,15 +184,11 @@ language sql
 immutable
 as $$
   with metadata as (
-    select
-      coalesce(app_meta, '{}'::jsonb) as safe_app_meta,
-      coalesce(user_meta, '{}'::jsonb) as safe_user_meta
+    select coalesce(app_meta, '{}'::jsonb) as safe_app_meta
   )
   select case
     when safe_app_meta ->> 'role' in ('admin', 'coach', 'coachee')
       then (safe_app_meta ->> 'role')::public.user_role
-    when safe_user_meta ->> 'role' in ('admin', 'coach', 'coachee')
-      then (safe_user_meta ->> 'role')::public.user_role
     else 'coachee'::public.user_role
   end
   from metadata;

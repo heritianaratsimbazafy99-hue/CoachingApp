@@ -24,7 +24,6 @@ export function getUserRole(user: User, profileRole?: unknown): UserRole {
   return (
     normalizeRole(user.app_metadata?.role) ??
     normalizeRole(profileRole) ??
-    normalizeRole(user.user_metadata?.role) ??
     "coachee"
   );
 }

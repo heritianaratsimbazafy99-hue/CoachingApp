@@ -194,7 +194,6 @@ export async function createAdminUserAction(
   const userMetadata = {
     full_name: fullName,
     name: fullName,
-    role,
   };
 
   const { data, error } =
