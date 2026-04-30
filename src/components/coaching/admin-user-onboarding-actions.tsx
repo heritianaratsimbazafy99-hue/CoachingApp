@@ -8,6 +8,7 @@ import {
   sendUserInvitationAction,
 } from "@/app/admin/actions";
 import type { AdminAuthEmailState } from "@/app/admin/actions";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 type AdminUserOnboardingActionsProps = {
@@ -24,7 +25,7 @@ function InvitationSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "sm", variant: "secondary" })}
       disabled={pending}
       type="submit"
     >
@@ -39,7 +40,10 @@ function ResetSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(
+        buttonVariants({ size: "sm", variant: "soft" }),
+        "border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-200 hover:bg-emerald-100",
+      )}
       disabled={pending}
       type="submit"
     >

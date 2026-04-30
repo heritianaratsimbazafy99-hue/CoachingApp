@@ -3,8 +3,11 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import { getRoleRedirectPath } from "@/lib/auth/roles";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { cn } from "@/utils/cn";
 
 export function PasswordUpdateForm() {
   const router = useRouter();
@@ -129,12 +132,10 @@ export function PasswordUpdateForm() {
       ) : null}
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">
-          Nouveau mot de passe
-        </span>
+        <span className={labelClassName}>Nouveau mot de passe</span>
         <input
           autoComplete="new-password"
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           minLength={8}
           name="password"
           onChange={(event) => setPassword(event.target.value)}
@@ -146,12 +147,10 @@ export function PasswordUpdateForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">
-          Confirmer le mot de passe
-        </span>
+        <span className={labelClassName}>Confirmer le mot de passe</span>
         <input
           autoComplete="new-password"
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           minLength={8}
           name="passwordConfirmation"
           onChange={(event) => setPasswordConfirmation(event.target.value)}
@@ -175,7 +174,7 @@ export function PasswordUpdateForm() {
       ) : null}
 
       <button
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-3 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+        className={cn(buttonVariants({ size: "lg" }), "w-full")}
         disabled={isLoading || isCheckingSession}
         type="submit"
       >

@@ -5,6 +5,8 @@ import { useFormStatus } from "react-dom";
 import { Check } from "lucide-react";
 import { saveCorrectionAction } from "@/app/coach/quizzes/actions";
 import type { FormState } from "@/app/coach/quizzes/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import type { CoachCorrectionItem } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 
@@ -18,7 +20,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-indigo-700 bg-indigo-700 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-900/10 transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full md:w-auto")}
       disabled={pending}
       type="submit"
     >
@@ -41,11 +43,9 @@ export function CorrectionForm({ item }: { item: CoachCorrectionItem }) {
 
       <div className="grid gap-4 md:grid-cols-[160px_1fr_auto]">
         <label className="block">
-          <span className="text-xs font-semibold uppercase text-slate-500">
-            Points
-          </span>
+          <span className={labelClassName}>Points</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+            className={inputClassName()}
             defaultValue={item.pointsObtained}
             max={item.pointsMax}
             min={0}
@@ -56,11 +56,9 @@ export function CorrectionForm({ item }: { item: CoachCorrectionItem }) {
         </label>
 
         <label className="block">
-          <span className="text-xs font-semibold uppercase text-slate-500">
-            Feedback coach
-          </span>
+          <span className={labelClassName}>Feedback coach</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+            className={inputClassName()}
             defaultValue={item.coachFeedback}
             name="coachFeedback"
             placeholder="Feedback court pour le coaché"

@@ -8,6 +8,18 @@ import {
   saveQuizAction,
 } from "@/app/coach/quizzes/actions";
 import type { FormState } from "@/app/coach/quizzes/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type { CoachQuizEditorData } from "@/services/coach-service";
 import type { QuestionType } from "@/types/coaching";
 import { cn } from "@/utils/cn";
@@ -41,10 +53,14 @@ function SubmitButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60",
+        buttonVariants({
+          size: "lg",
+          variant: tone === "emerald" ? "soft" : "primary",
+        }),
+        "w-full",
         tone === "emerald"
-          ? "border-indigo-500 bg-indigo-500 text-white shadow-indigo-900/10 hover:bg-indigo-600"
-          : "border-sky-600 bg-sky-600 text-white shadow-sky-900/10 hover:bg-sky-700",
+          ? "border-indigo-100 bg-indigo-50 text-indigo-800 hover:border-indigo-200 hover:bg-indigo-100"
+          : "",
       )}
       disabled={pending}
       type="submit"
@@ -95,171 +111,169 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <form
-        action={saveFormAction}
-        className="rounded-2xl border border-sky-900/10 bg-white p-6 shadow-sm shadow-sky-950/5"
-      >
-        <input name="quizId" type="hidden" value={data.quiz?.id ?? ""} />
-        <div className="grid gap-5 md:grid-cols-2">
-          <label className="block md:col-span-2">
-            <span className="text-sm font-semibold text-slate-800">Titre</span>
-            <input
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-              defaultValue={data.quiz?.title}
-              name="title"
-              placeholder="Ex : Fondamentaux de posture"
-              required
-            />
-          </label>
+      <Card>
+        <form action={saveFormAction} className="p-5 sm:p-6">
+          <input name="quizId" type="hidden" value={data.quiz?.id ?? ""} />
+          <div className="grid gap-5 md:grid-cols-2">
+            <label className="block md:col-span-2">
+              <span className={labelClassName}>Titre</span>
+              <input
+                className={inputClassName()}
+                defaultValue={data.quiz?.title}
+                name="title"
+                placeholder="Ex : Fondamentaux de posture"
+                required
+              />
+            </label>
 
-          <label className="block md:col-span-2">
-            <span className="text-sm font-semibold text-slate-800">
-              Description
-            </span>
-            <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-              defaultValue={data.quiz?.description}
-              name="description"
-              placeholder="Ce quiz valide les notions clés du module."
-            />
-          </label>
+            <label className="block md:col-span-2">
+              <span className={labelClassName}>Description</span>
+              <textarea
+                className={textareaClassName()}
+                defaultValue={data.quiz?.description}
+                name="description"
+                placeholder="Ce quiz valide les notions clés du module."
+              />
+            </label>
 
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">
-              Contenu lié
-            </span>
-            <select
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-              defaultValue={data.quiz?.contentId ?? ""}
-              name="contentId"
-            >
-              <option value="">Sans contenu lié</option>
-              {data.contents.map((content) => (
-                <option key={content.id} value={content.id}>
-                  {content.title} · {contentTypeLabel[content.type]}
-                </option>
-              ))}
-            </select>
-          </label>
+            <label className="block">
+              <span className={labelClassName}>Contenu lié</span>
+              <select
+                className={inputClassName()}
+                defaultValue={data.quiz?.contentId ?? ""}
+                name="contentId"
+              >
+                <option value="">Sans contenu lié</option>
+                {data.contents.map((content) => (
+                  <option key={content.id} value={content.id}>
+                    {content.title} · {contentTypeLabel[content.type]}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">
-              Score minimum (%)
-            </span>
-            <input
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-              defaultValue={data.quiz?.passingScore ?? 70}
-              max={100}
-              min={0}
-              name="passingScore"
-              type="number"
-            />
-          </label>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-[1fr_220px] md:items-center">
-          <FormMessage message={saveState.message} status={saveState.status} />
-          <SubmitButton label="Enregistrer le quiz" pendingLabel="Enregistrement..." />
-        </div>
-      </form>
-
-      {data.quiz ? (
-        <form
-          action={questionFormAction}
-          className="space-y-4 rounded-2xl border border-sky-100 bg-sky-50/70 p-5 shadow-sm shadow-sky-900/5"
-        >
-          <input name="quizId" type="hidden" value={data.quiz.id} />
-          <div className="flex items-center gap-2 text-sky-800">
-            <CheckCircle2 className="h-5 w-5" />
-            <h2 className="text-sm font-semibold">Nouvelle question</h2>
+            <label className="block">
+              <span className={labelClassName}>Score minimum (%)</span>
+              <input
+                className={inputClassName()}
+                defaultValue={data.quiz?.passingScore ?? 70}
+                max={100}
+                min={0}
+                name="passingScore"
+                type="number"
+              />
+            </label>
           </div>
 
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Type</span>
-            <select
-              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-              name="questionType"
-              onChange={(event) =>
-                setQuestionType(event.target.value as QuestionType)
-              }
-              value={questionType}
-            >
-              {Object.entries(questionTypeLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Question</span>
-            <textarea
-              className="mt-2 min-h-24 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-              name="questionText"
-              placeholder="Que doit maîtriser le coaché ?"
-              required
+          <div className="mt-6 grid gap-4 md:grid-cols-[1fr_220px] md:items-center">
+            <FormMessage message={saveState.message} status={saveState.status} />
+            <SubmitButton
+              label="Enregistrer le quiz"
+              pendingLabel="Enregistrement..."
             />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Points</span>
-            <input
-              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-              defaultValue={1}
-              min={0}
-              name="points"
-              type="number"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Options</span>
-            <textarea
-              className="mt-2 min-h-28 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
-              disabled={isOpenQuestion}
-              name="options"
-              placeholder={"Option A\nOption B\nOption C"}
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">
-              Bonnes réponses
-            </span>
-            <input
-              className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
-              disabled={isOpenQuestion}
-              name="correctOptions"
-              placeholder="1 ou 1,3"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-slate-800">
-              Explication
-            </span>
-            <textarea
-              className="mt-2 min-h-20 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-              name="explanation"
-              placeholder="Feedback affichable après correction"
-            />
-          </label>
-
-          <FormMessage
-            message={questionState.message}
-            status={questionState.status}
-          />
-          <SubmitButton
-            label="Ajouter la question"
-            pendingLabel="Ajout..."
-            tone="emerald"
-          />
+          </div>
         </form>
+      </Card>
+
+      {data.quiz ? (
+        <Card className="overflow-hidden">
+          <form action={questionFormAction}>
+            <input name="quizId" type="hidden" value={data.quiz.id} />
+            <CardHeader className="bg-sky-50/60">
+              <div className="flex items-center gap-2 text-sky-800">
+                <CheckCircle2 className="h-5 w-5" />
+                <CardTitle className="text-sm">Nouvelle question</CardTitle>
+              </div>
+              <CardDescription>
+                Ajoute une question sans quitter l&apos;éditeur du quiz.
+              </CardDescription>
+            </CardHeader>
+
+            <div className="space-y-4 p-5">
+              <label className="block">
+                <span className={labelClassName}>Type</span>
+                <select
+                  className={inputClassName()}
+                  name="questionType"
+                  onChange={(event) =>
+                    setQuestionType(event.target.value as QuestionType)
+                  }
+                  value={questionType}
+                >
+                  {Object.entries(questionTypeLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block">
+                <span className={labelClassName}>Question</span>
+                <textarea
+                  className={textareaClassName("min-h-24")}
+                  name="questionText"
+                  placeholder="Que doit maîtriser le coaché ?"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClassName}>Points</span>
+                <input
+                  className={inputClassName()}
+                  defaultValue={1}
+                  min={0}
+                  name="points"
+                  type="number"
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClassName}>Options</span>
+                <textarea
+                  className={textareaClassName()}
+                  disabled={isOpenQuestion}
+                  name="options"
+                  placeholder={"Option A\nOption B\nOption C"}
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClassName}>Bonnes réponses</span>
+                <input
+                  className={inputClassName()}
+                  disabled={isOpenQuestion}
+                  name="correctOptions"
+                  placeholder="1 ou 1,3"
+                />
+              </label>
+
+              <label className="block">
+                <span className={labelClassName}>Explication</span>
+                <textarea
+                  className={textareaClassName("min-h-20")}
+                  name="explanation"
+                  placeholder="Feedback affichable après correction"
+                />
+              </label>
+
+              <FormMessage
+                message={questionState.message}
+                status={questionState.status}
+              />
+              <SubmitButton
+                label="Ajouter la question"
+                pendingLabel="Ajout..."
+                tone="emerald"
+              />
+            </div>
+          </form>
+        </Card>
       ) : (
-        <aside className="rounded-2xl border border-dashed border-sky-200 bg-sky-50/80 p-5 text-sm leading-6 text-sky-800">
+        <Card className="border-dashed p-5 text-sm leading-6 text-slate-600">
           Enregistre le quiz une première fois pour ajouter ses questions.
-        </aside>
+        </Card>
       )}
     </div>
   );

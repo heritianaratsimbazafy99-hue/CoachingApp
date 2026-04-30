@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { updateUserRoleAction } from "@/app/admin/actions";
 import type { UpdateUserRoleState } from "@/app/admin/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName } from "@/components/ui/form-field";
 import type { UserRole } from "@/types/coaching";
 import { cn } from "@/utils/cn";
 
@@ -28,7 +30,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ variant: "secondary" })}
       disabled={pending}
       type="submit"
     >
@@ -48,7 +50,7 @@ export function AdminRoleForm({ currentRole, userId }: AdminRoleFormProps) {
       <input name="userId" type="hidden" value={userId} />
       <div className="flex flex-col gap-2 sm:flex-row">
         <select
-          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName("mt-0 min-h-10 py-2")}
           defaultValue={currentRole}
           name="role"
         >
