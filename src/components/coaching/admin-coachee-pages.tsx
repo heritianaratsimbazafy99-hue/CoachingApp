@@ -20,7 +20,7 @@ function safeDate(value: string | null) {
 function StatusBadge({ children, tone }: { children: string; tone: string }) {
   return (
     <span
-      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${tone}`}
+      className={`inline-flex max-w-full rounded-full px-2 py-1 text-xs font-semibold ring-1 ${tone}`}
     >
       {children}
     </span>
@@ -67,19 +67,21 @@ function AttentionList({
   title: string;
 }) {
   return (
-    <section className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+    <section className="min-w-0 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
       <h2 className="font-semibold">{title}</h2>
       <div className="mt-4 space-y-3">
         {coachees.length ? (
           coachees.slice(0, 6).map((coachee) => (
             <div
-              className="rounded-lg border border-sky-100 bg-sky-50/40 px-3 py-2"
+              className="min-w-0 rounded-lg border border-sky-100 bg-sky-50/40 px-3 py-2"
               key={coachee.id}
             >
-              <p className="text-sm font-medium text-slate-800">
+              <p className="break-words text-sm font-medium text-slate-800">
                 {coachee.fullName}
               </p>
-              <p className="mt-1 text-xs text-slate-500">{coachee.email}</p>
+              <p className="mt-1 break-all text-xs text-slate-500">
+                {coachee.email}
+              </p>
             </div>
           ))
         ) : (
@@ -106,8 +108,8 @@ export function AdminCoacheeAssignmentsPage({
         description="Détectez les coachés non affectés, corrigez leur cohorte ou leur coach, et bloquez un accès si nécessaire."
         title="Affectations coachés"
       />
-      <div className="space-y-6 p-6">
-        <section className="grid gap-4 md:grid-cols-4">
+      <div className="space-y-6 p-4 sm:p-6">
+        <section className="grid min-w-0 gap-4 md:grid-cols-4">
           <StatCard
             helper="Comptes avec rôle coaché"
             icon={UsersRound}
@@ -134,7 +136,7 @@ export function AdminCoacheeAssignmentsPage({
           />
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid min-w-0 gap-4 lg:grid-cols-2">
           <AttentionList
             coachees={withoutCohort}
             emptyLabel="Tous les coachés sont rattachés à au moins une cohorte."
@@ -151,33 +153,33 @@ export function AdminCoacheeAssignmentsPage({
           <section className="space-y-4">
             {data.coachees.map((coachee) => (
               <article
-                className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
+                className="min-w-0 overflow-hidden rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 sm:p-5"
                 key={coachee.id}
               >
-                <div className="grid gap-4 xl:grid-cols-[1fr_1.5fr]">
-                  <div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-lg font-semibold text-slate-950">
+                <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="break-words text-lg font-semibold text-slate-950">
                           {coachee.fullName}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 break-all text-sm text-slate-500">
                           {coachee.email}
                         </p>
                       </div>
                       <CoacheeSignals coachee={coachee} />
                     </div>
 
-                    <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                      <p>
+                    <div className="mt-4 grid min-w-0 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                      <p className="min-w-0">
                         Dernière connexion
                         <span className="mt-1 block font-medium text-slate-900">
                           {safeDate(coachee.lastSignInAt)}
                         </span>
                       </p>
-                      <p>
+                      <p className="min-w-0">
                         Cohortes
-                        <span className="mt-1 block font-medium text-slate-900">
+                        <span className="mt-1 block break-words font-medium text-slate-900">
                           {coachee.cohorts.length
                             ? coachee.cohorts
                                 .map((cohort) => cohort.name)
@@ -188,7 +190,7 @@ export function AdminCoacheeAssignmentsPage({
                     </div>
                   </div>
 
-                  <div className="space-y-4 rounded-xl border border-sky-100 bg-sky-50/40 p-4">
+                  <div className="min-w-0 max-w-full space-y-4 overflow-hidden rounded-xl border border-sky-100 bg-sky-50/40 p-3 sm:p-4">
                     <AssignCoacheeToCohortForm
                       coachee={coachee}
                       cohorts={data.cohorts}

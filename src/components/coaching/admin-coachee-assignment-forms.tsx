@@ -49,7 +49,7 @@ function ActionMessage({
   return (
     <p
       className={cn(
-        "rounded-lg border px-3 py-2 text-xs font-medium",
+        "break-words rounded-lg border px-3 py-2 text-xs font-medium",
         status === "error"
           ? "border-red-200 bg-red-50 text-red-700"
           : "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -80,7 +80,7 @@ function InlineSubmitButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex min-h-10 min-w-0 max-w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
         tone === "danger"
           ? "border border-red-100 bg-red-50 text-red-700 hover:bg-red-100"
           : tone === "secondary"
@@ -120,11 +120,11 @@ export function AssignCoacheeToCohortForm({
   }, [state.status]);
 
   return (
-    <form action={formAction} className="space-y-2" ref={formRef}>
+    <form action={formAction} className="min-w-0 space-y-2" ref={formRef}>
       <input name="userId" type="hidden" value={coachee.id} />
-      <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+      <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <select
-          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
           disabled={!hasOptions}
           name="cohortId"
           required
@@ -166,11 +166,11 @@ export function ChangeCoacheeCoachForm({
   const hasCoaches = coaches.length > 0;
 
   return (
-    <form action={formAction} className="space-y-2">
+    <form action={formAction} className="min-w-0 space-y-2">
       <input name="userId" type="hidden" value={coachee.id} />
-      <div className="grid gap-2 xl:grid-cols-[1fr_1fr_auto]">
+      <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
         <select
-          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
           disabled={!hasCohorts}
           name="cohortId"
           required
@@ -189,7 +189,7 @@ export function ChangeCoacheeCoachForm({
           )}
         </select>
         <select
-          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
           disabled={!hasCoaches}
           name="coachId"
           required
@@ -234,7 +234,7 @@ export function ToggleCoacheeStatusForm({
   return (
     <form
       action={formAction}
-      className="space-y-2"
+      className="min-w-0 space-y-2"
       onSubmit={(event) => {
         const message = coachee.isDisabled
           ? `Réactiver le compte de ${coachee.fullName} ?`
