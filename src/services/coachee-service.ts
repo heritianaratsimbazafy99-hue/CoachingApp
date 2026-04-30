@@ -5,6 +5,7 @@ import {
   getCoacheeLearningPathData,
   type CoacheeLearningPathData,
 } from "@/services/learning-path-service";
+import { getUserNotificationPreferenceCategories } from "@/services/profile-service";
 import type {
   AssignmentStatus,
   AssignmentType,
@@ -312,6 +313,7 @@ export type CoacheeNotificationItem = {
 };
 
 export type CoacheeNotificationsData = {
+  enabledNotificationCategories: CoacheeNotificationCategory[];
   filters: Array<{
     count: number;
     id: CoacheeNotificationFilter;
@@ -954,10 +956,15 @@ export const getCoacheeNotificationsData =
   cache(async (): Promise<CoacheeNotificationsData> => {
     const base = await getCoacheeBaseData();
     const supabase = await createServerSupabaseClient();
-    const [pathData, unreadMessages] = await Promise.all([
-      getCoacheeLearningPathData(),
-      fetchUnreadMessages(supabase, base.userId, 30),
-    ]);
+    const [enabledNotificationCategories, pathData, unreadMessages] =
+      await Promise.all([
+        getUserNotificationPreferenceCategories({
+          role: "coachee",
+          userId: base.userId,
+        }),
+        getCoacheeLearningPathData(),
+        fetchUnreadMessages(supabase, base.userId, 30),
+      ]);
     const notifications = mergeNotificationItems([
       ...buildCoacheeNotifications({ base, unreadMessages }),
       ...buildCoacheePathNotifications(pathData),
@@ -967,6 +974,8 @@ export const getCoacheeNotificationsData =
     ).length;
 
     return {
+      enabledNotificationCategories:
+        enabledNotificationCategories as CoacheeNotificationCategory[],
       filters: buildCoacheeNotificationFilters(notifications),
       metrics: {
         highPriorityCount,

@@ -3,6 +3,12 @@ import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/coaching";
 import {
+  getNotificationPreferenceCategories,
+  parseNotificationPreferenceMap,
+  type NotificationPreferenceMap,
+  type NotificationRole,
+} from "@/utils/notification-preferences";
+import {
   parseReminderTemplateTitle,
   type ReminderTemplateUsage,
 } from "@/utils/reminders";
@@ -12,6 +18,7 @@ type ProfileRow = {
   created_at: string;
   full_name: string;
   id: string;
+  notification_preferences?: unknown;
   role: UserRole;
   user_id: string;
 };
@@ -36,6 +43,7 @@ export type AccountProfile = {
   createdAt: string;
   email: string;
   fullName: string;
+  notificationPreferences: NotificationPreferenceMap;
   role: UserRole;
   userId: string;
 };
@@ -71,13 +79,39 @@ export type CoacheeProfileData = {
   profile: AccountProfile;
 };
 
+function isMissingNotificationPreferencesColumn(error: {
+  code?: string;
+  message?: string;
+} | null) {
+  return Boolean(
+    error?.code === "PGRST204" ||
+      error?.message?.includes("notification_preferences"),
+  );
+}
+
 async function getProfileRow(userId: string) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id,user_id,full_name,role,avatar_url,created_at")
+    .select(
+      "id,user_id,full_name,role,avatar_url,notification_preferences,created_at",
+    )
     .eq("user_id", userId)
     .maybeSingle<ProfileRow>();
+
+  if (error && isMissingNotificationPreferencesColumn(error)) {
+    const fallback = await supabase
+      .from("profiles")
+      .select("id,user_id,full_name,role,avatar_url,created_at")
+      .eq("user_id", userId)
+      .maybeSingle<ProfileRow>();
+
+    if (fallback.error) {
+      throw new Error(fallback.error.message);
+    }
+
+    return fallback.data;
+  }
 
   if (error) {
     throw new Error(error.message);
@@ -104,9 +138,27 @@ function mapAccountProfile({
     createdAt: profile?.created_at ?? new Date(0).toISOString(),
     email,
     fullName: profile?.full_name ?? fallbackName,
+    notificationPreferences: parseNotificationPreferenceMap(
+      profile?.notification_preferences,
+    ),
     role: profile?.role ?? fallbackRole,
     userId,
   };
+}
+
+export async function getUserNotificationPreferenceCategories({
+  role,
+  userId,
+}: {
+  role: NotificationRole;
+  userId: string;
+}) {
+  const profile = await getProfileRow(userId);
+
+  return getNotificationPreferenceCategories(
+    parseNotificationPreferenceMap(profile?.notification_preferences),
+    role,
+  );
 }
 
 export const getCoachSettingsData = cache(

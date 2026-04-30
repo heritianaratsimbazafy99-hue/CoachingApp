@@ -395,7 +395,12 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
               </div>
             </section>
 
-            <NotificationPreferenceForm role="coachee" />
+            <NotificationPreferenceForm
+              initialEnabledCategories={
+                data.profile.notificationPreferences.coachee
+              }
+              role="coachee"
+            />
           </aside>
         </div>
 

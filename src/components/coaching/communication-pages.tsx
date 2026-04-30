@@ -694,7 +694,10 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
             </div>
           </section>
 
-          <NotificationPreferenceForm role="coach" />
+          <NotificationPreferenceForm
+            initialEnabledCategories={data.profile.notificationPreferences.coach}
+            role="coach"
+          />
 
           <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
             <h2 className="font-semibold text-slate-950">Nouveau template</h2>

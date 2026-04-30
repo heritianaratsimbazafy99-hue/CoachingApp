@@ -12,8 +12,10 @@ import { Bell, CheckCircle2, Save, SendHorizonal, Trash2 } from "lucide-react";
 import {
   createReminderTemplateAction,
   deleteReminderTemplateAction,
+  type NotificationPreferenceActionState,
   type ProfileActionState,
   type ReminderTemplateActionState,
+  updateNotificationPreferencesAction,
   updateProfileAction,
 } from "@/app/profile/actions";
 import type {
@@ -39,6 +41,11 @@ const initialProfileState: ProfileActionState = {
 };
 
 const initialTemplateState: ReminderTemplateActionState = {
+  message: "",
+  status: "idle",
+};
+
+const initialNotificationPreferenceState: NotificationPreferenceActionState = {
   message: "",
   status: "idle",
 };
@@ -98,6 +105,21 @@ function TemplateSubmitButton() {
   );
 }
 
+function NotificationPreferenceSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-sky-600 px-3 text-xs font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={pending}
+      type="submit"
+    >
+      <Save className="h-3.5 w-3.5" />
+      {pending ? "Enregistrement..." : "Enregistrer"}
+    </button>
+  );
+}
+
 export function ProfileForm({ profile }: { profile: AccountProfile }) {
   const [state, formAction] = useActionState(
     updateProfileAction,
@@ -144,10 +166,16 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
 }
 
 export function NotificationPreferenceForm({
+  initialEnabledCategories,
   role,
 }: {
+  initialEnabledCategories?: readonly string[];
   role: NotificationRole;
 }) {
+  const [state, formAction] = useActionState(
+    updateNotificationPreferencesAction,
+    initialNotificationPreferenceState,
+  );
   const options =
     role === "coach"
       ? coachNotificationPreferenceOptions
@@ -157,6 +185,14 @@ export function NotificationPreferenceForm({
     () => options.map((option) => option.category),
     [options],
   );
+  const serverEnabledCategories = useMemo(
+    () =>
+      normalizeNotificationPreferenceSelection(
+        initialEnabledCategories,
+        allCategories,
+      ),
+    [allCategories, initialEnabledCategories],
+  );
   const preferenceSnapshot = useSyncExternalStore(
     subscribeToNotificationPreferenceChanges,
     () => getStoredNotificationPreferenceSnapshot(storageKey),
@@ -164,7 +200,7 @@ export function NotificationPreferenceForm({
   );
   const enabledCategories = useMemo(() => {
     if (!preferenceSnapshot) {
-      return allCategories;
+      return serverEnabledCategories;
     }
 
     try {
@@ -173,9 +209,9 @@ export function NotificationPreferenceForm({
         allCategories,
       );
     } catch {
-      return allCategories;
+      return serverEnabledCategories;
     }
-  }, [allCategories, preferenceSnapshot]);
+  }, [allCategories, preferenceSnapshot, serverEnabledCategories]);
 
   function persist(nextCategories: readonly string[]) {
     const normalizedCategories = normalizeNotificationPreferenceSelection(
@@ -207,21 +243,28 @@ export function NotificationPreferenceForm({
   }
 
   return (
-    <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+    <form
+      action={formAction}
+      className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
+    >
+      <input name="role" type="hidden" value={role} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-sky-600" />
           <h2 className="font-semibold text-slate-950">Notifications</h2>
         </div>
-        <button
-          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
-          disabled={enabledCategories.length === allCategories.length}
-          onClick={() => persist(allCategories)}
-          type="button"
-        >
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          Tout activer
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
+            disabled={enabledCategories.length === allCategories.length}
+            onClick={() => persist(allCategories)}
+            type="button"
+          >
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Tout activer
+          </button>
+          <NotificationPreferenceSubmitButton />
+        </div>
       </div>
 
       <div className="mt-4 grid gap-2">
@@ -244,9 +287,10 @@ export function NotificationPreferenceForm({
               <input
                 checked={isEnabled}
                 className="sr-only"
-                disabled={isLastEnabled}
+                name="enabledCategories"
                 onChange={() => toggleCategory(option.category)}
                 type="checkbox"
+                value={option.category}
               />
               <span
                 className={cn(
@@ -262,7 +306,10 @@ export function NotificationPreferenceForm({
           );
         })}
       </div>
-    </section>
+      <div className="mt-4">
+        <StateMessage message={state.message} status={state.status} />
+      </div>
+    </form>
   );
 }
 

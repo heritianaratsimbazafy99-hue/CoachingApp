@@ -57,7 +57,7 @@ const categoryStyles: Record<CoachNotificationCategory, string> = {
   paths: "border-rose-100 bg-rose-50 text-rose-700",
 };
 
-const defaultEnabledCategories = coachNotificationPreferenceOptions.map(
+const availableNotificationCategories = coachNotificationPreferenceOptions.map(
   (option) => option.category,
 );
 
@@ -92,6 +92,14 @@ export function CoachNotificationsList({
     markCoachNotificationMessagesReadAction,
     initialReadState,
   );
+  const serverEnabledCategories = useMemo(
+    () =>
+      normalizeNotificationPreferenceSelection(
+        data.enabledNotificationCategories,
+        availableNotificationCategories,
+      ),
+    [data.enabledNotificationCategories],
+  );
   const preferenceSnapshot = useSyncExternalStore(
     subscribeToNotificationPreferenceChanges,
     () =>
@@ -102,18 +110,18 @@ export function CoachNotificationsList({
   );
   const enabledCategories = useMemo(() => {
     if (!preferenceSnapshot) {
-      return defaultEnabledCategories;
+      return serverEnabledCategories;
     }
 
     try {
       return normalizeNotificationPreferenceSelection(
         JSON.parse(preferenceSnapshot),
-        defaultEnabledCategories,
+        availableNotificationCategories,
       );
     } catch {
-      return defaultEnabledCategories;
+      return serverEnabledCategories;
     }
-  }, [preferenceSnapshot]);
+  }, [preferenceSnapshot, serverEnabledCategories]);
   const effectiveFilter =
     activeFilter !== "all" && !enabledCategories.includes(activeFilter)
       ? "all"

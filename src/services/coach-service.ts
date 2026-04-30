@@ -6,6 +6,7 @@ import {
   getCoachLearningPathData,
   type CoachLearningPathData,
 } from "@/services/learning-path-service";
+import { getUserNotificationPreferenceCategories } from "@/services/profile-service";
 import type {
   AssignmentStatus,
   AssignmentType,
@@ -422,6 +423,7 @@ export type CoachNotificationItem = {
 };
 
 export type CoachNotificationsData = {
+  enabledNotificationCategories: CoachNotificationCategory[];
   filters: Array<{
     count: number;
     id: CoachNotificationFilter;
@@ -1536,8 +1538,17 @@ export const getCoachNotificationsData =
     const base = await getCoachBaseData();
     const supabase = await createServerSupabaseClient();
     const profileUserIds = base.profiles.map((profile) => profile.user_id);
-    const [activityLogs, pathData, unreadMessages] = await Promise.all([
+    const [
+      activityLogs,
+      enabledNotificationCategories,
+      pathData,
+      unreadMessages,
+    ] = await Promise.all([
       fetchActivityLogs(supabase, profileUserIds, 40),
+      getUserNotificationPreferenceCategories({
+        role: "coach",
+        userId: base.currentUserId,
+      }),
       getCoachLearningPathData(),
       fetchDashboardUnreadMessages(supabase, {
         currentUserId: base.currentUserId,
@@ -1556,6 +1567,8 @@ export const getCoachNotificationsData =
     ).length;
 
     return {
+      enabledNotificationCategories:
+        enabledNotificationCategories as CoachNotificationCategory[],
       filters: buildCoachNotificationFilters(notifications),
       metrics: {
         highPriorityCount,

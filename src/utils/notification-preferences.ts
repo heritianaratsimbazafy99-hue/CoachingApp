@@ -21,6 +21,10 @@ export type CoachNotificationPreferenceCategory =
 export type CoacheeNotificationPreferenceCategory =
   (typeof coacheeNotificationPreferenceOptions)[number]["category"];
 
+export type NotificationPreferenceMap = Partial<
+  Record<NotificationRole, string[]>
+>;
+
 export const notificationPreferenceStorageKeys = {
   coach: "coaching-platform:coach-notification-categories",
   coachee: "coaching-platform:coachee-notification-categories",
@@ -72,4 +76,47 @@ export function normalizeNotificationPreferenceSelection<Category extends string
   );
 
   return filtered.length ? filtered : [...availableCategories];
+}
+
+export function getDefaultNotificationPreferenceCategories(
+  role: NotificationRole,
+) {
+  const options =
+    role === "coach"
+      ? coachNotificationPreferenceOptions
+      : coacheeNotificationPreferenceOptions;
+
+  return options.map((option) => option.category);
+}
+
+export function parseNotificationPreferenceMap(
+  value: unknown,
+): NotificationPreferenceMap {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const record = value as Record<string, unknown>;
+  const preferences: NotificationPreferenceMap = {};
+
+  (["coach", "coachee"] as const).forEach((role) => {
+    if (Array.isArray(record[role])) {
+      preferences[role] = normalizeNotificationPreferenceSelection(
+        record[role],
+        getDefaultNotificationPreferenceCategories(role),
+      );
+    }
+  });
+
+  return preferences;
+}
+
+export function getNotificationPreferenceCategories(
+  preferences: NotificationPreferenceMap | null | undefined,
+  role: NotificationRole,
+) {
+  return normalizeNotificationPreferenceSelection(
+    preferences?.[role],
+    getDefaultNotificationPreferenceCategories(role),
+  );
 }

@@ -54,7 +54,7 @@ const categoryStyles: Record<CoacheeNotificationCategory, string> = {
   results: "border-amber-100 bg-amber-50 text-amber-700",
 };
 
-const defaultEnabledCategories = coacheeNotificationPreferenceOptions.map(
+const availableNotificationCategories = coacheeNotificationPreferenceOptions.map(
   (option) => option.category,
 );
 
@@ -89,6 +89,14 @@ export function CoacheeNotificationsList({
     markCoacheeNotificationMessagesReadAction,
     initialReadState,
   );
+  const serverEnabledCategories = useMemo(
+    () =>
+      normalizeNotificationPreferenceSelection(
+        data.enabledNotificationCategories,
+        availableNotificationCategories,
+      ),
+    [data.enabledNotificationCategories],
+  );
   const preferenceSnapshot = useSyncExternalStore(
     subscribeToNotificationPreferenceChanges,
     () =>
@@ -99,18 +107,18 @@ export function CoacheeNotificationsList({
   );
   const enabledCategories = useMemo(() => {
     if (!preferenceSnapshot) {
-      return defaultEnabledCategories;
+      return serverEnabledCategories;
     }
 
     try {
       return normalizeNotificationPreferenceSelection(
         JSON.parse(preferenceSnapshot),
-        defaultEnabledCategories,
+        availableNotificationCategories,
       );
     } catch {
-      return defaultEnabledCategories;
+      return serverEnabledCategories;
     }
-  }, [preferenceSnapshot]);
+  }, [preferenceSnapshot, serverEnabledCategories]);
   const effectiveFilter =
     activeFilter !== "all" && !enabledCategories.includes(activeFilter)
       ? "all"

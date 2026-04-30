@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  getDefaultNotificationPreferenceCategories,
+  normalizeNotificationPreferenceSelection,
+  parseNotificationPreferenceMap,
+  type NotificationPreferenceMap,
+  type NotificationRole,
+} from "@/utils/notification-preferences";
 import { encodeReminderTemplateTitle } from "@/utils/reminders";
 
 const uuidPattern =
@@ -41,7 +48,18 @@ const deleteReminderTemplateSchema = z.object({
   templateId: z.string().trim().regex(uuidPattern, "Template invalide."),
 });
 
+const notificationPreferenceSchema = z.object({
+  enabledCategories: z.array(z.string().trim()).min(1),
+  role: z.enum(["coach", "coachee"]),
+});
+
 export type ProfileActionState = {
+  message: string;
+  status: "error" | "idle" | "success";
+};
+
+export type NotificationPreferenceActionState = {
+  enabledCategories?: string[];
   message: string;
   status: "error" | "idle" | "success";
 };
@@ -58,8 +76,30 @@ function nullableText(value: string) {
 function revalidateProfilePaths() {
   revalidatePath("/coach");
   revalidatePath("/coach/settings");
+  revalidatePath("/coach/notifications");
   revalidatePath("/coachee");
+  revalidatePath("/coachee/notifications");
   revalidatePath("/coachee/profile");
+}
+
+function isMissingNotificationPreferencesColumn(error: {
+  code?: string;
+  message?: string;
+} | null) {
+  return Boolean(
+    error?.code === "PGRST204" ||
+      error?.message?.includes("notification_preferences"),
+  );
+}
+
+function canUpdateNotificationRole({
+  currentRole,
+  preferenceRole,
+}: {
+  currentRole: string;
+  preferenceRole: NotificationRole;
+}) {
+  return currentRole === "admin" || currentRole === preferenceRole;
 }
 
 export async function updateProfileAction(
@@ -127,6 +167,119 @@ export async function updateProfileAction(
 
   return {
     message: "Profil enregistré.",
+    status: "success",
+  };
+}
+
+export async function updateNotificationPreferencesAction(
+  _previousState: NotificationPreferenceActionState,
+  formData: FormData,
+): Promise<NotificationPreferenceActionState> {
+  const currentUser = await requireRole(["admin", "coach", "coachee"]);
+  const parsed = notificationPreferenceSchema.safeParse({
+    enabledCategories: formData.getAll("enabledCategories"),
+    role: formData.get("role"),
+  });
+
+  if (!parsed.success) {
+    return {
+      message: "Les préférences de notifications sont invalides.",
+      status: "error",
+    };
+  }
+
+  const preferenceRole = parsed.data.role;
+
+  if (
+    !canUpdateNotificationRole({
+      currentRole: currentUser.role,
+      preferenceRole,
+    })
+  ) {
+    return {
+      message: "Vous ne pouvez pas modifier ces préférences.",
+      status: "error",
+    };
+  }
+
+  const enabledCategories = normalizeNotificationPreferenceSelection(
+    parsed.data.enabledCategories,
+    getDefaultNotificationPreferenceCategories(preferenceRole),
+  );
+  const supabase = await createServerSupabaseClient();
+  const profileResponse = await supabase
+    .from("profiles")
+    .select("id,notification_preferences")
+    .eq("user_id", currentUser.user.id)
+    .maybeSingle<{ id: string; notification_preferences: unknown }>();
+
+  if (
+    profileResponse.error &&
+    isMissingNotificationPreferencesColumn(profileResponse.error)
+  ) {
+    return {
+      enabledCategories,
+      message:
+        "Migration Supabase requise : exécutez supabase/add-notification-preferences.sql.",
+      status: "error",
+    };
+  }
+
+  if (profileResponse.error) {
+    return {
+      enabledCategories,
+      message: profileResponse.error.message,
+      status: "error",
+    };
+  }
+
+  const existingPreferences = parseNotificationPreferenceMap(
+    profileResponse.data?.notification_preferences,
+  );
+  const notificationPreferences: NotificationPreferenceMap = {
+    ...existingPreferences,
+    [preferenceRole]: enabledCategories,
+  };
+  const payload = {
+    notification_preferences: notificationPreferences,
+  };
+
+  const response = profileResponse.data
+    ? await supabase
+        .from("profiles")
+        .update(payload)
+        .eq("user_id", currentUser.user.id)
+    : await supabase.from("profiles").insert({
+        ...payload,
+        full_name: currentUser.user.email ?? "Utilisateur",
+        role: currentUser.role === "admin" ? "admin" : preferenceRole,
+        user_id: currentUser.user.id,
+      });
+
+  if (response.error) {
+    return {
+      enabledCategories,
+      message: response.error.message,
+      status: "error",
+    };
+  }
+
+  await supabase.from("activity_logs").insert({
+    action: "Préférences de notifications mises à jour",
+    entity_id: currentUser.user.id,
+    entity_type: "profile",
+    metadata: {
+      enabledCategories,
+      notificationRole: preferenceRole,
+    },
+    user_id: currentUser.user.id,
+  });
+
+  revalidateProfilePaths();
+
+  return {
+    enabledCategories,
+    message: "Préférences enregistrées.",
     status: "success",
   };
 }
