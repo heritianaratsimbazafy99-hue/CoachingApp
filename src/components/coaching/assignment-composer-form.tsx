@@ -5,6 +5,8 @@ import { useFormStatus } from "react-dom";
 import { SendHorizonal } from "lucide-react";
 import { createAssignmentAction } from "@/app/coach/assignments/actions";
 import type { CreateAssignmentState } from "@/app/coach/assignments/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName, labelClassName, textareaClassName } from "@/components/ui/form-field";
 import type { CoachAssignmentComposerData } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 import { contentTypeLabel } from "@/utils/format";
@@ -19,7 +21,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={pending}
       type="submit"
     >
@@ -53,13 +55,13 @@ export function AssignmentComposerForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5 lg:grid-cols-[1fr_340px]"
+      className="grid gap-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] sm:p-6 lg:grid-cols-[1fr_340px]"
     >
       <div className="space-y-5">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Titre</span>
+          <span className={labelClassName}>Titre</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             name="title"
             placeholder="Ex : Module posture + quiz"
             required
@@ -67,22 +69,18 @@ export function AssignmentComposerForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">
-            Description courte
-          </span>
+          <span className={labelClassName}>Description courte</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             name="description"
             placeholder="Objectif de l'assignation"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">
-            Instructions
-          </span>
+          <span className={labelClassName}>Instructions</span>
           <textarea
-            className="mt-2 min-h-36 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={textareaClassName("min-h-36")}
             name="instructions"
             placeholder="Message visible côté coaché"
           />
@@ -90,9 +88,9 @@ export function AssignmentComposerForm({
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Contenu</span>
+            <span className={labelClassName}>Contenu</span>
             <select
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+              className={inputClassName()}
               name="contentId"
             >
               <option value="">Aucun contenu</option>
@@ -105,9 +103,9 @@ export function AssignmentComposerForm({
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Quiz</span>
+            <span className={labelClassName}>Quiz</span>
             <select
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+              className={inputClassName()}
               name="quizId"
             >
               <option value="">Aucun quiz</option>
@@ -121,11 +119,11 @@ export function AssignmentComposerForm({
         </div>
       </div>
 
-      <aside className="space-y-5 rounded-2xl border border-sky-100 bg-sky-50/70 p-5">
+      <aside className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-5">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Cible</span>
+          <span className={labelClassName}>Cible</span>
           <select
-            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={targetDefaultValue}
             name="target"
             required
@@ -145,9 +143,9 @@ export function AssignmentComposerForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Deadline</span>
+          <span className={labelClassName}>Deadline</span>
           <input
-            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             min={minDate}
             name="deadline"
             type="date"
@@ -156,9 +154,9 @@ export function AssignmentComposerForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Priorité</span>
+          <span className={labelClassName}>Priorité</span>
           <select
-            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue="normal"
             name="priority"
           >

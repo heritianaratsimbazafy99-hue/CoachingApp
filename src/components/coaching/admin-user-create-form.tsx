@@ -6,6 +6,8 @@ import { useFormStatus } from "react-dom";
 import { MailPlus, UserPlus } from "lucide-react";
 import { createAdminUserAction } from "@/app/admin/actions";
 import type { CreateAdminUserState } from "@/app/admin/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
 const roleOptions = [
@@ -24,7 +26,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants()}
       disabled={pending}
       type="submit"
     >
@@ -49,14 +51,14 @@ export function AdminUserCreateForm() {
       className="grid gap-4 md:grid-cols-2 xl:grid-cols-5"
     >
       <input name="creationMode" type="hidden" value={creationMode} />
-      <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-3 md:col-span-2 xl:col-span-5">
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 md:col-span-2 xl:col-span-5">
         <div className="grid gap-2 sm:grid-cols-2">
           <label
             className={cn(
               "flex cursor-pointer items-start gap-3 rounded-lg border bg-white px-3 py-3 transition",
               creationMode === "invite"
                 ? "border-sky-300 ring-4 ring-sky-100"
-                : "border-transparent hover:border-sky-100",
+                : "border-slate-200 hover:border-slate-300",
             )}
           >
             <input
@@ -80,7 +82,7 @@ export function AdminUserCreateForm() {
               "flex cursor-pointer items-start gap-3 rounded-lg border bg-white px-3 py-3 transition",
               creationMode === "password"
                 ? "border-sky-300 ring-4 ring-sky-100"
-                : "border-transparent hover:border-sky-100",
+                : "border-slate-200 hover:border-slate-300",
             )}
           >
             <input
@@ -102,9 +104,9 @@ export function AdminUserCreateForm() {
         </div>
       </div>
       <label className="block xl:col-span-2">
-        <span className="text-sm font-medium text-slate-700">Nom complet</span>
+        <span className={labelClassName}>Nom complet</span>
         <input
-          className="mt-1 min-h-10 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName("mt-1 min-h-10 px-3 py-2")}
           name="fullName"
           placeholder="Ex : Aina Rakoto"
           required
@@ -112,9 +114,9 @@ export function AdminUserCreateForm() {
         />
       </label>
       <label className="block xl:col-span-2">
-        <span className="text-sm font-medium text-slate-700">Email</span>
+        <span className={labelClassName}>Email</span>
         <input
-          className="mt-1 min-h-10 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName("mt-1 min-h-10 px-3 py-2")}
           name="email"
           placeholder="nom@entreprise.com"
           required
@@ -122,9 +124,9 @@ export function AdminUserCreateForm() {
         />
       </label>
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Rôle</span>
+        <span className={labelClassName}>Rôle</span>
         <select
-          className="mt-1 min-h-10 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName("mt-1 min-h-10 px-3 py-2")}
           defaultValue="coachee"
           name="role"
         >
@@ -137,11 +139,9 @@ export function AdminUserCreateForm() {
       </label>
       {creationMode === "password" ? (
         <label className="block md:col-span-2 xl:col-span-4">
-          <span className="text-sm font-medium text-slate-700">
-            Mot de passe temporaire
-          </span>
+          <span className={labelClassName}>Mot de passe temporaire</span>
           <input
-            className="mt-1 min-h-10 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("mt-1 min-h-10 px-3 py-2")}
             minLength={8}
             name="password"
             placeholder="8 caractères minimum"

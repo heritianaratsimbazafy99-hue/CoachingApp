@@ -10,6 +10,12 @@ import {
   saveContentAction,
 } from "@/app/coach/library/actions";
 import type { SaveContentState } from "@/app/coach/library/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type {
   CoachContent,
@@ -57,7 +63,7 @@ function SubmitButton({ isUploading }: { isUploading: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "lg" })}
       disabled={disabled}
       type="submit"
     >
@@ -161,16 +167,16 @@ export function ContentEditorForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-xl border border-sky-100 bg-white/95 p-6 shadow-sm shadow-sky-900/5 lg:grid-cols-[1fr_320px]"
+      className="grid gap-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] sm:p-6 lg:grid-cols-[1fr_320px]"
       onSubmit={handleSubmit}
     >
       <input name="contentId" type="hidden" value={content?.id ?? ""} />
       <input name="uploadedFileUrl" ref={uploadedFileUrlRef} type="hidden" />
       <div className="space-y-5">
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Titre</span>
+          <span className={labelClassName}>Titre</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.title}
             name="title"
             placeholder="Titre du contenu"
@@ -178,31 +184,29 @@ export function ContentEditorForm({
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Description</span>
+          <span className={labelClassName}>Description</span>
           <textarea
-            className="mt-2 min-h-24 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={textareaClassName("min-h-24")}
             defaultValue={content?.description}
             name="description"
             placeholder="Résumé court visible dans la bibliothèque"
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">
-            Corps du cours
-          </span>
+          <span className={labelClassName}>Corps du cours</span>
           <textarea
-            className="mt-2 min-h-64 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={textareaClassName("min-h-64")}
             defaultValue={content?.body}
             name="body"
             placeholder="Texte, consignes, ressources et liens utiles."
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">
+          <span className={labelClassName}>
             Tags, séparés par des virgules
           </span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.tags.join(", ")}
             name="tags"
             placeholder="mindset, onboarding, carrière"
@@ -210,11 +214,11 @@ export function ContentEditorForm({
         </label>
       </div>
 
-      <aside className="space-y-5 rounded-xl border border-sky-100 bg-sky-50/70 p-5">
+      <aside className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-5">
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Type</span>
+          <span className={labelClassName}>Type</span>
           <select
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.type ?? "text"}
             name="type"
           >
@@ -227,9 +231,9 @@ export function ContentEditorForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Statut</span>
+          <span className={labelClassName}>Statut</span>
           <select
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.status ?? "draft"}
             name="status"
           >
@@ -242,9 +246,9 @@ export function ContentEditorForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Thème</span>
+          <span className={labelClassName}>Thème</span>
           <select
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.themeId ?? ""}
             name="themeId"
           >
@@ -258,9 +262,9 @@ export function ContentEditorForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Sous-thème</span>
+          <span className={labelClassName}>Sous-thème</span>
           <select
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.subthemeId ?? ""}
             name="subthemeId"
           >
@@ -274,9 +278,9 @@ export function ContentEditorForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">URL vidéo</span>
+          <span className={labelClassName}>URL vidéo</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.videoUrl}
             name="videoUrl"
             placeholder="https://..."
@@ -285,9 +289,9 @@ export function ContentEditorForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Lien externe</span>
+          <span className={labelClassName}>Lien externe</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue={content?.externalUrl}
             name="externalUrl"
             placeholder="https://..."
@@ -295,7 +299,7 @@ export function ContentEditorForm({
           />
         </label>
 
-        <div className="rounded-xl border border-sky-100 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="flex items-start gap-3">
             <div className="rounded-lg bg-sky-50 p-2 text-sky-700 ring-1 ring-sky-100">
               <UploadCloud className="h-4 w-4" />
@@ -331,7 +335,7 @@ export function ContentEditorForm({
 
           <input
             accept={CONTENT_FILE_ACCEPT}
-            className="mt-3 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+            className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
             name="documentFile"
             ref={fileInputRef}
             type="file"

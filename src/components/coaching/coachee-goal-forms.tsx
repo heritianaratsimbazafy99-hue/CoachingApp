@@ -9,6 +9,12 @@ import {
   type CoachGoalActionState,
   type CoachNoteActionState,
 } from "@/app/coach/coachees/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
 const initialGoalState: CoachGoalActionState = {
@@ -51,7 +57,7 @@ function GoalSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={pending}
       type="submit"
     >
@@ -66,7 +72,7 @@ function NoteSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sky-700 px-4 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={pending}
       type="submit"
     >
@@ -93,20 +99,18 @@ export function CoacheeGoalForm({ coacheeId }: { coacheeId: string }) {
     <form action={formAction} className="space-y-4" ref={formRef}>
       <input name="coacheeId" type="hidden" value={coacheeId} />
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Objectif</span>
+        <span className={labelClassName}>Objectif</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="title"
           placeholder="Ex : Finaliser le module posture"
           required
         />
       </label>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">
-          Échéance optionnelle
-        </span>
+        <span className={labelClassName}>Échéance optionnelle</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="dueDate"
           type="date"
         />
@@ -134,41 +138,35 @@ export function CoachNoteForm({ coacheeId }: { coacheeId: string }) {
     <form action={formAction} className="space-y-4" ref={formRef}>
       <input name="coacheeId" type="hidden" value={coacheeId} />
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">
-          Sujet de l&apos;entretien
-        </span>
+        <span className={labelClassName}>Sujet de l&apos;entretien</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="topic"
           placeholder="Ex : Entretien mensuel, blocage module 2..."
           required
         />
       </label>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">
-          Date de l&apos;entretien
-        </span>
+        <span className={labelClassName}>Date de l&apos;entretien</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="interviewDate"
           type="date"
         />
       </label>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Synthèse</span>
+        <span className={labelClassName}>Synthèse</span>
         <textarea
-          className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-28")}
           name="note"
           placeholder="Points abordés, posture observée, décisions prises..."
           required
         />
       </label>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">
-          Prochaines étapes
-        </span>
+        <span className={labelClassName}>Prochaines étapes</span>
         <textarea
-          className="mt-2 min-h-20 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-20")}
           name="nextSteps"
           placeholder="Actions à suivre avant le prochain échange..."
         />

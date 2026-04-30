@@ -320,7 +320,7 @@ export function AdminCohortsPage({
       <PageHeader
         actions={
           <a
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className={buttonVariants()}
             href="#admin-new-cohort"
           >
             <Layers3 className="h-4 w-4" />
@@ -330,9 +330,9 @@ export function AdminCohortsPage({
         description="Création, coach responsable, membres et suivi opérationnel des cohortes."
         title="Cohortes"
       />
-      <div className="grid gap-6 p-6 xl:grid-cols-[380px_1fr]">
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[380px_1fr]">
         {loadError ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 xl:col-span-2">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm shadow-red-950/[0.04] xl:col-span-2">
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
               <div>
@@ -344,12 +344,12 @@ export function AdminCohortsPage({
             </div>
           </div>
         ) : null}
-        <section
-          className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
+        <Card
+          className="p-5"
           id="admin-new-cohort"
         >
           <div className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
+            <p className="text-xs font-semibold uppercase text-sky-700">
               Administration
             </p>
             <h2 className="mt-2 text-lg font-semibold text-slate-950">
@@ -360,7 +360,7 @@ export function AdminCohortsPage({
             </p>
           </div>
           <AdminCohortCreateForm coaches={coaches} />
-        </section>
+        </Card>
 
         <section className="space-y-4">
           {cohorts.length ? (
@@ -374,7 +374,7 @@ export function AdminCohortsPage({
 
               return (
                 <article
-                  className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04]"
                   key={cohort.id}
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -424,7 +424,7 @@ export function AdminCohortsPage({
                   </div>
 
                   <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                    <details className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
+                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Modifier la cohorte
                       </summary>
@@ -436,7 +436,7 @@ export function AdminCohortsPage({
                       </div>
                     </details>
 
-                    <details className="rounded-xl border border-sky-100 bg-sky-50/40 p-4">
+                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Gérer les coachés
                       </summary>
@@ -445,7 +445,7 @@ export function AdminCohortsPage({
                           cohortId={cohort.id}
                           options={availableCoachees}
                         />
-                        <div className="divide-y divide-slate-100 rounded-lg border border-sky-100 bg-white">
+                        <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
                           {cohort.members.length ? (
                             cohort.members.map((member) => (
                               <div
@@ -517,7 +517,7 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
         description="Statistiques globales calculées depuis Supabase."
         title="Statistiques globales"
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-4">
           <StatCard
             helper="Tous rôles confondus"
@@ -546,10 +546,7 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
         </section>
         <section className="grid gap-6 lg:grid-cols-3">
           {panels.map((panel) => (
-            <div
-              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
-              key={panel.label}
-            >
+            <Card className="p-5" key={panel.label}>
               <div className="flex items-center justify-between">
                 <p className="font-semibold">{panel.label}</p>
                 <span className="text-sm font-semibold text-slate-500">
@@ -557,14 +554,14 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
                 </span>
               </div>
               <div className="mt-6 h-48">
-                <div className="flex h-full items-end rounded-lg border border-sky-100 bg-sky-50/70 px-5 pb-5">
+                <div className="flex h-full items-end rounded-lg border border-slate-200 bg-slate-50 px-5 pb-5">
                   <div
-                    className="w-full rounded-t-lg bg-sky-500 transition-all"
+                    className="w-full rounded-t-lg bg-sky-600 transition-all"
                     style={{ height: `${Math.max(8, panel.value)}%` }}
                   />
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </section>
       </div>

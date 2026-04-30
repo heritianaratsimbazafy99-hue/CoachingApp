@@ -16,6 +16,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import type {
   CoachCorrectionsData,
   CoachQuizEditorData,
@@ -36,7 +38,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className={buttonVariants()}
             href="/coach/quizzes/new"
           >
             <Plus className="h-4 w-4" />
@@ -47,7 +49,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
         title="Quiz"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Quiz accessibles dans votre espace"
@@ -83,7 +85,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <section className="grid gap-4 xl:grid-cols-2">
             {data.quizzes.map((quiz) => (
               <article
-                className="rounded-2xl border border-sky-900/10 bg-white p-5 shadow-sm shadow-sky-950/5"
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
                 key={quiz.id}
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -103,7 +105,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                       {quiz.description || "Aucune description renseignée."}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-center text-indigo-700">
+                  <div className="rounded-xl bg-indigo-50 px-4 py-3 text-center text-indigo-700 ring-1 ring-indigo-100">
                     <p className="text-2xl font-semibold">
                       {formatPercent(quiz.averageScore)}
                     </p>
@@ -142,7 +144,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                   <p className="text-sm text-slate-500">{quiz.contentTitle}</p>
                   {quiz.isOwner ? (
                     <Link
-                      className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
+                      className={buttonVariants()}
                       href={`/coach/quizzes/${quiz.id}/edit`}
                     >
                       <Pencil className="h-4 w-4" />
@@ -161,7 +163,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <EmptyState
             action={
               <Link
-                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+                className={buttonVariants()}
                 href="/coach/quizzes/new"
               >
                 <Plus className="h-4 w-4" />
@@ -185,17 +187,14 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
         description="Paramètres, questions, points, bonnes réponses et explications."
         title={data.quiz ? `Modifier : ${data.quiz.title}` : "Créer un quiz"}
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <QuizEditorForm data={data} />
 
         {data.quiz ? (
           <section className="space-y-4">
             {data.quiz.questions.length ? (
               data.quiz.questions.map((question) => (
-                <article
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5"
-                  key={question.id}
-                >
+                <Card className="p-5" key={question.id}>
                   <div className="flex items-start gap-3">
                     <div className="mt-1 rounded-xl bg-sky-50 p-2 text-sky-700">
                       <GripVertical className="h-5 w-5" />
@@ -246,7 +245,7 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
                       ) : null}
                     </div>
                   </div>
-                </article>
+                </Card>
               ))
             ) : (
               <EmptyState
@@ -269,7 +268,7 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
         description="Scores, statuts, corrections et feedbacks par coaché."
         title="Résultats quiz"
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Tentatives visibles par votre rôle"
@@ -302,7 +301,7 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
         </section>
 
         {data.results.length ? (
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5">
+          <Card className="overflow-hidden">
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
@@ -335,7 +334,7 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         ) : (
           <EmptyState
             description="Les résultats apparaîtront ici dès qu'un coaché soumettra un quiz."
@@ -355,7 +354,7 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
         description="Corrigez les questions ouvertes, attribuez les points et ajoutez un feedback."
         title="Corrections ouvertes"
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2">
           <StatCard
             helper="Réponses ouvertes non corrigées"
@@ -377,7 +376,7 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
           <section className="space-y-4">
             {data.corrections.map((item) => (
               <article
-                className="rounded-2xl border border-indigo-900/10 bg-white p-5 shadow-sm shadow-indigo-950/5"
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04]"
                 key={item.answerId}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

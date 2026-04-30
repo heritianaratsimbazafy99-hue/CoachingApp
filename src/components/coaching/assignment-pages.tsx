@@ -11,6 +11,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
 import { StatCard } from "@/components/ui/stat-card";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import type {
   CoachAssignmentComposerData,
   CoachAssignmentsData,
@@ -23,7 +25,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className={buttonVariants()}
             href="/coach/assignments/new"
           >
             <Plus className="h-4 w-4" />
@@ -33,7 +35,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
         description="Suivez les contenus, quiz, deadlines, retards et relances."
         title="Assignations"
       />
-      <div className="space-y-4 p-6">
+      <div className="space-y-4 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Assignations créées"
@@ -65,7 +67,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
           />
         </section>
 
-        <div className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
+        <Card className="overflow-hidden">
           {data.assignments.length ? (
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
@@ -99,7 +101,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
               <EmptyState
                 action={
                   <Link
-                    className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+                    className={buttonVariants()}
                     href="/coach/assignments/new"
                   >
                     <Plus className="h-4 w-4" />
@@ -112,7 +114,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
               />
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </>
   );
@@ -131,7 +133,7 @@ export function AssignmentComposerPage({
         description="Assignez un contenu, un quiz ou les deux à un coaché ou une cohorte."
         title="Nouvelle assignation"
       />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <AssignmentComposerForm data={data} initialTarget={initialTarget} />
       </div>
     </>

@@ -22,6 +22,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   CoachCoacheesData,
   CoachCoacheeDetail,
@@ -36,12 +38,12 @@ export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
         description="Liste des coachés avec progression, scores, retards et actions rapides."
         title="Mes coachés"
       />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {data.coachees.length ? (
           <div className="grid gap-4">
             {data.coachees.map((coachee) => (
               <article
-                className="grid gap-5 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 lg:grid-cols-[1.2fr_220px_140px_250px]"
+                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[1.2fr_220px_140px_250px]"
                 key={coachee.id}
               >
                 <div>
@@ -171,7 +173,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+            className={buttonVariants({ variant: "soft" })}
             href={`/coach/calendar?target=coachee:${data.profile.id}`}
           >
             <CalendarDays className="h-4 w-4" />
@@ -181,9 +183,9 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
         description="Profil détaillé, assignations, scores, notes privées et historique."
         title={data.profile.fullName}
       />
-      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_360px]">
         <section className="space-y-6">
-          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <Card className="p-5">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 ring-1 ring-sky-100">
                 <UserRound className="h-6 w-6 text-sky-700" />
@@ -193,18 +195,18 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                 <p className="text-sm text-slate-500">{data.profile.email}</p>
               </div>
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
-            <div className="flex items-center justify-between gap-3 border-b border-sky-100 p-5">
+          <Card className="overflow-hidden">
+            <CardHeader className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-sky-600" />
-                <h2 className="font-semibold">Objectifs de coaching</h2>
+                <CardTitle>Objectifs de coaching</CardTitle>
               </div>
               <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
                 {data.goals.length} objectif(s)
               </span>
-            </div>
+            </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.goals.length ? (
                 data.goals.map((goal) => (
@@ -243,12 +245,12 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
-            <div className="border-b border-sky-100 p-5">
-              <h2 className="font-semibold">Progression individuelle</h2>
-            </div>
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle>Progression individuelle</CardTitle>
+            </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.progress.length ? (
                 data.progress.map((item) => (
@@ -271,12 +273,12 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                 </p>
               )}
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
-            <div className="border-b border-sky-100 p-5">
-              <h2 className="font-semibold">Résultats quiz</h2>
-            </div>
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle>Résultats quiz</CardTitle>
+            </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.quizAttempts.length ? (
                 data.quizAttempts.map((attempt) => (
@@ -297,11 +299,11 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                 </p>
               )}
             </div>
-          </div>
+          </Card>
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <Card className="p-5">
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-sky-600" />
               <h2 className="font-semibold">Nouvel objectif</h2>
@@ -312,9 +314,9 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             <div className="mt-5">
               <CoacheeGoalForm coacheeId={data.profile.id} />
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <Card className="p-5">
             <div className="flex items-center gap-2">
               <NotebookPen className="h-5 w-5 text-sky-700" />
               <h2 className="font-semibold">Entretiens individuels</h2>
@@ -327,19 +329,19 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-lg border border-sky-100 bg-sky-50/70 p-3 text-sm leading-6 text-slate-600"
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600"
                     key={note.id}
                   >
                     <p className="whitespace-pre-line break-words">
                       {note.note}
                     </p>
-                    <p className="mt-3 border-t border-sky-100 pt-2 text-xs font-medium text-slate-400">
+                    <p className="mt-3 border-t border-slate-200 pt-2 text-xs font-medium text-slate-400">
                       {formatDateTime(note.createdAt)}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="rounded-lg border border-sky-100 bg-sky-50/60 p-3 text-sm text-slate-500">
+                <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
                   Aucun entretien individuel enregistré.
                 </p>
               )}
@@ -347,9 +349,9 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             <div className="mt-4">
               <CoachNoteForm coacheeId={data.profile.id} />
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-900/5">
+          <Card className="p-5">
             <div className="flex items-center gap-2">
               <Send className="h-5 w-5 text-indigo-600" />
               <h2 className="font-semibold">Relances envoyées</h2>
@@ -395,7 +397,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                 </p>
               )}
             </div>
-          </div>
+          </Card>
         </aside>
       </div>
     </>

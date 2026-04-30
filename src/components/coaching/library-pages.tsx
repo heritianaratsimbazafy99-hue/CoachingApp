@@ -4,6 +4,8 @@ import { ContentEditorForm } from "@/components/coaching/content-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import type {
   CoachContentEditorData,
   CoachLibraryData,
@@ -16,7 +18,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className={buttonVariants()}
             href="/coach/library/new"
           >
             <Plus className="h-4 w-4" />
@@ -27,14 +29,14 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
         title="Bibliothèque de contenus"
       />
 
-      <div className="grid gap-6 p-6 lg:grid-cols-[280px_1fr]">
-        <aside className="rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5">
+      <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[280px_1fr]">
+        <Card className="p-4">
           <h2 className="text-sm font-semibold text-slate-600">Thèmes</h2>
           <div className="mt-4 space-y-2">
             {data.themes.length ? (
               data.themes.map((theme) => (
                 <div
-                  className="rounded-lg border border-sky-100 bg-sky-50/70 p-3"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-3"
                   key={theme.id}
                 >
                   <p className="font-medium text-slate-900">{theme.title}</p>
@@ -44,7 +46,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                 </div>
               ))
             ) : (
-              <p className="rounded-lg bg-sky-50/70 p-3 text-sm text-slate-500">
+              <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">
                 Aucun thème.
               </p>
             )}
@@ -56,22 +58,22 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
             {data.subthemes.length ? (
               data.subthemes.map((subtheme) => (
                 <p
-                  className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-600"
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
                   key={subtheme.id}
                 >
                   {subtheme.title}
                 </p>
               ))
             ) : (
-              <p className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-500">
+              <p className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
                 Aucun sous-thème.
               </p>
             )}
           </div>
-        </aside>
+        </Card>
 
         <section className="space-y-4">
-          <div className="grid gap-3 rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 sm:grid-cols-3">
+          <Card className="grid gap-3 p-4 sm:grid-cols-3">
             <div className="rounded-lg border border-sky-100 bg-sky-50/60 p-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-sky-700">
                 <BookOpen className="h-4 w-4" />
@@ -99,13 +101,13 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                 Classement des ressources
               </p>
             </div>
-          </div>
+          </Card>
 
           {data.contents.length ? (
             <div className="grid gap-4 xl:grid-cols-2">
               {data.contents.map((content) => (
                 <article
-                  className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
                   key={content.id}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -133,7 +135,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                   </div>
                   <div className="mt-5 flex flex-wrap gap-3">
                     <Link
-                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+                      className={buttonVariants()}
                       href={`/coach/library/${content.id}/edit`}
                     >
                       Modifier
@@ -162,7 +164,7 @@ export function ContentEditorPage({ data }: { data: CoachContentEditorData }) {
         description="Formulaire V1 pour créer ou modifier cours, vidéos, liens et ressources."
         title={data.content ? "Modifier le contenu" : "Nouveau contenu"}
       />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <ContentEditorForm
           content={data.content}
           subthemes={data.subthemes}

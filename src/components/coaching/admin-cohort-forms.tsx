@@ -12,6 +12,12 @@ import {
 } from "@/app/admin/cohorts/actions";
 import type { AdminCohortActionState } from "@/app/admin/cohorts/actions";
 import type { AdminCohort, AdminUser } from "@/services/admin-service";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
 type AdminCohortFormProps = {
@@ -81,12 +87,14 @@ function SubmitButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
-        tone === "danger"
-          ? "border border-red-100 bg-red-50 text-red-700 hover:bg-red-100"
-          : tone === "secondary"
-            ? "border border-sky-100 bg-white text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-            : "border border-sky-600 bg-sky-600 text-white shadow-sm shadow-sky-900/10 hover:bg-sky-700",
+        buttonVariants({
+          variant:
+            tone === "danger"
+              ? "danger"
+              : tone === "secondary"
+                ? "secondary"
+                : "primary",
+        }),
       )}
       disabled={disabled || pending}
       type="submit"
@@ -103,7 +111,7 @@ function RemoveMemberSubmitButton() {
   return (
     <button
       aria-label="Retirer le coaché"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "sm", variant: "danger" }), "h-9 w-9 px-0")}
       disabled={pending}
       title="Retirer le coaché"
       type="submit"
@@ -126,7 +134,7 @@ function CoachSelect({
 
   return (
     <select
-      className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+      className={inputClassName("px-3 py-2")}
       defaultValue={currentCoachId ?? ""}
       disabled={!coaches.length}
       name="coachId"
@@ -162,9 +170,9 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Nom</span>
+        <span className={labelClassName}>Nom</span>
         <input
-          className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName("px-3 py-2")}
           name="name"
           placeholder="Cohorte Leadership Q2"
           required
@@ -172,14 +180,14 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Coach</span>
+        <span className={labelClassName}>Coach</span>
         <CoachSelect coaches={coaches} />
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Description</span>
+        <span className={labelClassName}>Description</span>
         <textarea
-          className="mt-2 min-h-24 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm leading-6 text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-24 px-3 py-2")}
           name="description"
           placeholder="Objectifs, rythme, périmètre..."
         />
@@ -187,17 +195,17 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Début</span>
+          <span className={labelClassName}>Début</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("px-3 py-2")}
             name="startDate"
             type="date"
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Fin</span>
+          <span className={labelClassName}>Fin</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("px-3 py-2")}
             name="endDate"
             type="date"
           />
@@ -238,24 +246,24 @@ export function AdminCohortEditForm({
       <input name="cohortId" type="hidden" value={cohort.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Nom</span>
+          <span className={labelClassName}>Nom</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("px-3 py-2")}
             defaultValue={cohort.name}
             name="name"
             required
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Coach</span>
+          <span className={labelClassName}>Coach</span>
           <CoachSelect coaches={coaches} currentCoachId={cohort.coachId} />
         </label>
       </div>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Description</span>
+        <span className={labelClassName}>Description</span>
         <textarea
-          className="mt-2 min-h-20 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm leading-6 text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-20 px-3 py-2")}
           defaultValue={cohort.description}
           name="description"
         />
@@ -263,18 +271,18 @@ export function AdminCohortEditForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Début</span>
+          <span className={labelClassName}>Début</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("px-3 py-2")}
             defaultValue={cohort.startDate ?? ""}
             name="startDate"
             type="date"
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Fin</span>
+          <span className={labelClassName}>Fin</span>
           <input
-            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName("px-3 py-2")}
             defaultValue={cohort.endDate ?? ""}
             name="endDate"
             type="date"
@@ -350,7 +358,7 @@ export function AdminCohortMemberForm({
       <input name="cohortId" type="hidden" value={cohortId} />
       <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
         <select
-          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName("mt-0 min-h-10 px-3 py-2")}
           disabled={!hasOptions}
           name="userId"
           required
@@ -369,7 +377,7 @@ export function AdminCohortMemberForm({
           )}
         </select>
         <button
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className={buttonVariants({ size: "md" })}
           disabled={!hasOptions}
           type="submit"
         >
