@@ -120,8 +120,10 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
 
 export function AssignmentComposerPage({
   data,
+  initialTarget,
 }: {
   data: CoachAssignmentComposerData;
+  initialTarget?: string;
 }) {
   return (
     <>
@@ -130,7 +132,7 @@ export function AssignmentComposerPage({
         title="Nouvelle assignation"
       />
       <div className="p-6">
-        <AssignmentComposerForm data={data} />
+        <AssignmentComposerForm data={data} initialTarget={initialTarget} />
       </div>
     </>
   );

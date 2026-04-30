@@ -28,13 +28,21 @@ function SubmitButton() {
 
 export function AssignmentComposerForm({
   data,
+  initialTarget,
 }: {
   data: CoachAssignmentComposerData;
+  initialTarget?: string;
 }) {
   const [state, formAction] = useActionState(
     createAssignmentAction,
     initialCreateAssignmentState,
   );
+  const targetValues = new Set([
+    ...data.coachees.map((coachee) => `coachee:${coachee.id}`),
+    ...data.cohorts.map((cohort) => `cohort:${cohort.id}`),
+  ]);
+  const targetDefaultValue =
+    initialTarget && targetValues.has(initialTarget) ? initialTarget : "";
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().slice(0, 10);
@@ -115,6 +123,7 @@ export function AssignmentComposerForm({
           <span className="text-sm font-semibold text-slate-800">Cible</span>
           <select
             className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            defaultValue={targetDefaultValue}
             name="target"
             required
           >

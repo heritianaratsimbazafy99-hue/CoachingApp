@@ -426,6 +426,7 @@ export type CoachCohortSummary = {
 
 export type CoachCohortDetail = CoachCohortSummary & {
   assignments: CoachAssignmentSummary[];
+  availableCoachees: CoachCoacheeSummary[];
   members: CoachCoacheeSummary[];
 };
 
@@ -1193,12 +1194,14 @@ export const getCoachCohortDetail = cache(
       return null;
     }
 
+    const coachees = buildCoacheeSummaries(base);
     const coacheesById = new Map(
-      buildCoacheeSummaries(base).map((coachee) => [coachee.id, coachee]),
+      coachees.map((coachee) => [coachee.id, coachee]),
     );
     const cohortMembers = base.cohortMembers.filter(
       (member) => member.cohort_id === cohortId,
     );
+    const memberIds = new Set(cohortMembers.map((member) => member.user_id));
     const mapAssignment = createAssignmentMapper(base);
 
     return {
@@ -1206,6 +1209,7 @@ export const getCoachCohortDetail = cache(
       assignments: base.assignments
         .filter((assignment) => assignment.assigned_to_cohort_id === cohortId)
         .map(mapAssignment),
+      availableCoachees: coachees.filter((coachee) => !memberIds.has(coachee.id)),
       members: cohortMembers
         .map((member) => coacheesById.get(member.user_id))
         .filter(Boolean) as CoachCoacheeSummary[],
