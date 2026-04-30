@@ -1,4 +1,4 @@
--- Fix legacy role helpers that can break the messages RLS policy with:
+-- Fix legacy role helpers that can break RLS policies with:
 -- "return type mismatch in function declared to return app_role".
 -- Safe to run after supabase/harden-auth-profile-rls.sql.
 
@@ -186,4 +186,4 @@ with check (
   )
 );
 
-select 'messaging_role_helpers_fixed' as result;
+select 'auth_role_helpers_fixed' as result;

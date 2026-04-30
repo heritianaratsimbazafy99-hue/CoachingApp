@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type {
   CalendarEventStatus,
@@ -46,6 +47,10 @@ type CohortRow = {
 type CohortMemberRow = {
   cohort_id: string;
   user_id: string;
+};
+
+type CoacheeCohortMemberRow = {
+  cohort_id: string;
 };
 
 type ProfileRow = {
@@ -335,21 +340,41 @@ export const getCoachCalendarData = cache(
 
 export const getCoacheeCalendarData = cache(
   async (): Promise<CalendarPageData> => {
-    await requireRole(["admin", "coachee"]);
-    const supabase = await createServerSupabaseClient();
-    const rows = await getRows<CalendarEventRow>(
-      supabase
-        .from("calendar_events")
-        .select(
-          "id,title,description,start_time,end_time,type,coach_id,coachee_id,cohort_id,status,created_at",
-        )
-        .order("start_time", { ascending: true })
-        .limit(200),
+    const currentUser = await requireRole(["admin", "coachee"]);
+    const supabase = createServiceSupabaseClient();
+    const isAdmin = currentUser.role === "admin";
+    const memberships = isAdmin
+      ? []
+      : await getRows<CoacheeCohortMemberRow>(
+          supabase
+            .from("cohort_members")
+            .select("cohort_id")
+            .eq("user_id", currentUser.user.id),
+        );
+    const memberCohortIds = unique(
+      memberships.map((membership) => membership.cohort_id),
     );
-    const cohortIds = unique(rows.map((event) => event.cohort_id));
-    const cohorts = cohortIds.length
+    let eventQuery = supabase
+      .from("calendar_events")
+      .select(
+        "id,title,description,start_time,end_time,type,coach_id,coachee_id,cohort_id,status,created_at",
+      )
+      .order("start_time", { ascending: true })
+      .limit(200);
+
+    if (!isAdmin) {
+      eventQuery = memberCohortIds.length
+        ? eventQuery.or(
+            `coachee_id.eq.${currentUser.user.id},cohort_id.in.(${memberCohortIds.join(",")})`,
+          )
+        : eventQuery.eq("coachee_id", currentUser.user.id);
+    }
+
+    const rows = await getRows<CalendarEventRow>(eventQuery);
+    const eventCohortIds = unique(rows.map((event) => event.cohort_id));
+    const cohorts = eventCohortIds.length
       ? await getRows<CohortRow>(
-          supabase.from("cohorts").select("id,name").in("id", cohortIds),
+          supabase.from("cohorts").select("id,name").in("id", eventCohortIds),
         )
       : [];
     const cohortsById = new Map(cohorts.map((cohort) => [cohort.id, cohort.name]));

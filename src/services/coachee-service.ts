@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getCoacheeLearningPathData,
@@ -120,6 +121,10 @@ type CalendarEventRow = {
   status: CalendarEventStatus;
   title: string;
   type: CalendarEventType;
+};
+
+type CoacheeCohortMemberRow = {
+  cohort_id: string;
 };
 
 type ActivityLogRow = {
@@ -489,15 +494,33 @@ async function fetchQuizAttempts(supabase: SupabaseServerClient, userId: string)
   );
 }
 
-async function fetchCalendarEvents(supabase: SupabaseServerClient) {
-  return getRows<CalendarEventRow>(
-    supabase
-      .from("calendar_events")
-      .select("id,title,start_time,end_time,type,status")
-      .gte("start_time", new Date().toISOString())
-      .order("start_time", { ascending: true })
-      .limit(4),
-  );
+async function fetchCalendarEvents(userId: string, isAdmin: boolean) {
+  const supabase = createServiceSupabaseClient();
+  const memberships = isAdmin
+    ? []
+    : await getRows<CoacheeCohortMemberRow>(
+        supabase
+          .from("cohort_members")
+          .select("cohort_id")
+          .eq("user_id", userId),
+      );
+  const cohortIds = unique(memberships.map((membership) => membership.cohort_id));
+  let eventQuery = supabase
+    .from("calendar_events")
+    .select("id,title,start_time,end_time,type,status")
+    .gte("start_time", new Date().toISOString())
+    .order("start_time", { ascending: true })
+    .limit(4);
+
+  if (!isAdmin) {
+    eventQuery = cohortIds.length
+      ? eventQuery.or(
+          `coachee_id.eq.${userId},cohort_id.in.(${cohortIds.join(",")})`,
+        )
+      : eventQuery.eq("coachee_id", userId);
+  }
+
+  return getRows<CalendarEventRow>(eventQuery);
 }
 
 async function fetchActivityLogs(
@@ -515,10 +538,10 @@ async function fetchActivityLogs(
 }
 
 async function fetchUnreadMessages(
-  supabase: SupabaseServerClient,
   userId: string,
   limit = 20,
 ): Promise<UnreadMessages> {
+  const supabase = createServiceSupabaseClient();
   const { count, data, error } = await supabase
     .from("messages")
     .select("id,sender_id,body,created_at", { count: "exact" })
@@ -703,6 +726,7 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
   const currentUser = await requireRole(["admin", "coachee"]);
   const supabase = await createServerSupabaseClient();
   const userId = currentUser.user.id;
+  const isAdmin = currentUser.role === "admin";
   const [assignments, learningPathItems] = await Promise.all([
     fetchAssignments(supabase),
     fetchLearningPathItems(supabase),
@@ -731,7 +755,7 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
     fetchContents(supabase, contentIds),
     fetchQuizzes(supabase, quizIds),
     fetchQuizAttempts(supabase, userId),
-    fetchCalendarEvents(supabase),
+    fetchCalendarEvents(userId, isAdmin),
     fetchActivityLogs(supabase, userId),
   ]);
 
@@ -955,7 +979,6 @@ export const getCoacheeDashboardData =
 export const getCoacheeNotificationsData =
   cache(async (): Promise<CoacheeNotificationsData> => {
     const base = await getCoacheeBaseData();
-    const supabase = await createServerSupabaseClient();
     const [enabledNotificationCategories, pathData, unreadMessages] =
       await Promise.all([
         getUserNotificationPreferenceCategories({
@@ -963,7 +986,7 @@ export const getCoacheeNotificationsData =
           userId: base.userId,
         }),
         getCoacheeLearningPathData(),
-        fetchUnreadMessages(supabase, base.userId, 30),
+        fetchUnreadMessages(base.userId, 30),
       ]);
     const notifications = mergeNotificationItems([
       ...buildCoacheeNotifications({ base, unreadMessages }),
