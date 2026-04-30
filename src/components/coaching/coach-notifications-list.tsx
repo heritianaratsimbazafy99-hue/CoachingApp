@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   Activity,
   AlertTriangle,
@@ -12,6 +13,10 @@ import {
   MessageCircle,
   Route,
 } from "lucide-react";
+import {
+  markCoachNotificationMessagesReadAction,
+  type MarkCoachNotificationsReadState,
+} from "@/app/coach/notifications/actions";
 import { EmptyState } from "@/components/ui/empty-state";
 import type {
   CoachNotificationCategory,
@@ -45,6 +50,26 @@ const categoryStyles: Record<CoachNotificationCategory, string> = {
   paths: "border-rose-100 bg-rose-50 text-rose-700",
 };
 
+const initialReadState: MarkCoachNotificationsReadState = {
+  message: "",
+  status: "idle",
+};
+
+function MarkMessagesReadButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
+      disabled={disabled || pending}
+      type="submit"
+    >
+      <Bell className="h-3.5 w-3.5" />
+      {pending ? "Mise à jour..." : "Marquer les messages lus"}
+    </button>
+  );
+}
+
 export function CoachNotificationsList({
   data,
 }: {
@@ -52,6 +77,10 @@ export function CoachNotificationsList({
 }) {
   const [activeFilter, setActiveFilter] =
     useState<CoachNotificationFilter>("all");
+  const [readState, readAction] = useActionState(
+    markCoachNotificationMessagesReadAction,
+    initialReadState,
+  );
   const visibleNotifications = useMemo(() => {
     if (activeFilter === "all") {
       return data.notifications;
@@ -74,30 +103,49 @@ export function CoachNotificationsList({
               Alertes importantes et événements récents.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {data.filters.map((filter) => {
-              const isActive = activeFilter === filter.id;
-
-              return (
-                <button
-                  className={cn(
-                    "inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition",
-                    isActive
-                      ? "border-sky-200 bg-sky-50 text-sky-700"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-sky-200 hover:text-sky-700",
-                  )}
-                  key={filter.id}
-                  onClick={() => setActiveFilter(filter.id)}
-                  type="button"
-                >
-                  {filter.label}
-                  <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-500 ring-1 ring-slate-100">
-                    {filter.count}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="flex flex-col items-start gap-2 lg:items-end">
+            <form action={readAction}>
+              <MarkMessagesReadButton
+                disabled={data.metrics.unreadMessagesCount === 0}
+              />
+            </form>
+            {readState.message ? (
+              <p
+                className={cn(
+                  "text-xs font-medium",
+                  readState.status === "error"
+                    ? "text-red-700"
+                    : "text-emerald-700",
+                )}
+              >
+                {readState.message}
+              </p>
+            ) : null}
           </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {data.filters.map((filter) => {
+            const isActive = activeFilter === filter.id;
+
+            return (
+              <button
+                className={cn(
+                  "inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition",
+                  isActive
+                    ? "border-sky-200 bg-sky-50 text-sky-700"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-sky-200 hover:text-sky-700",
+                )}
+                key={filter.id}
+                onClick={() => setActiveFilter(filter.id)}
+                type="button"
+              >
+                {filter.label}
+                <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-500 ring-1 ring-slate-100">
+                  {filter.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
