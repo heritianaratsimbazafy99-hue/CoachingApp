@@ -27,6 +27,7 @@ import type {
   CoacheeTasksData,
 } from "@/services/coachee-service";
 import type { CoacheeProfileData } from "@/services/profile-service";
+import { contentFileDownloadHref } from "@/utils/content-file-storage";
 import {
   contentTypeLabel,
   formatDate,
@@ -137,7 +138,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
               {data.content.fileUrl ? (
                 <a
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
-                  href={data.content.fileUrl}
+                  href={contentFileDownloadHref(data.content.id)}
                   rel="noreferrer"
                   target="_blank"
                 >
