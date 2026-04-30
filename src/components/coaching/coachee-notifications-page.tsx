@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Bell, MessageCircle } from "lucide-react";
 import { CoacheeNotificationsList } from "@/components/coaching/coachee-notifications-list";
+import { buttonVariants } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import type { CoacheeNotificationsData } from "@/services/coachee-service";
@@ -15,7 +16,7 @@ export function CoacheeNotificationsPage({
       <PageHeader
         actions={
           <Link
-            className="rounded-lg border border-indigo-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-indigo-900/5 transition hover:bg-indigo-50 hover:text-indigo-700"
+            className={buttonVariants({ variant: "secondary" })}
             href="/coachee"
           >
             Retour accueil
@@ -25,7 +26,7 @@ export function CoacheeNotificationsPage({
         title="Notifications"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-3">
           <StatCard
             helper="Signaux récents"

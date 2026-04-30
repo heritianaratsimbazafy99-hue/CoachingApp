@@ -7,6 +7,12 @@ import {
   createCalendarEventAction,
   type CreateCalendarEventState,
 } from "@/app/coach/calendar/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type { CalendarTargetOption } from "@/services/calendar-service";
 import { cn } from "@/utils/cn";
 import { eventTypeLabel } from "@/utils/format";
@@ -28,7 +34,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={pending}
       type="submit"
     >
@@ -60,9 +66,9 @@ export function CalendarEventForm({
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Titre</span>
+        <span className={labelClassName}>Titre</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="title"
           placeholder="Ex : Session objectifs Q2"
           required
@@ -71,9 +77,9 @@ export function CalendarEventForm({
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Type</span>
+          <span className={labelClassName}>Type</span>
           <select
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue="individual_coaching"
             name="type"
           >
@@ -86,9 +92,9 @@ export function CalendarEventForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Cible</span>
+          <span className={labelClassName}>Cible</span>
           <select
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             defaultValue="coach"
             name="target"
             required
@@ -118,9 +124,9 @@ export function CalendarEventForm({
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Début</span>
+          <span className={labelClassName}>Début</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             name="startAt"
             required
             type="datetime-local"
@@ -128,9 +134,9 @@ export function CalendarEventForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Fin</span>
+          <span className={labelClassName}>Fin</span>
           <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             name="endAt"
             required
             type="datetime-local"
@@ -139,9 +145,9 @@ export function CalendarEventForm({
       </div>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Description</span>
+        <span className={labelClassName}>Description</span>
         <textarea
-          className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName()}
           name="description"
           placeholder="Contexte, objectif, lien de visio..."
         />

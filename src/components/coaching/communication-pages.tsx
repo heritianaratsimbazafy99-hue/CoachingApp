@@ -20,7 +20,15 @@ import {
   ReminderTemplateForm,
   ReminderTemplateList,
 } from "@/components/coaching/profile-settings-forms";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import { PageHeader } from "@/components/ui/page-header";
 import type {
   CalendarAgendaEvent,
@@ -59,145 +67,175 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         description="Conversation sécurisée entre coach et coaché, avec lecture et rafraîchissement temps réel."
         title="Messagerie"
       />
-      <div className="grid min-h-[720px] gap-0 p-6 lg:grid-cols-[340px_1fr]">
-        <aside className="overflow-hidden rounded-t-2xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5 lg:rounded-l-2xl lg:rounded-tr-none lg:border-r-0">
-          <div className="border-b border-sky-100 p-4">
-            <div className="flex items-center rounded-xl border border-sky-100 bg-sky-50 px-3 py-2">
-              <MessageCircle className="h-4 w-4 text-sky-600" />
-              <span className="ml-2 text-sm font-medium text-slate-600">
-                Conversations
-              </span>
+      <div className="min-w-0 p-4 sm:p-6">
+        <Card className="grid min-h-[680px] overflow-hidden lg:grid-cols-[320px_minmax(0,1fr)]">
+          <aside className="min-w-0 border-b border-slate-200 bg-slate-50/70 lg:border-b-0 lg:border-r">
+            <div className="border-b border-slate-200 bg-white p-4">
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <MessageCircle className="h-4 w-4 text-sky-600" />
+                  <span className="truncate text-sm font-semibold text-slate-700">
+                    Conversations
+                  </span>
+                </div>
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
+                  {data.participants.length}
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="max-h-[640px] divide-y divide-slate-100 overflow-y-auto">
-            {data.participants.length ? (
-              data.participants.map((participant) => {
-                const isSelected =
-                  participant.userId === data.selectedParticipant?.userId;
+            <div className="max-h-[320px] divide-y divide-slate-200 overflow-y-auto lg:max-h-[620px]">
+              {data.participants.length ? (
+                data.participants.map((participant) => {
+                  const isSelected =
+                    participant.userId === data.selectedParticipant?.userId;
 
-                return (
-                  <Link
-                    className={`flex items-center gap-3 p-4 transition ${
-                      isSelected ? "bg-sky-50" : "hover:bg-slate-50"
-                    }`}
-                    href={participant.href}
-                    key={participant.userId}
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700">
-                      {participant.fullName.slice(0, 1)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-sm font-semibold text-slate-950">
-                          {participant.fullName}
+                  return (
+                    <Link
+                      className={cn(
+                        "flex min-w-0 items-center gap-3 px-4 py-3 transition",
+                        isSelected
+                          ? "bg-white shadow-sm shadow-slate-950/[0.03]"
+                          : "hover:bg-white",
+                      )}
+                      href={participant.href}
+                      key={participant.userId}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold ring-1",
+                          isSelected
+                            ? "bg-sky-600 text-white ring-sky-600"
+                            : "bg-white text-slate-700 ring-slate-200",
+                        )}
+                      >
+                        {participant.fullName.slice(0, 1)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-semibold text-slate-950">
+                            {participant.fullName}
+                          </p>
+                          {participant.lastMessageAt ? (
+                            <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                              {formatDateTime(participant.lastMessageAt)}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 truncate text-xs text-slate-500">
+                          {participant.lastMessagePreview}
                         </p>
-                        {participant.lastMessageAt ? (
-                          <span className="shrink-0 text-[11px] text-slate-400">
-                            {formatDateTime(participant.lastMessageAt)}
-                          </span>
+                      </div>
+                      {participant.unreadCount ? (
+                        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-2 text-xs font-semibold text-white">
+                          {participant.unreadCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="p-4">
+                  <EmptyState
+                    description={noConversationDescription}
+                    icon={MessageCircle}
+                    title={noConversationTitle}
+                  />
+                </div>
+              )}
+            </div>
+          </aside>
+
+          <section className="flex min-h-[620px] min-w-0 flex-col bg-slate-50">
+            <div className="border-b border-slate-200 bg-white p-4">
+              {data.selectedParticipant ? (
+                <>
+                  <p className="font-semibold text-slate-950">
+                    {data.selectedParticipant.fullName}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Conversation{" "}
+                    {data.variant === "coach"
+                      ? "coach vers coaché"
+                      : "avec le coach"}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-semibold text-slate-950">
+                    Sélectionnez une conversation
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Les messages apparaîtront ici.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
+              {!data.selectedParticipant ? (
+                <div className="flex h-full items-center justify-center">
+                  <EmptyState
+                    description={noConversationDescription}
+                    icon={CircleSlash}
+                    title="Conversation indisponible"
+                  />
+                </div>
+              ) : data.messages.length ? (
+                data.messages.map((message) => (
+                  <div
+                    className={cn(
+                      "flex",
+                      message.isOwn ? "justify-end" : "justify-start",
+                    )}
+                    key={message.id}
+                  >
+                    <div
+                      className={cn(
+                        "max-w-[min(680px,88%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm",
+                        message.isOwn
+                          ? "rounded-br-md bg-sky-600 text-white shadow-sky-950/10"
+                          : "rounded-bl-md border border-slate-200 bg-white text-slate-800 shadow-slate-950/[0.04]",
+                      )}
+                    >
+                      <p className="whitespace-pre-wrap">{message.body}</p>
+                      <div
+                        className={cn(
+                          "mt-2 flex justify-end gap-1 text-[11px]",
+                          message.isOwn ? "text-sky-100" : "text-slate-500",
+                        )}
+                      >
+                        {formatDateTime(message.createdAt)}
+                        {message.isOwn && message.readAt ? (
+                          <Check className="h-3 w-3 text-sky-100" />
                         ) : null}
                       </div>
-                      <p className="mt-1 truncate text-xs text-slate-500">
-                        {participant.lastMessagePreview}
-                      </p>
-                    </div>
-                    {participant.unreadCount ? (
-                      <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-sky-600 px-2 text-xs font-semibold text-white">
-                        {participant.unreadCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })
-            ) : (
-              <div className="p-4">
-                <EmptyState
-                  description={noConversationDescription}
-                  icon={MessageCircle}
-                  title={noConversationTitle}
-                />
-              </div>
-            )}
-          </div>
-        </aside>
-
-        <section className="flex min-h-[720px] flex-col overflow-hidden rounded-b-2xl border border-sky-100 bg-sky-50/60 shadow-sm shadow-sky-900/5 lg:rounded-r-2xl lg:rounded-bl-none">
-          <div className="border-b border-sky-100 bg-white p-4">
-            {data.selectedParticipant ? (
-              <>
-                <p className="font-semibold text-slate-950">
-                  {data.selectedParticipant.fullName}
-                </p>
-                <p className="text-sm text-slate-500">
-                  Conversation{" "}
-                  {data.variant === "coach" ? "coach vers coaché" : "avec le coach"}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="font-semibold text-slate-950">
-                  Sélectionnez une conversation
-                </p>
-                <p className="text-sm text-slate-500">
-                  Les messages apparaîtront ici.
-                </p>
-              </>
-            )}
-          </div>
-
-          <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            {!data.selectedParticipant ? (
-              <div className="flex h-full items-center justify-center">
-                <EmptyState
-                  description={noConversationDescription}
-                  icon={CircleSlash}
-                  title="Conversation indisponible"
-                />
-              </div>
-            ) : data.messages.length ? (
-              data.messages.map((message) => (
-                <div
-                  className={`flex ${message.isOwn ? "justify-end" : "justify-start"}`}
-                  key={message.id}
-                >
-                  <div
-                    className={`max-w-[min(680px,85%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${
-                      message.isOwn
-                        ? "rounded-br-sm bg-sky-100 text-slate-900"
-                        : "rounded-bl-sm bg-white text-slate-800"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{message.body}</p>
-                    <div className="mt-1 flex justify-end gap-1 text-[11px] text-slate-500">
-                      {formatDateTime(message.createdAt)}
-                      {message.isOwn && message.readAt ? (
-                        <Check className="h-3 w-3 text-sky-700" />
-                      ) : null}
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <div className="max-w-sm rounded-xl border border-slate-200 bg-white p-5 text-center text-sm leading-6 text-slate-500 shadow-sm shadow-slate-950/[0.04]">
+                    Aucun message dans cette conversation. Envoyez un premier
+                    message clair et court.
+                  </div>
                 </div>
-              ))
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <div className="max-w-sm rounded-2xl bg-white/80 p-5 text-center text-sm leading-6 text-slate-500 shadow-sm">
-                  Aucun message dans cette conversation. Envoyez un premier
-                  message clair et court.
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <div className="border-t border-sky-100 bg-white p-4">
-            {data.selectedParticipant ? (
-              <MessageComposerForm receiverId={data.selectedParticipant.userId} />
-            ) : (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-                Aucune conversation n&apos;est possible pour ce compte pour le
-                moment.
-              </p>
-            )}
-          </div>
-        </section>
+            <div className="border-t border-slate-200 bg-white p-4">
+              {data.selectedParticipant ? (
+                <MessageComposerForm
+                  receiverId={data.selectedParticipant.userId}
+                />
+              ) : (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                  Aucune conversation n&apos;est possible pour ce compte pour le
+                  moment.
+                </p>
+              )}
+            </div>
+          </section>
+        </Card>
       </div>
     </>
   );
@@ -323,90 +361,88 @@ function MetricCard({
   value: number;
 }) {
   return (
-    <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
+    <Card className="p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <Icon className="h-4 w-4 text-slate-400" />
+        <p className="text-sm font-semibold text-slate-500">{label}</p>
+        <span className="rounded-lg border border-sky-100 bg-sky-50 p-2 text-sky-700">
+          <Icon className="h-4 w-4" />
+        </span>
       </div>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-800">
+      <p className="mt-3 text-3xl font-semibold tracking-normal text-slate-950">
         {value}
       </p>
-    </div>
+    </Card>
   );
 }
 
 function CalendarFilters({ data }: { data: CalendarPageData }) {
   return (
-    <form className="grid min-w-0 gap-3 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5 md:grid-cols-[1fr_1fr_1.4fr_auto]">
-      <label className="block min-w-0">
-        <span className="text-xs font-semibold uppercase text-slate-500">Type</span>
-        <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-          defaultValue={data.filters.type}
-          name="type"
-        >
-          <option value="all">Tous les types</option>
-          {calendarEventTypes.map((type) => (
-            <option key={type} value={type}>
-              {eventTypeLabel[type]}
-            </option>
-          ))}
-        </select>
-      </label>
+    <Card className="p-4">
+      <form className="grid min-w-0 gap-3 md:grid-cols-[1fr_1fr_1.4fr_auto]">
+        <label className="block min-w-0">
+          <span className={labelClassName}>Type</span>
+          <select
+            className={inputClassName("py-2.5")}
+            defaultValue={data.filters.type}
+            name="type"
+          >
+            <option value="all">Tous les types</option>
+            {calendarEventTypes.map((type) => (
+              <option key={type} value={type}>
+                {eventTypeLabel[type]}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label className="block min-w-0">
-        <span className="text-xs font-semibold uppercase text-slate-500">
-          Statut
-        </span>
-        <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-          defaultValue={data.filters.status}
-          name="status"
-        >
-          <option value="all">Tous les statuts</option>
-          {calendarEventStatuses.map((status) => (
-            <option key={status} value={status}>
-              {calendarStatusLabel[status]}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label className="block min-w-0">
+          <span className={labelClassName}>Statut</span>
+          <select
+            className={inputClassName("py-2.5")}
+            defaultValue={data.filters.status}
+            name="status"
+          >
+            <option value="all">Tous les statuts</option>
+            {calendarEventStatuses.map((status) => (
+              <option key={status} value={status}>
+                {calendarStatusLabel[status]}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label className="block min-w-0">
-        <span className="text-xs font-semibold uppercase text-slate-500">
-          Cible
-        </span>
-        <select
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-          defaultValue={data.filters.target}
-          name="target"
-        >
-          <option value="all">Toutes les cibles</option>
-          <option value="coach">Coach seul</option>
-          {data.targetOptions.map((target) => (
-            <option key={target.value} value={target.value}>
-              {target.type === "coachee" ? "Coaché" : "Cohorte"} · {target.label}
-            </option>
-          ))}
-        </select>
-      </label>
+        <label className="block min-w-0">
+          <span className={labelClassName}>Cible</span>
+          <select
+            className={inputClassName("py-2.5")}
+            defaultValue={data.filters.target}
+            name="target"
+          >
+            <option value="all">Toutes les cibles</option>
+            <option value="coach">Coach seul</option>
+            {data.targetOptions.map((target) => (
+              <option key={target.value} value={target.value}>
+                {target.type === "coachee" ? "Coaché" : "Cohorte"} ·{" "}
+                {target.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <div className="flex min-w-0 flex-wrap items-end gap-2">
-        <button
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700"
-          type="submit"
-        >
-          <Filter className="h-4 w-4" />
-          Filtrer
-        </button>
-        <Link
-          className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-          href="/coach/calendar"
-        >
-          Réinitialiser
-        </Link>
-      </div>
-    </form>
+        <div className="flex min-w-0 flex-wrap items-end gap-2">
+          <button className={buttonVariants()} type="submit">
+            <Filter className="h-4 w-4" />
+            Filtrer
+          </button>
+          <Link
+            className={buttonVariants({ variant: "secondary" })}
+            href="/coach/calendar"
+          >
+            Réinitialiser
+          </Link>
+        </div>
+      </form>
+    </Card>
   );
 }
 
@@ -419,10 +455,10 @@ function CalendarStatusActions({ event }: { event: CalendarAgendaEvent }) {
           <input name="status" type="hidden" value={status} />
           <button
             className={cn(
-              "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
+              buttonVariants({ size: "sm", variant: "secondary" }),
               event.status === status
-                ? "cursor-default border-slate-200 bg-slate-100 text-slate-400"
-                : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                ? "cursor-default bg-slate-100 text-slate-400 hover:bg-slate-100"
+                : "",
             )}
             disabled={event.status === status}
             type="submit"
@@ -443,7 +479,7 @@ function EventCard({
   event: CalendarAgendaEvent;
 }) {
   return (
-    <article className="min-w-0 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
+    <Card className="min-w-0 p-4">
       <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -465,7 +501,7 @@ function EventCard({
         </div>
         {canUpdateStatus ? <CalendarStatusActions event={event} /> : null}
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -483,10 +519,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
       <PageHeader
         actions={
           isCoach ? (
-            <a
-              className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
-              href="#new-event"
-            >
+            <a className={buttonVariants()} href="#new-event">
               <Plus className="h-4 w-4" />
               Nouvel événement
             </a>
@@ -528,11 +561,11 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
 
         <div className="grid min-w-0 gap-6 xl:grid-cols-[1fr_380px]">
           <section className="min-w-0 space-y-5">
-            <div className="min-w-0 rounded-xl border border-sky-100 bg-white p-3 shadow-sm shadow-sky-900/5 sm:p-4">
+            <Card className="min-w-0 p-3 sm:p-4">
               <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-7">
                 {weekDays.map((day) => (
                   <div
-                    className="min-h-28 min-w-0 rounded-lg border border-sky-100 bg-sky-50/70 p-3"
+                    className="min-h-28 min-w-0 rounded-lg border border-slate-200 bg-slate-50 p-3"
                     key={day.key}
                   >
                     <p className="text-xs font-medium uppercase text-slate-400">
@@ -549,14 +582,14 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                       {day.count ? `${day.count} événement(s)` : "Libre"}
                     </p>
                     {day.nextEvent ? (
-                      <p className="mt-2 truncate rounded-md bg-white px-2 py-1 text-xs font-medium text-sky-700 shadow-sm shadow-sky-900/5">
+                      <p className="mt-2 truncate rounded-md bg-white px-2 py-1 text-xs font-semibold text-sky-700 shadow-sm shadow-slate-950/[0.04]">
                         {day.nextEvent.title}
                       </p>
                     ) : null}
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
 
             <div className="space-y-4">
               {agendaGroups.length ? (
@@ -581,7 +614,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                   </section>
                 ))
               ) : (
-                <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5">
+                <Card className="p-6">
                   <EmptyState
                     description={
                       isCoach
@@ -591,53 +624,57 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                     icon={CalendarDays}
                     title="Aucun événement"
                   />
-                </div>
+                </Card>
               )}
             </div>
           </section>
 
           <aside className="min-w-0 space-y-5">
             {isCoach ? (
-              <section
-                className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
-                id="new-event"
-              >
-                <div className="mb-5 flex items-center gap-2">
-                  <CalendarDays className="h-5 w-5 text-sky-600" />
-                  <h2 className="font-semibold text-slate-950">
-                    Nouvel événement
-                  </h2>
+              <Card id="new-event">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-sky-600" />
+                    <CardTitle>Nouvel événement</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Planifiez un rendez-vous, un atelier ou un rappel.
+                  </CardDescription>
+                </CardHeader>
+                <div className="p-5">
+                  <CalendarEventForm targetOptions={data.targetOptions} />
                 </div>
-                <CalendarEventForm targetOptions={data.targetOptions} />
-              </section>
+              </Card>
             ) : null}
 
-            <section className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-slate-500" />
-                <h2 className="font-semibold text-slate-950">
-                  Prochain événement
-                </h2>
-              </div>
-              {nextEvent ? (
-                <div className="mt-5 min-w-0 rounded-lg border border-slate-200 p-4">
-                  <TypeBadge type={nextEvent.type} />
-                  <p className="mt-3 break-words font-semibold text-slate-950">
-                    {nextEvent.title}
-                  </p>
-                  <p className="mt-1 break-words text-sm text-slate-500">
-                    {formatDateTime(nextEvent.startTime)}
-                  </p>
-                  <p className="mt-2 break-words text-sm font-medium text-slate-600">
-                    {nextEvent.targetLabel}
-                  </p>
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-5 w-5 text-slate-500" />
+                  <CardTitle>Prochain événement</CardTitle>
                 </div>
-              ) : (
-                <p className="mt-5 rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-500">
-                  Aucun événement planifié à venir.
-                </p>
-              )}
-            </section>
+              </CardHeader>
+              <div className="p-5">
+                {nextEvent ? (
+                  <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+                    <TypeBadge type={nextEvent.type} />
+                    <p className="mt-3 break-words font-semibold text-slate-950">
+                      {nextEvent.title}
+                    </p>
+                    <p className="mt-1 break-words text-sm text-slate-500">
+                      {formatDateTime(nextEvent.startTime)}
+                    </p>
+                    <p className="mt-2 break-words text-sm font-medium text-slate-600">
+                      {nextEvent.targetLabel}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-500">
+                    Aucun événement planifié à venir.
+                  </p>
+                )}
+              </div>
+            </Card>
           </aside>
         </div>
       </div>
@@ -659,8 +696,8 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
         title="Paramètres"
       />
 
-      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_430px]">
-        <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5">
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_430px]">
+        <Card className="p-5 sm:p-6">
           <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
               {data.profile.avatarUrl ? (
@@ -690,15 +727,17 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
           <div className="mt-6">
             <ProfileForm profile={data.profile} />
           </div>
-        </section>
+        </Card>
 
         <aside className="space-y-6">
-          <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
-            <div className="flex items-center gap-2">
-              <UserRound className="h-5 w-5 text-slate-500" />
-              <h2 className="font-semibold text-slate-950">Compte</h2>
-            </div>
-            <div className="mt-5 grid gap-3 text-sm">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <UserRound className="h-5 w-5 text-slate-500" />
+                <CardTitle>Compte</CardTitle>
+              </div>
+            </CardHeader>
+            <div className="grid gap-3 p-5 text-sm">
               <div className="rounded-xl bg-sky-50/70 p-4">
                 <p className="font-medium text-slate-500">Rôle</p>
                 <p className="mt-1 font-semibold text-slate-950">
@@ -712,40 +751,42 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
                 </p>
               </div>
             </div>
-          </section>
+          </Card>
 
           <NotificationPreferenceForm
             initialEnabledCategories={data.profile.notificationPreferences.coach}
             role="coach"
           />
 
-          <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
-            <h2 className="font-semibold text-slate-950">Nouveau template</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-500">
-              Préparez les messages qui reviennent souvent dans le suivi.
-            </p>
-            <div className="mt-5">
+          <Card>
+            <CardHeader>
+              <CardTitle>Nouveau template</CardTitle>
+              <CardDescription>
+                Préparez les messages qui reviennent souvent dans le suivi.
+              </CardDescription>
+            </CardHeader>
+            <div className="p-5">
               <ReminderTemplateForm />
             </div>
-          </section>
+          </Card>
         </aside>
 
-        <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm shadow-sky-900/5 xl:col-span-2">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="font-semibold text-slate-950">
-                Templates de relance
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {data.reminderTemplates.length} template(s) disponibles.
-              </p>
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <CardTitle>Templates de relance</CardTitle>
+                <CardDescription>
+                  {data.reminderTemplates.length} template(s) disponibles.
+                </CardDescription>
+              </div>
             </div>
-          </div>
+          </CardHeader>
 
-          <div className="mt-5">
+          <div className="p-5 sm:p-6">
             <ReminderTemplateList templates={data.reminderTemplates} />
           </div>
-        </section>
+        </Card>
       </div>
     </>
   );

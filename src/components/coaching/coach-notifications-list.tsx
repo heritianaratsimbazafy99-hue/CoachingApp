@@ -17,6 +17,13 @@ import {
   markCoachNotificationMessagesReadAction,
   type MarkCoachNotificationsReadState,
 } from "@/app/coach/notifications/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import type {
   CoachNotificationCategory,
@@ -71,7 +78,7 @@ function MarkMessagesReadButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
+      className={buttonVariants({ size: "sm", variant: "soft" })}
       disabled={disabled || pending}
       type="submit"
     >
@@ -165,16 +172,14 @@ export function CoachNotificationsList({
   );
 
   return (
-    <section className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
-      <div className="border-b border-sky-100 p-5">
+    <Card>
+      <CardHeader>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-950">
-              Historique
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <CardTitle>Historique</CardTitle>
+            <CardDescription>
               Alertes importantes et événements récents.
-            </p>
+            </CardDescription>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
             <form action={readAction}>
@@ -203,10 +208,10 @@ export function CoachNotificationsList({
             return (
               <button
                 className={cn(
-                  "inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition",
+                  buttonVariants({ size: "sm", variant: "secondary" }),
                   isActive
-                    ? "border-sky-200 bg-sky-50 text-sky-700"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-sky-200 hover:text-sky-700",
+                    ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-50"
+                    : "text-slate-500 hover:border-sky-200 hover:text-sky-700",
                 )}
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
@@ -220,7 +225,7 @@ export function CoachNotificationsList({
             );
           })}
         </div>
-      </div>
+      </CardHeader>
 
       {visibleNotifications.length ? (
         <div className="divide-y divide-slate-100">
@@ -229,7 +234,7 @@ export function CoachNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-5 transition hover:bg-sky-50/45 lg:grid-cols-[190px_1fr_120px]"
+                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -290,6 +295,6 @@ export function CoachNotificationsList({
           />
         </div>
       )}
-    </section>
+    </Card>
   );
 }

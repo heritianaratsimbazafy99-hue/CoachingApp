@@ -8,6 +8,8 @@ import {
   sendMessageAction,
   type SendMessageState,
 } from "@/app/messages/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { textareaClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
 const initialSendMessageState: SendMessageState = {
@@ -20,7 +22,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-sky-600 px-4 text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className={cn(buttonVariants({ size: "lg" }), "h-11 w-11 rounded-xl px-0")}
       disabled={disabled || pending}
       type="submit"
     >
@@ -54,7 +56,9 @@ export function MessageComposerForm({
       <input name="receiverId" type="hidden" value={receiverId ?? ""} />
       <div className="flex gap-3">
         <textarea
-          className="max-h-36 min-h-11 flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-5 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+          className={textareaClassName(
+            "mt-0 max-h-36 min-h-11 flex-1 resize-none rounded-xl bg-slate-50 py-3 leading-5 focus:bg-white disabled:bg-slate-100",
+          )}
           disabled={!receiverId}
           name="body"
           placeholder={

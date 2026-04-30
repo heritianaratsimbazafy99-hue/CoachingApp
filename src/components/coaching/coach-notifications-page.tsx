@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Bell, MessageCircle } from "lucide-react";
 import { CoachNotificationsList } from "@/components/coaching/coach-notifications-list";
+import { buttonVariants } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import type { CoachNotificationsData } from "@/services/coach-service";
@@ -15,7 +16,7 @@ export function CoachNotificationsPage({
       <PageHeader
         actions={
           <Link
-            className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:bg-sky-50 hover:text-sky-700"
+            className={buttonVariants({ variant: "secondary" })}
             href="/coach"
           >
             Retour cockpit
@@ -25,7 +26,7 @@ export function CoachNotificationsPage({
         title="Centre de notifications"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-3">
           <StatCard
             helper="Signaux importants regroupés"

@@ -17,6 +17,13 @@ import {
   markCoacheeNotificationMessagesReadAction,
   type MarkCoacheeNotificationsReadState,
 } from "@/app/coachee/notifications/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import type {
   CoacheeNotificationCategory,
@@ -68,7 +75,7 @@ function MarkMessagesReadButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-55"
+      className={buttonVariants({ size: "sm", variant: "soft" })}
       disabled={disabled || pending}
       type="submit"
     >
@@ -162,16 +169,14 @@ export function CoacheeNotificationsList({
   );
 
   return (
-    <section className="rounded-2xl border border-indigo-100 bg-white shadow-sm shadow-indigo-900/5">
-      <div className="border-b border-indigo-100 p-5">
+    <Card>
+      <CardHeader>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-950">
-              Dernières notifications
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <CardTitle>Dernières notifications</CardTitle>
+            <CardDescription>
               Messages, rendez-vous, parcours et résultats.
-            </p>
+            </CardDescription>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
             <form action={readAction}>
@@ -200,10 +205,10 @@ export function CoacheeNotificationsList({
             return (
               <button
                 className={cn(
-                  "inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition",
+                  buttonVariants({ size: "sm", variant: "secondary" }),
                   isActive
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-indigo-200 hover:text-indigo-700",
+                    ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-50"
+                    : "text-slate-500 hover:border-sky-200 hover:text-sky-700",
                 )}
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
@@ -217,7 +222,7 @@ export function CoacheeNotificationsList({
             );
           })}
         </div>
-      </div>
+      </CardHeader>
 
       {visibleNotifications.length ? (
         <div className="divide-y divide-slate-100">
@@ -226,7 +231,7 @@ export function CoacheeNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-5 transition hover:bg-indigo-50/40 lg:grid-cols-[190px_1fr_120px]"
+                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -260,7 +265,7 @@ export function CoacheeNotificationsList({
                       </span>
                     ) : null}
                     {notification.isUnread ? (
-                      <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
                         Non lu
                       </span>
                     ) : null}
@@ -270,7 +275,7 @@ export function CoacheeNotificationsList({
                   </p>
                 </div>
 
-                <span className="inline-flex items-center gap-1 self-center text-sm font-semibold text-indigo-700 lg:justify-self-end">
+                <span className="inline-flex items-center gap-1 self-center text-sm font-semibold text-sky-700 lg:justify-self-end">
                   Ouvrir
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </span>
@@ -287,6 +292,6 @@ export function CoacheeNotificationsList({
           />
         </div>
       )}
-    </section>
+    </Card>
   );
 }
