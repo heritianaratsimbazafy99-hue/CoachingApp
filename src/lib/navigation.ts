@@ -6,6 +6,7 @@ export const coachNav: NavItem[] = [
   { href: "/coach/cohorts", icon: "graduation", label: "Cohortes" },
   { href: "/coach/library", icon: "library", label: "Bibliothèque" },
   { href: "/coach/quizzes", icon: "book", label: "Quiz" },
+  { href: "/coach/paths", icon: "route", label: "Parcours" },
   { href: "/coach/assignments", icon: "check", label: "Assignations" },
   { href: "/coach/quiz-results", icon: "clipboard", label: "Résultats quiz" },
   { href: "/coach/corrections", icon: "book", label: "Corrections" },
@@ -17,6 +18,7 @@ export const coachNav: NavItem[] = [
 export const coacheeNav: NavItem[] = [
   { href: "/coachee", icon: "home", label: "Accueil" },
   { href: "/coachee/tasks", icon: "check", label: "Mes tâches" },
+  { href: "/coachee/paths", icon: "route", label: "Mes parcours" },
   { href: "/coachee/results", icon: "chart", label: "Mes scores" },
   { href: "/coachee/messages", icon: "message", label: "Messages" },
   { href: "/coachee/calendar", icon: "calendar", label: "Agenda" },

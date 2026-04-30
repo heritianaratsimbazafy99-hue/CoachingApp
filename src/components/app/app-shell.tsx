@@ -15,6 +15,7 @@ import {
   Library,
   Menu,
   MessageCircle,
+  Route,
   Search,
   Settings,
   UsersRound,
@@ -52,6 +53,7 @@ const iconMap: Record<string, LucideIcon> = {
   home: Home,
   library: Library,
   message: MessageCircle,
+  route: Route,
   settings: Settings,
   users: UsersRound,
 };

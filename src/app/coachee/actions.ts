@@ -6,6 +6,8 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
+
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -95,6 +97,23 @@ async function findAssignmentForQuiz(quizId: string, assignmentId: string) {
   return data;
 }
 
+async function canUseQuizFromLearningPath(
+  supabase: SupabaseServerClient,
+  quizId: string,
+) {
+  const { data, error } = await supabase
+    .from("learning_path_items")
+    .select("id")
+    .eq("quiz_id", quizId)
+    .limit(1);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return Boolean(data?.length);
+}
+
 export async function completeContentAction(formData: FormData) {
   const currentUser = await requireRole(["admin", "coachee"]);
   const parsed = contentSchema.safeParse({
@@ -144,6 +163,7 @@ export async function completeContentAction(formData: FormData) {
   });
 
   revalidatePath("/coachee");
+  revalidatePath("/coachee/paths");
   revalidatePath("/coachee/tasks");
   revalidatePath(`/coachee/contents/${contentId}`);
 
@@ -183,8 +203,23 @@ export async function submitQuizAction(
   const { assignmentId, quizId } = parsed.data;
   const supabase = await createServerSupabaseClient();
   const assignment = await findAssignmentForQuiz(quizId, assignmentId);
+  let isLearningPathQuiz = false;
 
   if (!assignment) {
+    try {
+      isLearningPathQuiz = await canUseQuizFromLearningPath(supabase, quizId);
+    } catch (error) {
+      return {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Impossible de vérifier l'accès au quiz.",
+        status: "error",
+      };
+    }
+  }
+
+  if (!assignment && !isLearningPathQuiz) {
     return {
       message: "Ce quiz n'est pas assigné à votre compte.",
       status: "error",
@@ -247,7 +282,7 @@ export async function submitQuizAction(
   const { data: attempt, error: attemptError } = await supabase
     .from("quiz_attempts")
     .insert({
-      assignment_id: assignment.id,
+      assignment_id: assignment?.id ?? null,
       quiz_id: quizId,
       submitted_at: new Date().toISOString(),
       user_id: currentUser.user.id,
@@ -309,19 +344,23 @@ export async function submitQuizAction(
     .eq("id", attempt.id)
     .maybeSingle<{ status: "failed" | "passed" | "pending_correction" }>();
 
-  await supabase
-    .from("assignment_progress")
-    .update({
-      completed_at:
-        savedAttempt?.status === "pending_correction"
-          ? null
-          : new Date().toISOString(),
-      started_at: new Date().toISOString(),
-      status:
-        savedAttempt?.status === "pending_correction" ? "in_progress" : "completed",
-    })
-    .eq("assignment_id", assignment.id)
-    .eq("user_id", currentUser.user.id);
+  if (assignment) {
+    await supabase
+      .from("assignment_progress")
+      .update({
+        completed_at:
+          savedAttempt?.status === "pending_correction"
+            ? null
+            : new Date().toISOString(),
+        started_at: new Date().toISOString(),
+        status:
+          savedAttempt?.status === "pending_correction"
+            ? "in_progress"
+            : "completed",
+      })
+      .eq("assignment_id", assignment.id)
+      .eq("user_id", currentUser.user.id);
+  }
 
   await supabase.from("activity_logs").insert({
     action: "Quiz soumis",
@@ -331,6 +370,7 @@ export async function submitQuizAction(
   });
 
   revalidatePath("/coachee");
+  revalidatePath("/coachee/paths");
   revalidatePath("/coachee/tasks");
   revalidatePath("/coachee/results");
   revalidatePath("/coach/corrections");

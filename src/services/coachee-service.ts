@@ -117,6 +117,14 @@ type CalendarEventRow = {
   type: CalendarEventType;
 };
 
+type LearningPathItemRow = {
+  content_id: string | null;
+  id: string;
+  learning_path_id: string;
+  position: number;
+  quiz_id: string | null;
+};
+
 export type CoacheeTask = {
   assignmentType: AssignmentType;
   contentId: string;
@@ -404,6 +412,15 @@ async function fetchCalendarEvents(supabase: SupabaseServerClient) {
   );
 }
 
+async function fetchLearningPathItems(supabase: SupabaseServerClient) {
+  return getRows<LearningPathItemRow>(
+    supabase
+      .from("learning_path_items")
+      .select("id,learning_path_id,content_id,quiz_id,position")
+      .order("position", { ascending: true }),
+  );
+}
+
 async function fetchQuizQuestions(
   supabase: SupabaseServerClient,
   quizId: string,
@@ -528,10 +545,19 @@ const getCoacheeBaseData = cache(async (): Promise<CoacheeBaseData> => {
   const currentUser = await requireRole(["admin", "coachee"]);
   const supabase = await createServerSupabaseClient();
   const userId = currentUser.user.id;
-  const assignments = await fetchAssignments(supabase);
+  const [assignments, learningPathItems] = await Promise.all([
+    fetchAssignments(supabase),
+    fetchLearningPathItems(supabase),
+  ]);
   const assignmentIds = assignments.map((assignment) => assignment.id);
-  const contentIds = unique(assignments.map((assignment) => assignment.content_id));
-  const quizIds = unique(assignments.map((assignment) => assignment.quiz_id));
+  const contentIds = unique([
+    ...assignments.map((assignment) => assignment.content_id),
+    ...learningPathItems.map((item) => item.content_id),
+  ]);
+  const quizIds = unique([
+    ...assignments.map((assignment) => assignment.quiz_id),
+    ...learningPathItems.map((item) => item.quiz_id),
+  ]);
 
   const [
     assignmentProgress,
