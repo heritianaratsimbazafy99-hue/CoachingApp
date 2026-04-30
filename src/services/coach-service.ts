@@ -401,6 +401,40 @@ export type CoachDashboardAttentionItem = {
   title: string;
 };
 
+export type CoachNotificationCategory =
+  | "activity"
+  | "corrections"
+  | "late"
+  | "messages"
+  | "paths";
+
+export type CoachNotificationFilter = "all" | CoachNotificationCategory;
+
+export type CoachNotificationItem = {
+  category: CoachNotificationCategory;
+  createdAt: string;
+  description: string;
+  href: string;
+  id: string;
+  isUnread: boolean;
+  priority: "high" | "normal";
+  title: string;
+};
+
+export type CoachNotificationsData = {
+  filters: Array<{
+    count: number;
+    id: CoachNotificationFilter;
+    label: string;
+  }>;
+  metrics: {
+    highPriorityCount: number;
+    totalCount: number;
+    unreadMessagesCount: number;
+  };
+  notifications: CoachNotificationItem[];
+};
+
 export type CoachDashboardData = {
   activityLogs: CoachActivity[];
   assignments: CoachAssignmentSummary[];
@@ -768,6 +802,7 @@ async function fetchCoachNotes(
 async function fetchActivityLogs(
   supabase: SupabaseServerClient,
   userIds: string[],
+  limit = 8,
 ) {
   if (!userIds.length) {
     return [];
@@ -779,7 +814,7 @@ async function fetchActivityLogs(
       .select("id,user_id,action,entity_type,entity_id,metadata,created_at")
       .in("user_id", userIds)
       .order("created_at", { ascending: false })
-      .limit(8),
+      .limit(limit),
   );
 }
 
@@ -787,6 +822,7 @@ async function fetchDashboardUnreadMessages(
   supabase: SupabaseServerClient,
   payload: {
     currentUserId: string;
+    limit?: number;
     senderIds: string[];
   },
 ): Promise<DashboardUnreadMessages> {
@@ -804,7 +840,7 @@ async function fetchDashboardUnreadMessages(
     .is("read_at", null)
     .in("sender_id", payload.senderIds)
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(payload.limit ?? 5);
 
   if (error) {
     throw new Error(error.message);
@@ -1273,6 +1309,169 @@ function buildDashboardAttentionItems({
   return items;
 }
 
+function buildCoachNotifications({
+  activityLogs,
+  base,
+  pathData,
+  unreadMessages,
+}: {
+  activityLogs: ActivityLogRow[];
+  base: CoachBaseData;
+  pathData: CoachLearningPathData;
+  unreadMessages: DashboardUnreadMessages;
+}): CoachNotificationItem[] {
+  const profileByUserId = new Map(
+    base.profiles.map((profile) => [profile.user_id, profile]),
+  );
+  const quizById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+  const assignmentById = new Map(
+    base.assignments.map((assignment) => [assignment.id, assignment]),
+  );
+  const messageNotifications = unreadMessages.latest.map((message) => ({
+    category: "messages" as const,
+    createdAt: message.created_at,
+    description: compactText(message.body, 140),
+    href: `/coach/messages?conversation=${message.sender_id}`,
+    id: `message:${message.id}`,
+    isUnread: true,
+    priority: "high" as const,
+    title: `Message de ${profileByUserId.get(message.sender_id)?.full_name ?? "Coaché"}`,
+  }));
+  const correctionNotifications = base.quizAttempts
+    .filter((attempt) => attempt.status === "pending_correction")
+    .map((attempt) => ({
+      category: "corrections" as const,
+      createdAt: attempt.submitted_at ?? attempt.created_at,
+      description: `${profileByUserId.get(attempt.user_id)?.full_name ?? "Coaché"} · ${
+        quizById.get(attempt.quiz_id)?.title ?? "Quiz"
+      }`,
+      href: "/coach/corrections",
+      id: `correction:${attempt.id}`,
+      isUnread: false,
+      priority: "high" as const,
+      title: "Correction en attente",
+    }));
+  const pathBlockedNotifications = pathData.paths.flatMap((path) =>
+    (path.learnerProgress ?? [])
+      .filter((learner) => learner.status === "blocked")
+      .map((learner) => ({
+        category: "paths" as const,
+        createdAt: learner.lastActivityAt ?? path.createdAt,
+        description: `${learner.fullName} · ${path.title} · ${learner.failedQuizCount} quiz à reprendre`,
+        href: `/coach/coachees/${learner.userId}`,
+        id: `path-blocked:${path.id}:${learner.userId}`,
+        isUnread: false,
+        priority: "high" as const,
+        title: "Coaché bloqué dans un parcours",
+      })),
+  );
+  const lateNotifications = base.assignmentProgress
+    .filter((row) => row.status === "late" || row.is_late)
+    .map((row) => {
+      const assignment = assignmentById.get(row.assignment_id);
+
+      return {
+        category: "late" as const,
+        createdAt: row.updated_at,
+        description: `${profileByUserId.get(row.user_id)?.full_name ?? "Coaché"} · ${
+          assignment?.title ?? "Assignation"
+        }`,
+        href: `/coach/coachees/${row.user_id}`,
+        id: `late:${row.id}`,
+        isUnread: false,
+        priority: "normal" as const,
+        title: "Assignation en retard",
+      };
+    });
+  const activityNotifications = activityLogs.map((activity) => {
+    const pathTitle = metadataText(activity.metadata, "learningPathTitle");
+    const resourceTitle = metadataText(activity.metadata, "resourceTitle");
+    const profile = profileByUserId.get(activity.user_id);
+    const isPathActivity =
+      activity.entity_type === "learning_path" ||
+      activity.entity_type === "learning_path_item";
+
+    return {
+      category: (isPathActivity ? "paths" : "activity") as CoachNotificationCategory,
+      createdAt: activity.created_at,
+      description:
+        resourceTitle ||
+        pathTitle ||
+        profile?.full_name ||
+        "Activité enregistrée",
+      href: isPathActivity ? `/coach/coachees/${activity.user_id}` : "/coach",
+      id: `activity:${activity.id}`,
+      isUnread: false,
+      priority: "normal" as const,
+      title: activity.action,
+    };
+  });
+  const deduped = new Map<string, CoachNotificationItem>();
+
+  [
+    ...messageNotifications,
+    ...correctionNotifications,
+    ...pathBlockedNotifications,
+    ...lateNotifications,
+    ...activityNotifications,
+  ].forEach((notification) => {
+    deduped.set(notification.id, notification);
+  });
+
+  return [...deduped.values()]
+    .toSorted((first, second) => {
+      const priorityDelta =
+        Number(second.priority === "high") - Number(first.priority === "high");
+
+      if (priorityDelta !== 0) {
+        return priorityDelta;
+      }
+
+      return (
+        new Date(second.createdAt).getTime() -
+        new Date(first.createdAt).getTime()
+      );
+    })
+    .slice(0, 80);
+}
+
+function buildCoachNotificationFilters(
+  notifications: CoachNotificationItem[],
+): CoachNotificationsData["filters"] {
+  const countFor = (category: CoachNotificationCategory) =>
+    notifications.filter((notification) => notification.category === category)
+      .length;
+
+  return [
+    { count: notifications.length, id: "all", label: "Tout" },
+    {
+      count: countFor("messages"),
+      id: "messages",
+      label: "Messages",
+    },
+    {
+      count: countFor("paths"),
+      id: "paths",
+      label: "Parcours",
+    },
+    {
+      count: countFor("corrections"),
+      id: "corrections",
+      label: "Corrections",
+    },
+    {
+      count: countFor("late"),
+      id: "late",
+      label: "Retards",
+    },
+    {
+      count: countFor("activity"),
+      id: "activity",
+      label: "Activité",
+    },
+  ];
+}
+
 export const getCoachDashboardData =
   cache(async (): Promise<CoachDashboardData> => {
     const base = await getCoachBaseData();
@@ -1329,6 +1528,41 @@ export const getCoachDashboardData =
         ).length,
         unreadMessagesCount: unreadMessages.count,
       },
+    };
+  });
+
+export const getCoachNotificationsData =
+  cache(async (): Promise<CoachNotificationsData> => {
+    const base = await getCoachBaseData();
+    const supabase = await createServerSupabaseClient();
+    const profileUserIds = base.profiles.map((profile) => profile.user_id);
+    const [activityLogs, pathData, unreadMessages] = await Promise.all([
+      fetchActivityLogs(supabase, profileUserIds, 40),
+      getCoachLearningPathData(),
+      fetchDashboardUnreadMessages(supabase, {
+        currentUserId: base.currentUserId,
+        limit: 30,
+        senderIds: profileUserIds,
+      }),
+    ]);
+    const notifications = buildCoachNotifications({
+      activityLogs,
+      base,
+      pathData,
+      unreadMessages,
+    });
+    const highPriorityCount = notifications.filter(
+      (notification) => notification.priority === "high",
+    ).length;
+
+    return {
+      filters: buildCoachNotificationFilters(notifications),
+      metrics: {
+        highPriorityCount,
+        totalCount: notifications.length,
+        unreadMessagesCount: unreadMessages.count,
+      },
+      notifications,
     };
   });
 

@@ -44,6 +44,7 @@ const roleLabel: Record<UserRole, string> = {
 };
 
 const iconMap: Record<string, LucideIcon> = {
+  bell: Bell,
   book: BookOpen,
   calendar: CalendarDays,
   chart: BarChart3,
@@ -171,7 +172,12 @@ export function AppShell({
   const accountName = account?.fullName ?? roleLabel[role];
   const accountEmail = account?.email ?? "Session active";
   const accent = roleAccent[role];
-  const notificationHref = role === "admin" ? "/admin/stats" : `/${role}/messages`;
+  const notificationHref =
+    role === "admin"
+      ? "/admin/stats"
+      : role === "coach"
+        ? "/coach/notifications"
+        : "/coachee/messages";
 
   return (
     <div

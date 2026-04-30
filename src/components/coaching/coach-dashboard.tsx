@@ -137,9 +137,9 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             </div>
             <Link
               className="inline-flex min-h-10 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
-              href="/coach/paths"
+              href="/coach/notifications"
             >
-              Voir le suivi parcours
+              Voir les notifications
             </Link>
           </div>
           {data.attentionItems.length ? (

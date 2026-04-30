@@ -2,6 +2,7 @@ import type { NavItem } from "@/types/coaching";
 
 export const coachNav: NavItem[] = [
   { href: "/coach", icon: "home", label: "Dashboard" },
+  { href: "/coach/notifications", icon: "bell", label: "Notifications" },
   { href: "/coach/coachees", icon: "users", label: "Coachés" },
   { href: "/coach/cohorts", icon: "graduation", label: "Cohortes" },
   { href: "/coach/library", icon: "library", label: "Bibliothèque" },
