@@ -172,7 +172,7 @@ export function CoachNotificationsList({
   );
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -201,14 +201,16 @@ export function CoachNotificationsList({
             ) : null}
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
           {visibleFilters.map((filter) => {
             const isActive = effectiveFilter === filter.id;
 
             return (
               <button
+                aria-pressed={isActive}
                 className={cn(
                   buttonVariants({ size: "sm", variant: "secondary" }),
+                  "shrink-0",
                   isActive
                     ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-50"
                     : "text-slate-500 hover:border-sky-200 hover:text-sky-700",
@@ -234,7 +236,7 @@ export function CoachNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto]"
+                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -278,7 +280,7 @@ export function CoachNotificationsList({
                   </p>
                 </div>
 
-                <span className="inline-flex items-center gap-1 self-center text-sm font-semibold text-sky-700 lg:justify-self-end">
+                <span className="inline-flex items-center gap-1 self-center rounded-lg border border-transparent px-2 py-1 text-sm font-semibold text-sky-700 transition group-hover:border-sky-100 group-hover:bg-sky-50 lg:justify-self-end">
                   Ouvrir
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </span>

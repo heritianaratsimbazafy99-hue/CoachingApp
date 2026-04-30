@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -30,12 +31,64 @@ import type {
 } from "@/services/coachee-service";
 import type { CoacheeProfileData } from "@/services/profile-service";
 import { contentFileDownloadHref } from "@/utils/content-file-storage";
+import { cn } from "@/utils/cn";
 import {
   contentTypeLabel,
   formatDate,
   formatDateTime,
   formatPercent,
 } from "@/utils/format";
+
+function percentageWidth(value: number) {
+  return `${Math.min(100, Math.max(0, Math.round(value)))}%`;
+}
+
+function ResultScoreMeter({
+  points,
+  scoreMax,
+  value,
+}: {
+  points: number;
+  scoreMax: number;
+  value: number;
+}) {
+  return (
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-2xl font-semibold tracking-normal text-indigo-700">
+          {formatPercent(value)}
+        </p>
+        <p className="text-xs font-semibold uppercase text-slate-400">score</p>
+      </div>
+      <div className="mt-3 h-2 rounded-full bg-white ring-1 ring-indigo-100">
+        <div
+          className="h-full rounded-full bg-indigo-500"
+          style={{ width: percentageWidth(value) }}
+        />
+      </div>
+      <p className="mt-2 text-xs font-medium text-slate-500">
+        {points}/{scoreMax} points
+      </p>
+    </div>
+  );
+}
+
+function TaskMetaBox({
+  children,
+  label,
+}: {
+  children: ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+      <p className="text-xs font-semibold text-slate-400">{label}</p>
+      <div className="mt-1 text-sm font-semibold text-slate-700">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
   return (
@@ -48,13 +101,13 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
         {data.tasks.length ? (
           data.tasks.map((task) => (
             <Card
-              className="grid gap-4 p-5 md:grid-cols-[1fr_130px_110px_140px]"
+              className="grid gap-4 p-5 transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1fr)_180px_190px_auto]"
               key={task.id}
             >
-              <div>
+              <div className="min-w-0">
                 <div className="flex flex-wrap gap-2">
                   <PriorityBadge priority={task.priority} />
-                  <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                  <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
                     {task.assignmentType === "content_quiz"
                       ? "Contenu + quiz"
                       : task.quizId
@@ -66,20 +119,22 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                 <p className="mt-1 text-sm leading-6 text-slate-500">
                   {task.instructions || task.description || "Consigne à suivre."}
                 </p>
-                <p className="mt-2 text-xs text-slate-500">
-                  Deadline {formatDate(task.deadline)}
-                </p>
               </div>
-              <StatusBadge status={task.progressStatus} />
-              <p className="text-sm font-semibold text-slate-700">
+              <TaskMetaBox label="Échéance">
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-sky-600" />
+                  {formatDate(task.deadline)}
+                </span>
+              </TaskMetaBox>
+              <TaskMetaBox label="Ressource">
                 {task.quizTitle || task.contentTitle || "Parcours"}
-              </p>
-              <Link
-                className={buttonVariants()}
-                href={task.href}
-              >
-                {task.ctaLabel}
-              </Link>
+              </TaskMetaBox>
+              <div className="flex flex-col gap-3 lg:items-end">
+                <StatusBadge status={task.progressStatus} />
+                <Link className={buttonVariants()} href={task.href}>
+                  {task.ctaLabel}
+                </Link>
+              </div>
             </Card>
           ))
         ) : (
@@ -253,10 +308,10 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
-                  className="grid gap-3 p-5 md:grid-cols-[1fr_140px_140px_150px]"
+                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_150px]"
                   key={attempt.id}
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold text-slate-950">
                       {attempt.quizTitle}
                     </p>
@@ -267,13 +322,14 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
                       {formatDateTime(attempt.submittedAt)}
                     </p>
                   </div>
-                  <p className="font-semibold text-slate-700">
-                    {attempt.scoreObtained}/{attempt.scoreMax} points
-                  </p>
-                  <p className="text-2xl font-semibold text-indigo-700">
-                    {formatPercent(attempt.percentage)}
-                  </p>
-                  <StatusBadge status={attempt.status} />
+                  <ResultScoreMeter
+                    points={attempt.scoreObtained}
+                    scoreMax={attempt.scoreMax}
+                    value={attempt.percentage}
+                  />
+                  <div className="flex items-center lg:justify-end">
+                    <StatusBadge status={attempt.status} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -301,11 +357,12 @@ function GoalStatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
         isCompleted
           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-sky-200 bg-sky-50 text-sky-700"
-      }`}
+          : "border-sky-200 bg-sky-50 text-sky-700",
+      )}
     >
       {goalStatusLabel[status] ?? status}
     </span>

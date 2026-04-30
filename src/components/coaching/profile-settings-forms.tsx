@@ -19,7 +19,13 @@ import {
   updateProfileAction,
 } from "@/app/profile/actions";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   inputClassName,
   labelClassName,
@@ -134,7 +140,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
   );
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="grid gap-4 sm:grid-cols-2">
       <label className="block">
         <span className={labelClassName}>Nom complet</span>
         <input
@@ -166,8 +172,12 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
         />
       </label>
 
-      <StateMessage message={state.message} status={state.status} />
-      <ProfileSubmitButton />
+      <div className="sm:col-span-2">
+        <StateMessage message={state.message} status={state.status} />
+      </div>
+      <div className="sm:col-span-2">
+        <ProfileSubmitButton />
+      </div>
     </form>
   );
 }
@@ -250,14 +260,19 @@ export function NotificationPreferenceForm({
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <form action={formAction}>
-      <input name="role" type="hidden" value={role} />
+        <input name="role" type="hidden" value={role} />
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-sky-600" />
-              <CardTitle>Notifications</CardTitle>
+            <div>
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-sky-600" />
+                <CardTitle>Notifications</CardTitle>
+              </div>
+              <CardDescription>
+                Choisissez les catégories à afficher dans votre centre.
+              </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -274,48 +289,50 @@ export function NotificationPreferenceForm({
           </div>
         </CardHeader>
 
-      <div className="grid gap-2 p-5">
-        {options.map((option) => {
-          const isEnabled = enabledCategories.includes(option.category);
-          const isLastEnabled = isEnabled && enabledCategories.length === 1;
+        <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-1">
+          {options.map((option) => {
+            const isEnabled = enabledCategories.includes(option.category);
+            const isLastEnabled = isEnabled && enabledCategories.length === 1;
 
-          return (
-            <label
-              className={cn(
-                "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm transition",
-                isEnabled
-                  ? "border-sky-200 bg-sky-50/70 text-slate-950"
-                  : "border-slate-200 bg-white text-slate-500 hover:border-sky-200",
-                isLastEnabled ? "cursor-not-allowed opacity-70" : "",
-              )}
-              key={option.category}
-            >
-              <span className="font-semibold">{option.label}</span>
-              <input
-                checked={isEnabled}
-                className="sr-only"
-                name="enabledCategories"
-                onChange={() => toggleCategory(option.category)}
-                type="checkbox"
-                value={option.category}
-              />
-              <span
+            return (
+              <label
                 className={cn(
-                  "inline-flex h-5 w-5 items-center justify-center rounded-md border",
+                  "flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm transition",
                   isEnabled
-                    ? "border-sky-500 bg-sky-600 text-white"
-                    : "border-slate-300 bg-white",
+                    ? "border-sky-200 bg-sky-50/70 text-slate-950 shadow-sm shadow-sky-950/[0.03]"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-sky-200 hover:bg-slate-50",
+                  isLastEnabled ? "cursor-not-allowed opacity-70" : "",
                 )}
+                key={option.category}
               >
-                {isEnabled ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
-              </span>
-            </label>
-          );
-        })}
-      </div>
-      <div className="px-5 pb-5">
-        <StateMessage message={state.message} status={state.status} />
-      </div>
+                <span className="font-semibold">{option.label}</span>
+                <input
+                  checked={isEnabled}
+                  className="sr-only"
+                  name="enabledCategories"
+                  onChange={() => toggleCategory(option.category)}
+                  type="checkbox"
+                  value={option.category}
+                />
+                <span
+                  className={cn(
+                    "inline-flex h-5 w-5 items-center justify-center rounded-md border",
+                    isEnabled
+                      ? "border-sky-500 bg-sky-600 text-white"
+                      : "border-slate-300 bg-white",
+                  )}
+                >
+                  {isEnabled ? (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  ) : null}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        <div className="px-5 pb-5">
+          <StateMessage message={state.message} status={state.status} />
+        </div>
       </form>
     </Card>
   );
@@ -384,18 +401,19 @@ export function ReminderTemplateList({
 }) {
   if (!templates.length) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-500">
-        Aucun template de relance. Créez vos messages réutilisables pour les
-        retards, quiz à corriger ou sessions à venir.
-      </div>
+      <EmptyState
+        description="Créez vos messages réutilisables pour les retards, quiz à corriger ou sessions à venir."
+        icon={SendHorizonal}
+        title="Aucun template de relance"
+      />
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="grid gap-3 lg:grid-cols-2">
       {templates.map((template) => (
         <article
-          className="rounded-xl border border-slate-200 bg-white p-4"
+          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/[0.03] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.05] [contain-intrinsic-size:160px] [content-visibility:auto]"
           key={template.id}
         >
           <div className="flex items-start justify-between gap-3">
