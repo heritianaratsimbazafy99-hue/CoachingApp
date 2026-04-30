@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { sendQuizCorrectionAvailableEmail } from "@/services/transactional-email-service";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -399,6 +400,29 @@ export async function saveCorrectionAction(
     entity_type: "quiz_attempt",
     user_id: currentUser.user.id,
   });
+
+  const { data: attempt } = await supabase
+    .from("quiz_attempts")
+    .select("id,percentage,status,user_id,quiz:quizzes(title)")
+    .eq("id", values.attemptId)
+    .maybeSingle<{
+      id: string;
+      percentage: number;
+      quiz: { title: string } | null;
+      status: string;
+      user_id: string;
+    }>();
+
+  if (attempt && attempt.status !== "pending_correction") {
+    await sendQuizCorrectionAvailableEmail({
+      attemptId: attempt.id,
+      coachId: currentUser.user.id,
+      coacheeId: attempt.user_id,
+      percentage: attempt.percentage,
+      quizTitle: attempt.quiz?.title ?? "Quiz",
+      status: attempt.status,
+    });
+  }
 
   revalidatePath("/coach");
   revalidatePath("/coach/corrections");

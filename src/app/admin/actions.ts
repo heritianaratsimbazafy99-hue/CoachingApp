@@ -6,6 +6,7 @@ import { z } from "zod";
 import { normalizeRole } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
+import { recordExternalTransactionalEmail } from "@/services/transactional-email-service";
 import type { UserRole } from "@/types/coaching";
 
 export type UpdateUserRoleState = {
@@ -288,6 +289,20 @@ export async function createAdminUserAction(
     userId: data.user.id,
   });
 
+  if (creationMode === "invite") {
+    await recordExternalTransactionalEmail({
+      metadata: {
+        createdBy: currentUser.user.id,
+        role,
+      },
+      provider: "supabase-auth",
+      recipientEmail: email,
+      recipientUserId: data.user.id,
+      subject: "Invitation CoachingApp",
+      type: "invitation",
+    });
+  }
+
   revalidateAdminUserPages();
 
   return {
@@ -366,6 +381,17 @@ export async function sendUserInvitationAction(
     userId: data.user.id,
   });
 
+  await recordExternalTransactionalEmail({
+    metadata: {
+      invitedBy: currentUser.user.id,
+    },
+    provider: "supabase-auth",
+    recipientEmail: data.user.email,
+    recipientUserId: data.user.id,
+    subject: "Invitation CoachingApp",
+    type: "invitation",
+  });
+
   revalidateAdminUserPages();
 
   return {
@@ -430,6 +456,17 @@ export async function sendPasswordResetAction(
       resetUserEmail: data.user.email,
     },
     userId: data.user.id,
+  });
+
+  await recordExternalTransactionalEmail({
+    metadata: {
+      requestedBy: currentUser.user.id,
+    },
+    provider: "supabase-auth",
+    recipientEmail: data.user.email,
+    recipientUserId: data.user.id,
+    subject: "Réinitialisation du mot de passe CoachingApp",
+    type: "password_reset",
   });
 
   revalidateAdminUserPages();

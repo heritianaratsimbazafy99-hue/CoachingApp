@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
+import { sendPathReminderEmail } from "@/services/transactional-email-service";
 import { parseReminderTemplateTitle } from "@/utils/reminders";
 
 const uuidPattern =
@@ -325,6 +326,15 @@ export async function sendReminderTemplateAction(
       reminderType: templateTitle.usage,
     },
     user_id: currentUser.user.id,
+  });
+
+  await sendPathReminderEmail({
+    body: template.body,
+    coachId: currentUser.user.id,
+    coacheeId: parsed.data.coacheeId,
+    reminderTemplateId: template.id,
+    title: templateTitle.title,
+    usage: templateTitle.usage,
   });
 
   revalidatePath("/coach/coachees");

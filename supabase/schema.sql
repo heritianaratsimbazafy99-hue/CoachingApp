@@ -88,6 +88,40 @@ exception
   when duplicate_object then null;
 end $$;
 
+do $$
+begin
+  create type public.transactional_email_type as enum (
+    'invitation',
+    'password_reset',
+    'path_reminder',
+    'quiz_correction',
+    'message_received',
+    'calendar_event',
+    'calendar_event_reminder'
+  );
+exception
+  when duplicate_object then null;
+end $$;
+
+alter type public.transactional_email_type add value if not exists 'invitation';
+alter type public.transactional_email_type add value if not exists 'password_reset';
+alter type public.transactional_email_type add value if not exists 'path_reminder';
+alter type public.transactional_email_type add value if not exists 'quiz_correction';
+alter type public.transactional_email_type add value if not exists 'message_received';
+alter type public.transactional_email_type add value if not exists 'calendar_event';
+alter type public.transactional_email_type add value if not exists 'calendar_event_reminder';
+
+do $$
+begin
+  create type public.email_delivery_status as enum ('skipped', 'sent', 'failed');
+exception
+  when duplicate_object then null;
+end $$;
+
+alter type public.email_delivery_status add value if not exists 'skipped';
+alter type public.email_delivery_status add value if not exists 'sent';
+alter type public.email_delivery_status add value if not exists 'failed';
+
 drop function if exists public.is_admin() cascade;
 drop function if exists public.is_coach() cascade;
 drop function if exists public.jwt_role() cascade;
@@ -584,6 +618,21 @@ create table if not exists public.activity_logs (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.email_logs (
+  id uuid primary key default gen_random_uuid(),
+  recipient_user_id uuid references auth.users(id) on delete set null,
+  recipient_email text not null,
+  email_type public.transactional_email_type not null,
+  subject text not null,
+  status public.email_delivery_status not null default 'skipped',
+  provider text,
+  provider_message_id text,
+  error_message text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  constraint email_logs_metadata_object_check check (jsonb_typeof(metadata) = 'object')
+);
+
 create table if not exists public.coachee_goals (
   id uuid primary key default gen_random_uuid(),
   coach_id uuid not null references auth.users(id) on delete cascade,
@@ -638,6 +687,9 @@ create index if not exists quiz_attempts_user_idx on public.quiz_attempts(user_i
 create index if not exists messages_participants_idx on public.messages(sender_id, receiver_id, created_at desc);
 create index if not exists calendar_events_user_idx on public.calendar_events(coach_id, coachee_id, cohort_id, start_time);
 create index if not exists activity_logs_user_idx on public.activity_logs(user_id, created_at desc);
+create index if not exists email_logs_recipient_idx on public.email_logs(recipient_user_id, created_at desc);
+create index if not exists email_logs_type_idx on public.email_logs(email_type, created_at desc);
+create index if not exists email_logs_metadata_gin_idx on public.email_logs using gin (metadata);
 create index if not exists learning_paths_cohort_idx on public.learning_paths(cohort_id);
 create index if not exists learning_paths_created_by_idx on public.learning_paths(created_by);
 create index if not exists learning_path_items_path_idx on public.learning_path_items(learning_path_id);
@@ -980,6 +1032,7 @@ alter table public.messages enable row level security;
 alter table public.calendar_events enable row level security;
 alter table public.coach_notes enable row level security;
 alter table public.activity_logs enable row level security;
+alter table public.email_logs enable row level security;
 alter table public.coachee_goals enable row level security;
 alter table public.reminder_templates enable row level security;
 alter table public.learning_paths enable row level security;
@@ -1342,6 +1395,13 @@ for select using (
 drop policy if exists "activity_logs_insert_self" on public.activity_logs;
 create policy "activity_logs_insert_self" on public.activity_logs
 for insert with check (public.is_admin() or user_id = auth.uid());
+
+drop policy if exists "email_logs_select" on public.email_logs;
+create policy "email_logs_select" on public.email_logs
+for select using (
+  public.is_admin()
+  or recipient_user_id = auth.uid()
+);
 
 drop policy if exists "coachee_goals_policy" on public.coachee_goals;
 create policy "coachee_goals_policy" on public.coachee_goals

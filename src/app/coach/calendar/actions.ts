@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { sendCalendarEventScheduledEmails } from "@/services/transactional-email-service";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -245,6 +246,8 @@ export async function createCalendarEventAction(
     entity_type: "calendar_event",
     user_id: currentUser.user.id,
   });
+
+  await sendCalendarEventScheduledEmails({ eventId: data.id });
 
   revalidateCalendarPaths();
 

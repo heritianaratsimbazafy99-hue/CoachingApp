@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
+import { sendMessageReceivedEmail } from "@/services/transactional-email-service";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -79,6 +80,12 @@ export async function sendMessageAction(
     entity_id: receiverId,
     entity_type: "message",
     user_id: currentUser.user.id,
+  });
+
+  await sendMessageReceivedEmail({
+    body,
+    receiverId,
+    senderId: currentUser.user.id,
   });
 
   revalidateMessagingPaths();
