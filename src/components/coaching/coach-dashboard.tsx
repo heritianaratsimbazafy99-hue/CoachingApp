@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   AlertTriangle,
+  ArrowRight,
   CalendarDays,
   CheckSquare,
   Clock,
@@ -13,8 +14,61 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { CoachDashboardData } from "@/services/coach-service";
+import type {
+  CoachDashboardAttentionItem,
+  CoachDashboardData,
+} from "@/services/coach-service";
 import { formatDate, formatDateTime, formatPercent } from "@/utils/format";
+
+const attentionItemIcons: Record<
+  CoachDashboardAttentionItem["id"],
+  typeof AlertTriangle
+> = {
+  correction: Clock,
+  late_assignment: CheckSquare,
+  message: MessageCircle,
+  path_blocked: AlertTriangle,
+};
+
+const attentionItemStyles: Record<CoachDashboardAttentionItem["id"], string> = {
+  correction: "border-indigo-100 bg-indigo-50/70 text-indigo-700",
+  late_assignment: "border-amber-100 bg-amber-50/70 text-amber-700",
+  message: "border-sky-100 bg-sky-50/70 text-sky-700",
+  path_blocked: "border-rose-100 bg-rose-50/70 text-rose-700",
+};
+
+function AttentionItemCard({ item }: { item: CoachDashboardAttentionItem }) {
+  const Icon = attentionItemIcons[item.id];
+
+  return (
+    <Link
+      className="group grid min-h-32 gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm shadow-sky-900/[0.03] transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
+      href={item.href}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div
+          className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${attentionItemStyles[item.id]}`}
+        >
+          <Icon className="h-3.5 w-3.5" />
+          {item.label}
+        </div>
+        <span className="rounded-full bg-slate-950 px-2.5 py-1 text-xs font-semibold text-white">
+          {item.count}
+        </span>
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-slate-950">{item.title}</h3>
+        <p className="mt-1 line-clamp-2 text-sm text-slate-500">
+          {item.description}
+        </p>
+      </div>
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700">
+        Traiter
+        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+      </span>
+    </Link>
+  );
+}
 
 export function CoachDashboard({ data }: { data: CoachDashboardData }) {
   return (
@@ -49,23 +103,60 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             value={String(data.metrics.activeCoacheesCount)}
           />
           <StatCard
-            helper="À traiter aujourd'hui"
+            helper="Messages, corrections, retards et parcours"
             icon={AlertTriangle}
-            label="Assignations en retard"
-            value={String(data.metrics.lateAssignmentsCount)}
+            label="À traiter"
+            tone="rose"
+            value={String(data.metrics.attentionCount)}
           />
           <StatCard
             helper="Questions ouvertes à corriger"
             icon={Clock}
             label="À corriger"
+            tone="indigo"
             value={String(data.metrics.pendingCorrectionsCount)}
           />
           <StatCard
             helper="Moyenne sur les quiz soumis"
             icon={Trophy}
             label="Score moyen"
+            tone="emerald"
             value={formatPercent(data.metrics.averageScore)}
           />
+        </section>
+
+        <section className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <div className="flex flex-col gap-3 border-b border-sky-100 pb-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">À traiter maintenant</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {data.metrics.unreadMessagesCount} messages non lus ·{" "}
+                {data.metrics.blockedLearningPathsCount} blocages parcours ·{" "}
+                {data.metrics.lateAssignmentsCount} retards
+              </p>
+            </div>
+            <Link
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+              href="/coach/paths"
+            >
+              Voir le suivi parcours
+            </Link>
+          </div>
+          {data.attentionItems.length ? (
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {data.attentionItems.map((item) => (
+                <AttentionItemCard item={item} key={item.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5">
+              <EmptyState
+                description="Aucun message non lu, correction en attente, retard ou blocage parcours détecté."
+                icon={CheckSquare}
+                title="Tout est à jour"
+              />
+            </div>
+          )}
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">

@@ -2,6 +2,10 @@ import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import {
+  getCoachLearningPathData,
+  type CoachLearningPathData,
+} from "@/services/learning-path-service";
 import type {
   AssignmentStatus,
   AssignmentType,
@@ -205,6 +209,18 @@ type ActivityLogRow = {
   user_id: string;
 };
 
+type DashboardUnreadMessageRow = {
+  body: string;
+  created_at: string;
+  id: string;
+  sender_id: string;
+};
+
+type DashboardUnreadMessages = {
+  count: number;
+  latest: DashboardUnreadMessageRow[];
+};
+
 type AuthUserSummary = {
   email: string;
   lastSignInAt: string | null;
@@ -376,16 +392,29 @@ export type CoachActivity = {
   id: string;
 };
 
+export type CoachDashboardAttentionItem = {
+  count: number;
+  description: string;
+  href: string;
+  id: "correction" | "late_assignment" | "message" | "path_blocked";
+  label: string;
+  title: string;
+};
+
 export type CoachDashboardData = {
   activityLogs: CoachActivity[];
   assignments: CoachAssignmentSummary[];
+  attentionItems: CoachDashboardAttentionItem[];
   calendarEvents: CoachCalendarEvent[];
   coachees: CoachCoacheeSummary[];
   metrics: {
     activeCoacheesCount: number;
     averageScore: number;
+    attentionCount: number;
+    blockedLearningPathsCount: number;
     lateAssignmentsCount: number;
     pendingCorrectionsCount: number;
+    unreadMessagesCount: number;
   };
 };
 
@@ -534,6 +563,14 @@ function average(values: number[]) {
 
 function unique(values: Array<string | null | undefined>) {
   return [...new Set(values.filter(Boolean) as string[])];
+}
+
+function compactText(value: string, maxLength = 88) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+
+  return normalized.length > maxLength
+    ? `${normalized.slice(0, maxLength - 3)}...`
+    : normalized;
 }
 
 function groupBy<T>(items: T[], getKey: (item: T) => string) {
@@ -744,6 +781,39 @@ async function fetchActivityLogs(
       .order("created_at", { ascending: false })
       .limit(8),
   );
+}
+
+async function fetchDashboardUnreadMessages(
+  supabase: SupabaseServerClient,
+  payload: {
+    currentUserId: string;
+    senderIds: string[];
+  },
+): Promise<DashboardUnreadMessages> {
+  if (!payload.senderIds.length) {
+    return {
+      count: 0,
+      latest: [],
+    };
+  }
+
+  const { count, data, error } = await supabase
+    .from("messages")
+    .select("id,sender_id,body,created_at", { count: "exact" })
+    .eq("receiver_id", payload.currentUserId)
+    .is("read_at", null)
+    .in("sender_id", payload.senderIds)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    count: count ?? (data ?? []).length,
+    latest: (data ?? []) as DashboardUnreadMessageRow[],
+  };
 }
 
 async function fetchCoacheeReminderLogs(
@@ -1089,12 +1159,139 @@ const getCoachBaseData = cache(async (): Promise<CoachBaseData> => {
   };
 });
 
+function buildDashboardAttentionItems({
+  base,
+  pathData,
+  unreadMessages,
+}: {
+  base: CoachBaseData;
+  pathData: CoachLearningPathData;
+  unreadMessages: DashboardUnreadMessages;
+}): CoachDashboardAttentionItem[] {
+  const profileByUserId = new Map(
+    base.profiles.map((profile) => [profile.user_id, profile]),
+  );
+  const quizById = new Map(base.quizzes.map((quiz) => [quiz.id, quiz]));
+  const assignmentById = new Map(
+    base.assignments.map((assignment) => [assignment.id, assignment]),
+  );
+  const pendingCorrections = base.quizAttempts.filter(
+    (attempt) => attempt.status === "pending_correction",
+  );
+  const lateProgress = base.assignmentProgress.filter(
+    (row) => row.status === "late" || row.is_late,
+  );
+  const latestMessage = unreadMessages.latest[0];
+  const latestCorrection = pendingCorrections.toSorted((first, second) => {
+    const firstTime =
+      new Date(first.submitted_at ?? first.created_at).getTime() || 0;
+    const secondTime =
+      new Date(second.submitted_at ?? second.created_at).getTime() || 0;
+
+    return secondTime - firstTime;
+  })[0];
+  const latestLateProgress = lateProgress.toSorted((first, second) => {
+    const firstTime = new Date(first.updated_at).getTime() || 0;
+    const secondTime = new Date(second.updated_at).getTime() || 0;
+
+    return secondTime - firstTime;
+  })[0];
+  const topBlockedPath = pathData.signals.blockedLearners[0];
+  const items: CoachDashboardAttentionItem[] = [];
+
+  if (unreadMessages.count > 0) {
+    const senderName = latestMessage
+      ? profileByUserId.get(latestMessage.sender_id)?.full_name
+      : null;
+
+    items.push({
+      count: unreadMessages.count,
+      description: latestMessage
+        ? `${senderName ?? "Coaché"} : ${compactText(latestMessage.body)}`
+        : "Des conversations attendent une réponse.",
+      href: "/coach/messages",
+      id: "message",
+      label: "Messages",
+      title: "Messages non lus",
+    });
+  }
+
+  if (pendingCorrections.length > 0) {
+    const coacheeName = latestCorrection
+      ? profileByUserId.get(latestCorrection.user_id)?.full_name
+      : null;
+    const quizTitle = latestCorrection
+      ? quizById.get(latestCorrection.quiz_id)?.title
+      : null;
+
+    items.push({
+      count: pendingCorrections.length,
+      description:
+        latestCorrection && quizTitle
+          ? `${coacheeName ?? "Coaché"} · ${quizTitle}`
+          : "Des réponses ouvertes attendent une correction.",
+      href: "/coach/corrections",
+      id: "correction",
+      label: "Corrections",
+      title: "Corrections en attente",
+    });
+  }
+
+  if (pathData.metrics.blockedLearnersCount > 0) {
+    items.push({
+      count: pathData.metrics.blockedLearnersCount,
+      description: topBlockedPath
+        ? `${topBlockedPath.coacheeName} · ${topBlockedPath.pathTitle} · ${topBlockedPath.reason}`
+        : "Des coachés sont bloqués dans un parcours.",
+      href: "/coach/paths",
+      id: "path_blocked",
+      label: "Parcours",
+      title: "Blocages parcours",
+    });
+  }
+
+  if (lateProgress.length > 0) {
+    const assignment = latestLateProgress
+      ? assignmentById.get(latestLateProgress.assignment_id)
+      : null;
+    const coacheeName = latestLateProgress
+      ? profileByUserId.get(latestLateProgress.user_id)?.full_name
+      : null;
+
+    items.push({
+      count: lateProgress.length,
+      description: assignment
+        ? `${assignment.title} · ${coacheeName ?? "Coaché"}`
+        : "Des assignations dépassent leur deadline.",
+      href: "/coach/assignments",
+      id: "late_assignment",
+      label: "Retards",
+      title: "Assignations en retard",
+    });
+  }
+
+  return items;
+}
+
 export const getCoachDashboardData =
   cache(async (): Promise<CoachDashboardData> => {
     const base = await getCoachBaseData();
+    const supabase = await createServerSupabaseClient();
     const coachees = buildCoacheeSummaries(base);
     const mapAssignment = createAssignmentMapper(base);
     const assignments = base.assignments.slice(0, 6).map(mapAssignment);
+    const [pathData, unreadMessages] = await Promise.all([
+      getCoachLearningPathData(),
+      fetchDashboardUnreadMessages(supabase, {
+        currentUserId: base.currentUserId,
+        senderIds: base.profiles.map((profile) => profile.user_id),
+      }),
+    ]);
+    const attentionItems = buildDashboardAttentionItems({
+      base,
+      pathData,
+      unreadMessages,
+    });
 
     return {
       activityLogs: base.activityLogs.map((activity) => ({
@@ -1104,6 +1301,7 @@ export const getCoachDashboardData =
         id: activity.id,
       })),
       assignments,
+      attentionItems,
       calendarEvents: base.calendarEvents.map((event) => ({
         endTime: event.end_time,
         id: event.id,
@@ -1118,12 +1316,18 @@ export const getCoachDashboardData =
         averageScore: average(
           base.quizAttempts.map((attempt) => attempt.percentage),
         ),
+        attentionCount: attentionItems.reduce(
+          (total, item) => total + item.count,
+          0,
+        ),
+        blockedLearningPathsCount: pathData.metrics.blockedLearnersCount,
         lateAssignmentsCount: base.assignmentProgress.filter(
           (row) => row.status === "late" || row.is_late,
         ).length,
         pendingCorrectionsCount: base.quizAttempts.filter(
           (attempt) => attempt.status === "pending_correction",
         ).length,
+        unreadMessagesCount: unreadMessages.count,
       },
     };
   });
