@@ -22,9 +22,9 @@ import {
 import {
   deleteLearningPathAction,
   duplicateLearningPathAction,
-  sendLearningPathReminderAction,
 } from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
+import { LearningPathReminderForm } from "@/components/coaching/learning-path-reminder-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -171,33 +171,6 @@ function LearnerStatusBadge({
     >
       {learnerStatusLabel[status]}
     </span>
-  );
-}
-
-function LearningPathReminderForm({
-  coacheeId,
-  pathTitle,
-  reason,
-  reminderType,
-}: {
-  coacheeId: string;
-  pathTitle: string;
-  reason: string;
-  reminderType: "blocked" | "correction";
-}) {
-  return (
-    <form action={sendLearningPathReminderAction}>
-      <input name="coacheeId" type="hidden" value={coacheeId} />
-      <input name="pathTitle" type="hidden" value={pathTitle} />
-      <input name="reason" type="hidden" value={reason} />
-      <input name="reminderType" type="hidden" value={reminderType} />
-      <button
-        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-sky-200 bg-white px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-50"
-        type="submit"
-      >
-        Relancer
-      </button>
-    </form>
   );
 }
 

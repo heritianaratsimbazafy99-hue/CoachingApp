@@ -52,6 +52,11 @@ export type LearningPathActionState = {
   status: "error" | "idle" | "success";
 };
 
+export type LearningPathReminderActionState = {
+  message: string;
+  status: "error" | "idle" | "success";
+};
+
 type ReminderTemplateRow = {
   body: string;
   id: string;
@@ -573,7 +578,10 @@ export async function duplicateLearningPathAction(formData: FormData) {
   revalidateLearningPathRoutes();
 }
 
-export async function sendLearningPathReminderAction(formData: FormData) {
+export async function sendLearningPathReminderAction(
+  _previousState: LearningPathReminderActionState,
+  formData: FormData,
+): Promise<LearningPathReminderActionState> {
   const currentUser = await requireRole(["admin", "coach"]);
   const parsed = reminderSchema.safeParse({
     coacheeId: formData.get("coacheeId"),
@@ -583,13 +591,19 @@ export async function sendLearningPathReminderAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return;
+    return {
+      message: parsed.error.issues[0]?.message ?? "Relance invalide.",
+      status: "error",
+    };
   }
 
   const allowed = await canMessageUser(parsed.data.coacheeId);
 
   if (!allowed) {
-    return;
+    return {
+      message: "Vous ne pouvez pas envoyer de relance à ce coaché.",
+      status: "error",
+    };
   }
 
   const supabase = await createServerSupabaseClient();
@@ -618,7 +632,10 @@ export async function sendLearningPathReminderAction(formData: FormData) {
     .single<{ id: string }>();
 
   if (error) {
-    return;
+    return {
+      message: `Impossible d'envoyer la relance : ${error.message}`,
+      status: "error",
+    };
   }
 
   await supabase.from("activity_logs").insert({
@@ -643,6 +660,11 @@ export async function sendLearningPathReminderAction(formData: FormData) {
   revalidatePath("/coach/messages");
   revalidatePath("/coachee/messages");
   revalidateLearningPathRoutes();
+
+  return {
+    message: "Relance envoyée.",
+    status: "success",
+  };
 }
 
 export async function deleteLearningPathAction(formData: FormData) {
