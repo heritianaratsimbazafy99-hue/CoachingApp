@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  AlertTriangle,
   BarChart3,
   BookOpenCheck,
   ClipboardCheck,
@@ -296,9 +297,11 @@ export function AdminCoachesPage({
 
 export function AdminCohortsPage({
   cohorts,
+  loadError,
   users,
 }: {
   cohorts: AdminCohort[];
+  loadError?: string;
   users: AdminUser[];
 }) {
   const coaches = users.filter((profile) => profile.role === "coach");
@@ -320,6 +323,19 @@ export function AdminCohortsPage({
         title="Cohortes"
       />
       <div className="grid gap-6 p-6 xl:grid-cols-[380px_1fr]">
+        {loadError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 xl:col-span-2">
+            <div className="flex gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+              <div>
+                <p className="font-semibold">
+                  Chargement partiel des cohortes
+                </p>
+                <p className="mt-1 leading-6">{loadError}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <section
           className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
           id="admin-new-cohort"
