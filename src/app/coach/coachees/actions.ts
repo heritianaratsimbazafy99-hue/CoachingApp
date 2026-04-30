@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
+import { parseReminderTemplateTitle } from "@/utils/reminders";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -295,6 +296,7 @@ export async function sendReminderTemplateAction(
     };
   }
 
+  const templateTitle = parseReminderTemplateTitle(template.title);
   const { data: message, error } = await supabase
     .from("messages")
     .insert({
@@ -313,14 +315,14 @@ export async function sendReminderTemplateAction(
   }
 
   await supabase.from("activity_logs").insert({
-    action: `Relance envoyée : ${template.title}`,
+    action: `Relance envoyée : ${templateTitle.title}`,
     entity_id: message.id,
     entity_type: "message",
     metadata: {
       coacheeId: parsed.data.coacheeId,
       reminderTemplateId: template.id,
-      reminderTitle: template.title,
-      reminderType: "template",
+      reminderTitle: templateTitle.title,
+      reminderType: templateTitle.usage,
     },
     user_id: currentUser.user.id,
   });

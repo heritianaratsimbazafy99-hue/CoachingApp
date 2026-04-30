@@ -2,6 +2,10 @@ import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/coaching";
+import {
+  parseReminderTemplateTitle,
+  type ReminderTemplateUsage,
+} from "@/utils/reminders";
 
 type ProfileRow = {
   avatar_url: string | null;
@@ -41,6 +45,7 @@ export type ReminderTemplate = {
   createdAt: string;
   id: string;
   title: string;
+  usage: ReminderTemplateUsage;
 };
 
 export type CoacheeGoal = {
@@ -129,12 +134,17 @@ export const getCoachSettingsData = cache(
         userId: currentUser.user.id,
       }),
       reminderTemplates: ((templatesResponse.data ?? []) as ReminderTemplateRow[]).map(
-        (template) => ({
-          body: template.body,
-          createdAt: template.created_at,
-          id: template.id,
-          title: template.title,
-        }),
+        (template) => {
+          const parsedTitle = parseReminderTemplateTitle(template.title);
+
+          return {
+            body: template.body,
+            createdAt: template.created_at,
+            id: template.id,
+            title: parsedTitle.title,
+            usage: parsedTitle.usage,
+          };
+        },
       ),
     };
   },

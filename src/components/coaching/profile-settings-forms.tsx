@@ -15,6 +15,7 @@ import type {
   ReminderTemplate,
 } from "@/services/profile-service";
 import { cn } from "@/utils/cn";
+import { reminderTemplateUsageLabels } from "@/utils/reminders";
 
 const initialProfileState: ProfileActionState = {
   message: "",
@@ -142,6 +143,21 @@ export function ReminderTemplateForm() {
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
       <label className="block">
+        <span className="text-sm font-semibold text-slate-800">Usage</span>
+        <select
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          defaultValue="general"
+          name="usage"
+        >
+          {Object.entries(reminderTemplateUsageLabels).map(([usage, label]) => (
+            <option key={usage} value={usage}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
         <span className="text-sm font-semibold text-slate-800">Titre</span>
         <input
           className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
@@ -156,7 +172,7 @@ export function ReminderTemplateForm() {
         <textarea
           className="mt-2 min-h-32 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           name="body"
-          placeholder="Bonjour, petit rappel..."
+          placeholder="Bonjour, petit rappel sur {{parcours}}..."
           required
         />
       </label>
@@ -190,7 +206,14 @@ export function ReminderTemplateList({
         >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-slate-950">{template.title}</h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-semibold text-slate-950">
+                  {template.title}
+                </h3>
+                <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                  {reminderTemplateUsageLabels[template.usage]}
+                </span>
+              </div>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
                 {template.body}
               </p>

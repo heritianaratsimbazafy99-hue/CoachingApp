@@ -13,6 +13,10 @@ import type {
   QuestionType,
   QuizAttemptStatus,
 } from "@/types/coaching";
+import {
+  parseReminderTemplateTitle,
+  type ReminderTemplateUsage,
+} from "@/utils/reminders";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
 
@@ -221,6 +225,7 @@ export type CoachReminderTemplate = {
   body: string;
   id: string;
   title: string;
+  usage: ReminderTemplateUsage;
 };
 
 export type CoachCoacheesData = {
@@ -1141,7 +1146,22 @@ export const getCoachCoacheesData = cache(async (): Promise<CoachCoacheesData> =
     templatesQuery = templatesQuery.eq("coach_id", base.currentUserId);
   }
 
-  const templates = await getRows<CoachReminderTemplate>(templatesQuery);
+  const templates = (await getRows<{
+    body: string;
+    id: string;
+    title: string;
+  }>(templatesQuery))
+    .map((template) => {
+      const parsedTitle = parseReminderTemplateTitle(template.title);
+
+      return {
+        body: template.body,
+        id: template.id,
+        title: parsedTitle.title,
+        usage: parsedTitle.usage,
+      };
+    })
+    .filter((template) => template.usage === "general");
 
   return {
     coachees: buildCoacheeSummaries(base),

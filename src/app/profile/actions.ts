@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { encodeReminderTemplateTitle } from "@/utils/reminders";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -33,6 +34,7 @@ const reminderTemplateSchema = z.object({
     .trim()
     .min(2, "Le titre doit contenir au moins 2 caractères.")
     .max(120, "Le titre est trop long."),
+  usage: z.enum(["general", "path_blocked", "path_correction"]),
 });
 
 const deleteReminderTemplateSchema = z.object({
@@ -137,6 +139,7 @@ export async function createReminderTemplateAction(
   const parsed = reminderTemplateSchema.safeParse({
     body: formData.get("body"),
     title: formData.get("title"),
+    usage: formData.get("usage") ?? "general",
   });
 
   if (!parsed.success) {
@@ -154,7 +157,7 @@ export async function createReminderTemplateAction(
     .insert({
       body: parsed.data.body,
       coach_id: currentUser.user.id,
-      title: parsed.data.title,
+      title: encodeReminderTemplateTitle(parsed.data.title, parsed.data.usage),
     })
     .select("id")
     .single();
@@ -170,6 +173,10 @@ export async function createReminderTemplateAction(
     action: `Template de relance créé : ${parsed.data.title}`,
     entity_id: data.id,
     entity_type: "reminder_template",
+    metadata: {
+      reminderTitle: parsed.data.title,
+      reminderUsage: parsed.data.usage,
+    },
     user_id: currentUser.user.id,
   });
 

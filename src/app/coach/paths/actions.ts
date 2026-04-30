@@ -5,6 +5,11 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { canMessageUser } from "@/services/messaging-service";
+import {
+  parseReminderTemplateTitle,
+  renderReminderTemplateBody,
+  type ReminderTemplateUsage,
+} from "@/utils/reminders";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -47,6 +52,12 @@ export type LearningPathActionState = {
   status: "error" | "idle" | "success";
 };
 
+type ReminderTemplateRow = {
+  body: string;
+  id: string;
+  title: string;
+};
+
 function nullableText(value: string) {
   return value.trim() ? value.trim() : null;
 }
@@ -71,7 +82,15 @@ function revalidateLearningPathRoutes() {
   revalidatePath("/coachee/paths");
 }
 
-function learningPathReminderBody({
+const reminderUsageByType: Record<
+  z.infer<typeof reminderSchema>["reminderType"],
+  ReminderTemplateUsage
+> = {
+  blocked: "path_blocked",
+  correction: "path_correction",
+};
+
+function defaultLearningPathReminderBody({
   pathTitle,
   reason,
   reminderType,
@@ -89,6 +108,45 @@ function learningPathReminderBody({
     `${reason}. Reprenez la prochaine étape quand vous êtes disponible.`,
     "Écrivez-moi ici si quelque chose bloque, je vous aiderai à avancer.",
   ].join("\n\n");
+}
+
+async function getLearningPathReminderTemplate({
+  currentUserId,
+  isAdmin,
+  usage,
+}: {
+  currentUserId: string;
+  isAdmin: boolean;
+  usage: ReminderTemplateUsage;
+}) {
+  const supabase = await createServerSupabaseClient();
+  let query = supabase
+    .from("reminder_templates")
+    .select("id,title,body")
+    .order("created_at", { ascending: false });
+
+  if (!isAdmin) {
+    query = query.eq("coach_id", currentUserId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return null;
+  }
+
+  return ((data ?? []) as ReminderTemplateRow[])
+    .map((template) => {
+      const parsedTitle = parseReminderTemplateTitle(template.title);
+
+      return {
+        body: template.body,
+        id: template.id,
+        title: parsedTitle.title,
+        usage: parsedTitle.usage,
+      };
+    })
+    .find((template) => template.usage === usage);
 }
 
 function uniqueItems(items: Array<{ id: string; kind: "content" | "quiz" }>) {
@@ -535,10 +593,24 @@ export async function sendLearningPathReminderAction(formData: FormData) {
   }
 
   const supabase = await createServerSupabaseClient();
+  const templateUsage = reminderUsageByType[parsed.data.reminderType];
+  const template = await getLearningPathReminderTemplate({
+    currentUserId: currentUser.user.id,
+    isAdmin: currentUser.role === "admin",
+    usage: templateUsage,
+  });
+  const body = template
+    ? renderReminderTemplateBody(template.body, {
+        motif: parsed.data.reason,
+        parcours: parsed.data.pathTitle,
+        type_relance:
+          parsed.data.reminderType === "correction" ? "correction" : "blocage",
+      })
+    : defaultLearningPathReminderBody(parsed.data);
   const { data: message, error } = await supabase
     .from("messages")
     .insert({
-      body: learningPathReminderBody(parsed.data),
+      body,
       receiver_id: parsed.data.coacheeId,
       sender_id: currentUser.user.id,
     })
@@ -560,7 +632,10 @@ export async function sendLearningPathReminderAction(formData: FormData) {
       coacheeId: parsed.data.coacheeId,
       learningPathTitle: parsed.data.pathTitle,
       reason: parsed.data.reason,
+      reminderTemplateId: template?.id ?? null,
+      reminderTitle: template?.title ?? null,
       reminderType: parsed.data.reminderType,
+      reminderUsage: templateUsage,
     },
     user_id: currentUser.user.id,
   });
