@@ -16,6 +16,12 @@ import {
   updateLearningPathAction,
   type LearningPathActionState,
 } from "@/app/coach/paths/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type {
   CoachLearningPathData,
   LearningPathItemOption,
@@ -52,7 +58,7 @@ function SubmitButton({
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={disabled || pending}
       type="submit"
     >
@@ -95,7 +101,7 @@ function OptionRow({
   onAdd: () => void;
 }) {
   return (
-    <div className="flex gap-3 rounded-xl border border-sky-100 bg-white p-3 transition hover:border-sky-200 hover:bg-sky-50/50">
+    <div className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-sky-200 hover:bg-slate-50">
       <div className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-slate-900">{item.label}</span>
@@ -108,10 +114,11 @@ function OptionRow({
       </div>
       <button
         className={cn(
-          "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition disabled:cursor-not-allowed",
+          buttonVariants({ size: "sm", variant: "secondary" }),
+          "h-9 w-9 shrink-0 px-0 disabled:cursor-not-allowed",
           isSelected
-            ? "border-emerald-100 bg-emerald-50 text-emerald-700"
-            : "border-sky-100 bg-sky-50 text-sky-700 hover:bg-sky-100",
+            ? "border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
+            : "text-sky-700",
         )}
         disabled={disabled || isSelected}
         onClick={onAdd}
@@ -157,7 +164,10 @@ function OrderedItemRow({
       </div>
       <div className="flex items-center gap-2">
         <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+          className={cn(
+            buttonVariants({ size: "sm", variant: "secondary" }),
+            "h-9 w-9 px-0",
+          )}
           disabled={!canMoveUp}
           onClick={onMoveUp}
           title="Monter"
@@ -166,7 +176,10 @@ function OrderedItemRow({
           <ArrowUp className="h-4 w-4" />
         </button>
         <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+          className={cn(
+            buttonVariants({ size: "sm", variant: "secondary" }),
+            "h-9 w-9 px-0",
+          )}
           disabled={!canMoveDown}
           onClick={onMoveDown}
           title="Descendre"
@@ -175,7 +188,10 @@ function OrderedItemRow({
           <ArrowDown className="h-4 w-4" />
         </button>
         <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100"
+          className={cn(
+            buttonVariants({ size: "sm", variant: "danger" }),
+            "h-9 w-9 px-0",
+          )}
           onClick={onRemove}
           title="Retirer"
           type="button"
@@ -255,9 +271,9 @@ export function LearningPathForm({
       ))}
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Titre</span>
+        <span className={labelClassName}>Titre</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           defaultValue={defaultValues?.title}
           disabled={!cohorts.length}
           name="title"
@@ -267,9 +283,9 @@ export function LearningPathForm({
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Cohorte</span>
+        <span className={labelClassName}>Cohorte</span>
         <select
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName()}
           defaultValue={defaultValues?.cohortId ?? ""}
           disabled={!cohorts.length}
           name="cohortId"
@@ -285,9 +301,9 @@ export function LearningPathForm({
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Description</span>
+        <span className={labelClassName}>Description</span>
         <textarea
-          className="mt-2 min-h-24 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-24")}
           defaultValue={defaultValues?.description}
           disabled={!cohorts.length}
           name="description"
@@ -295,7 +311,7 @@ export function LearningPathForm({
         />
       </label>
 
-      <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex items-center gap-2">
           <BookOpenCheck className="h-4 w-4 text-sky-700" />
           <p className="text-sm font-semibold text-slate-900">
@@ -314,7 +330,7 @@ export function LearningPathForm({
               />
             ))
           ) : (
-            <p className="rounded-xl border border-dashed border-sky-200 bg-white p-4 text-sm leading-6 text-slate-500">
+            <p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm leading-6 text-slate-500">
               Créez au moins un contenu ou un quiz avant de composer un parcours.
             </p>
           )}

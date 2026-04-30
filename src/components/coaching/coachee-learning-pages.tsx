@@ -16,6 +16,8 @@ import {
   ProfileForm,
 } from "@/components/coaching/profile-settings-forms";
 import { QuizRunner } from "@/components/coaching/quiz-runner";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -42,11 +44,11 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
         description="Vos contenus, quiz, deadlines et retards au même endroit."
         title="Mes tâches"
       />
-      <div className="space-y-4 p-6">
+      <div className="space-y-4 p-4 sm:p-6">
         {data.tasks.length ? (
           data.tasks.map((task) => (
-            <article
-              className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 md:grid-cols-[1fr_130px_110px_140px]"
+            <Card
+              className="grid gap-4 p-5 md:grid-cols-[1fr_130px_110px_140px]"
               key={task.id}
             >
               <div>
@@ -73,12 +75,12 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                 {task.quizTitle || task.contentTitle || "Parcours"}
               </p>
               <Link
-                className="rounded-lg bg-sky-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-sky-700"
+                className={buttonVariants()}
                 href={task.href}
               >
                 {task.ctaLabel}
               </Link>
-            </article>
+            </Card>
           ))
         ) : (
           <EmptyState
@@ -96,8 +98,8 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
   return (
     <>
       <PageHeader description={data.content.description} title={data.content.title} />
-      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_320px]">
-        <article className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm shadow-slate-950/5">
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_320px]">
+        <Card className="p-5 sm:p-8">
           <div className="mb-6 flex flex-wrap gap-2">
             <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
               {contentTypeLabel[data.content.type]}
@@ -115,7 +117,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             <div className="mt-8 grid gap-3">
               {data.content.videoUrl ? (
                 <a
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  className={buttonVariants({ variant: "secondary" })}
                   href={data.content.videoUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -126,7 +128,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
               ) : null}
               {data.content.externalUrl ? (
                 <a
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  className={buttonVariants({ variant: "secondary" })}
                   href={data.content.externalUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -137,7 +139,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
               ) : null}
               {data.content.fileUrl ? (
                 <a
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700"
+                  className={buttonVariants({ variant: "secondary" })}
                   href={contentFileDownloadHref(data.content.id)}
                   rel="noreferrer"
                   target="_blank"
@@ -158,7 +160,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
                 value={data.assignment?.id ?? ""}
               />
               <button
-                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+                className={buttonVariants()}
                 type="submit"
               >
                 <CheckCircle2 className="h-4 w-4" />
@@ -167,7 +169,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             </form>
             {!data.assignment ? (
               <Link
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className={buttonVariants({ variant: "secondary" })}
                 href="/coachee/paths"
               >
                 Retour aux parcours
@@ -175,18 +177,20 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             ) : null}
             {data.quizHref ? (
               <Link
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className={buttonVariants({ variant: "secondary" })}
                 href={data.quizHref}
               >
                 Passer au quiz
               </Link>
             ) : null}
           </div>
-        </article>
+        </Card>
 
-        <aside className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
-          <h2 className="font-semibold text-slate-950">Progression</h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-600">
+        <Card>
+          <CardHeader>
+            <CardTitle>Progression</CardTitle>
+          </CardHeader>
+          <div className="space-y-3 p-5 text-sm text-slate-600">
             <p>1. Lire le contenu</p>
             <p>2. Marquer comme terminé</p>
             {data.quizTitle ? <p>3. Passer le quiz : {data.quizTitle}</p> : null}
@@ -195,7 +199,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             ) : null}
             <p>Dernière mise à jour : {formatDate(data.content.updatedAt)}</p>
           </div>
-        </aside>
+        </Card>
       </div>
     </>
   );
@@ -212,7 +216,7 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
         description="Vos scores, pourcentages, statuts et feedbacks coach."
         title="Mes scores"
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Quiz soumis"
@@ -245,7 +249,7 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
         </section>
 
         {data.results.length ? (
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5">
+          <Card className="overflow-hidden">
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
@@ -273,7 +277,7 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         ) : (
           <EmptyState
             description="Vos scores apparaîtront dès votre premier quiz soumis."
@@ -316,7 +320,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
         title="Mon profil"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-3">
           <StatCard
             helper="Objectifs suivis"
@@ -342,7 +346,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
+          <Card className="p-5 sm:p-6">
             <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
                 {data.profile.avatarUrl ? (
@@ -372,15 +376,17 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
             <div className="mt-6">
               <ProfileForm profile={data.profile} />
             </div>
-          </section>
+          </Card>
 
           <aside className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
-              <div className="flex items-center gap-2">
-                <UserRound className="h-5 w-5 text-slate-500" />
-                <h2 className="font-semibold text-slate-950">Compte</h2>
-              </div>
-              <div className="mt-5 space-y-3 text-sm">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <UserRound className="h-5 w-5 text-slate-500" />
+                  <CardTitle>Compte</CardTitle>
+                </div>
+              </CardHeader>
+              <div className="space-y-3 p-5 text-sm">
                 <div className="rounded-xl bg-slate-50 p-4">
                   <p className="font-medium text-slate-500">Email</p>
                   <p className="mt-1 font-semibold text-slate-950">
@@ -394,7 +400,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                   </p>
                 </div>
               </div>
-            </section>
+            </Card>
 
             <NotificationPreferenceForm
               initialEnabledCategories={
@@ -405,14 +411,16 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
           </aside>
         </div>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-950/5">
-          <div className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-emerald-600" />
-            <h2 className="font-semibold text-slate-950">Objectifs</h2>
-          </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-emerald-600" />
+              <CardTitle>Objectifs</CardTitle>
+            </div>
+          </CardHeader>
 
           {data.goals.length ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 p-5 md:grid-cols-2">
               {data.goals.map((goal) => (
                 <article
                   className="rounded-xl border border-slate-200 bg-white p-4"
@@ -438,7 +446,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
               ))}
             </div>
           ) : (
-            <div className="mt-5">
+            <div className="p-5">
               <EmptyState
                 description="Vos objectifs apparaîtront ici dès que votre coach les ajoutera."
                 icon={Target}
@@ -446,7 +454,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
               />
             </div>
           )}
-        </section>
+        </Card>
       </div>
     </>
   );

@@ -25,6 +25,13 @@ import {
 } from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
 import { LearningPathReminderForm } from "@/components/coaching/learning-path-reminder-form";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
@@ -180,17 +187,19 @@ function CoachPathSignals({
   signals: CoachLearningPathData["signals"];
 }) {
   return (
-    <section className="grid gap-4 xl:grid-cols-3">
-      <div className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
-        <div className="flex items-center gap-2">
-          <BellRing className="h-5 w-5 text-sky-600" />
-          <h2 className="font-semibold text-slate-950">Derniers événements</h2>
-        </div>
-        <div className="mt-4 space-y-3">
+    <section className="grid gap-4 2xl:grid-cols-3">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <BellRing className="h-5 w-5 text-sky-600" />
+            <CardTitle>Derniers événements</CardTitle>
+          </div>
+        </CardHeader>
+        <div className="space-y-3 p-5">
           {signals.recentEvents.length ? (
             signals.recentEvents.map((event) => (
               <Link
-                className="block rounded-xl border border-sky-100 bg-sky-50/50 p-3 transition hover:bg-sky-50"
+                className="block rounded-xl border border-slate-200 bg-slate-50/70 p-3 transition hover:border-sky-200 hover:bg-white"
                 href={event.href}
                 key={event.id}
               >
@@ -206,19 +215,21 @@ function CoachPathSignals({
               </Link>
             ))
           ) : (
-            <p className="rounded-xl border border-dashed border-sky-200 bg-sky-50/50 p-3 text-sm text-slate-500">
+            <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
               Les actions de parcours apparaîtront ici.
             </p>
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-2xl border border-rose-100 bg-white/95 p-5 shadow-sm shadow-rose-900/5">
-        <div className="flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-rose-600" />
-          <h2 className="font-semibold text-slate-950">Coachés bloqués</h2>
-        </div>
-        <div className="mt-4 space-y-3">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-rose-600" />
+            <CardTitle>Coachés bloqués</CardTitle>
+          </div>
+        </CardHeader>
+        <div className="space-y-3 p-5">
           {signals.blockedLearners.length ? (
             signals.blockedLearners.map((item) => (
               <article
@@ -257,14 +268,16 @@ function CoachPathSignals({
             </p>
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-2xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-900/5">
-        <div className="flex items-center gap-2">
-          <Clock3 className="h-5 w-5 text-indigo-600" />
-          <h2 className="font-semibold text-slate-950">Corrections parcours</h2>
-        </div>
-        <div className="mt-4 space-y-3">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Clock3 className="h-5 w-5 text-indigo-600" />
+            <CardTitle>Corrections parcours</CardTitle>
+          </div>
+        </CardHeader>
+        <div className="space-y-3 p-5">
           {signals.pendingCorrections.length ? (
             signals.pendingCorrections.map((item) => (
               <article
@@ -303,7 +316,7 @@ function CoachPathSignals({
             </p>
           )}
         </div>
-      </div>
+      </Card>
     </section>
   );
 }
@@ -505,7 +518,7 @@ function LearningPathCard({
   variant: "coach" | "coachee";
 }) {
   return (
-    <article className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+    <Card className="p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase text-sky-700">
@@ -525,7 +538,10 @@ function LearningPathCard({
         {variant === "coach" ? (
           <div className="flex items-center gap-2">
             <Link
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"
+              className={cn(
+                buttonVariants({ variant: "soft" }),
+                "h-10 w-10 px-0",
+              )}
               href={`/coach/paths/${path.id}/edit`}
               title="Modifier le parcours"
             >
@@ -534,7 +550,10 @@ function LearningPathCard({
             <form action={duplicateLearningPathAction}>
               <input name="pathId" type="hidden" value={path.id} />
               <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-100 bg-indigo-50 text-indigo-700 transition hover:bg-indigo-100"
+                className={cn(
+                  buttonVariants({ variant: "secondary" }),
+                  "h-10 w-10 px-0 text-indigo-700 hover:text-indigo-700",
+                )}
                 title="Dupliquer le parcours"
                 type="submit"
               >
@@ -544,7 +563,10 @@ function LearningPathCard({
             <form action={deleteLearningPathAction}>
               <input name="pathId" type="hidden" value={path.id} />
               <button
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100"
+                className={cn(
+                  buttonVariants({ variant: "danger" }),
+                  "h-10 w-10 px-0",
+                )}
                 title="Supprimer le parcours"
                 type="submit"
               >
@@ -556,7 +578,7 @@ function LearningPathCard({
       </div>
 
       {variant === "coachee" && path.progress ? (
-        <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50/50 p-4">
+        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-800">
               {path.progress.completedCount}/{path.progress.totalCount} étapes
@@ -575,7 +597,7 @@ function LearningPathCard({
               </span>
             </p>
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+              className={buttonVariants({ size: "sm" })}
               href={path.progress.nextHref}
             >
               {path.progress.nextActionLabel}
@@ -598,7 +620,7 @@ function LearningPathCard({
           </p>
         )}
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -612,7 +634,7 @@ export function CoachLearningPathsPage({
       <PageHeader
         actions={
           <a
-            className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+            className={buttonVariants()}
             href="#new-path"
           >
             <Plus className="h-4 w-4" />
@@ -623,27 +645,21 @@ export function CoachLearningPathsPage({
         title="Parcours"
       />
 
-      <div className="grid gap-6 p-6 xl:grid-cols-[420px_1fr]">
-        <section
-          className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
-          id="new-path"
-        >
-          <div className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-              Séquence cohorte
-            </p>
-            <h2 className="mt-2 text-lg font-semibold text-slate-950">
-              Nouveau parcours
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[420px_1fr]">
+        <Card id="new-path">
+          <CardHeader>
+            <CardTitle>Nouveau parcours</CardTitle>
+            <CardDescription>
               Ajoutez les étapes puis réordonnez-les avant publication.
-            </p>
+            </CardDescription>
+          </CardHeader>
+          <div className="p-5">
+            <LearningPathForm
+              cohorts={data.cohorts}
+              itemOptions={data.itemOptions}
+            />
           </div>
-          <LearningPathForm
-            cohorts={data.cohorts}
-            itemOptions={data.itemOptions}
-          />
-        </section>
+        </Card>
 
         <section className="space-y-4">
           {data.paths.length ? (
@@ -689,7 +705,7 @@ export function CoachLearningPathsPage({
             <EmptyState
               action={
                 <a
-                  className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+                  className={buttonVariants()}
                   href="#new-path"
                 >
                   <Plus className="h-4 w-4" />
@@ -717,7 +733,7 @@ export function CoachLearningPathEditPage({
       <PageHeader
         actions={
           <Link
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className={buttonVariants({ variant: "secondary" })}
             href="/coach/paths"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
@@ -728,15 +744,15 @@ export function CoachLearningPathEditPage({
         title="Modifier le parcours"
       />
 
-      <div className="p-6">
-        <section className="mx-auto max-w-3xl rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+      <div className="p-4 sm:p-6">
+        <Card className="mx-auto max-w-3xl p-5">
           <LearningPathForm
             cohorts={data.cohorts}
             defaultValues={data.path}
             itemOptions={data.itemOptions}
             mode="edit"
           />
-        </section>
+        </Card>
       </div>
     </>
   );
@@ -754,7 +770,7 @@ export function CoacheeLearningPathsPage({
         title="Mes parcours"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Séquences visibles"

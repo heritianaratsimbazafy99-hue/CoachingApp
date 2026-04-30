@@ -18,6 +18,13 @@ import {
   updateNotificationPreferencesAction,
   updateProfileAction,
 } from "@/app/profile/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type {
   AccountProfile,
   ReminderTemplate,
@@ -80,7 +87,7 @@ function ProfileSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "lg" })}
       disabled={pending}
       type="submit"
     >
@@ -95,7 +102,7 @@ function TemplateSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 text-sm font-semibold text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(buttonVariants({ size: "lg" }), "w-full")}
       disabled={pending}
       type="submit"
     >
@@ -110,7 +117,7 @@ function NotificationPreferenceSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-sky-600 px-3 text-xs font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "sm" })}
       disabled={pending}
       type="submit"
     >
@@ -129,9 +136,9 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
   return (
     <form action={formAction} className="space-y-4">
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Nom complet</span>
+        <span className={labelClassName}>Nom complet</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           defaultValue={profile.fullName}
           name="fullName"
           required
@@ -139,9 +146,9 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Email</span>
+        <span className={labelClassName}>Email</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500"
+          className={inputClassName("bg-slate-50 text-slate-500")}
           defaultValue={profile.email}
           disabled
           type="email"
@@ -149,9 +156,9 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Avatar URL</span>
+        <span className={labelClassName}>Avatar URL</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           defaultValue={profile.avatarUrl}
           name="avatarUrl"
           placeholder="https://..."
@@ -243,31 +250,31 @@ export function NotificationPreferenceForm({
   }
 
   return (
-    <form
-      action={formAction}
-      className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
-    >
+    <Card>
+      <form action={formAction}>
       <input name="role" type="hidden" value={role} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-sky-600" />
-          <h2 className="font-semibold text-slate-950">Notifications</h2>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
-            disabled={enabledCategories.length === allCategories.length}
-            onClick={() => persist(allCategories)}
-            type="button"
-          >
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Tout activer
-          </button>
-          <NotificationPreferenceSubmitButton />
-        </div>
-      </div>
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-sky-600" />
+              <CardTitle>Notifications</CardTitle>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={buttonVariants({ size: "sm", variant: "soft" })}
+                disabled={enabledCategories.length === allCategories.length}
+                onClick={() => persist(allCategories)}
+                type="button"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Tout activer
+              </button>
+              <NotificationPreferenceSubmitButton />
+            </div>
+          </div>
+        </CardHeader>
 
-      <div className="mt-4 grid gap-2">
+      <div className="grid gap-2 p-5">
         {options.map((option) => {
           const isEnabled = enabledCategories.includes(option.category);
           const isLastEnabled = isEnabled && enabledCategories.length === 1;
@@ -306,10 +313,11 @@ export function NotificationPreferenceForm({
           );
         })}
       </div>
-      <div className="mt-4">
+      <div className="px-5 pb-5">
         <StateMessage message={state.message} status={state.status} />
       </div>
-    </form>
+      </form>
+    </Card>
   );
 }
 
@@ -329,9 +337,9 @@ export function ReminderTemplateForm() {
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Usage</span>
+        <span className={labelClassName}>Usage</span>
         <select
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           defaultValue="general"
           name="usage"
         >
@@ -344,9 +352,9 @@ export function ReminderTemplateForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Titre</span>
+        <span className={labelClassName}>Titre</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="title"
           placeholder="Ex : Relance quiz en retard"
           required
@@ -354,9 +362,9 @@ export function ReminderTemplateForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Message</span>
+        <span className={labelClassName}>Message</span>
         <textarea
-          className="mt-2 min-h-32 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName("min-h-32")}
           name="body"
           placeholder="Bonjour, petit rappel sur {{parcours}}..."
           required
@@ -407,7 +415,10 @@ export function ReminderTemplateList({
             <form action={deleteReminderTemplateAction}>
               <input name="templateId" type="hidden" value={template.id} />
               <button
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100"
+                className={cn(
+                  buttonVariants({ size: "sm", variant: "danger" }),
+                  "h-9 w-9 px-0",
+                )}
                 title="Supprimer"
                 type="submit"
               >

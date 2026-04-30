@@ -7,6 +7,7 @@ import {
   sendLearningPathReminderAction,
   type LearningPathReminderActionState,
 } from "@/app/coach/paths/actions";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 const initialReminderState: LearningPathReminderActionState = {
@@ -20,10 +21,10 @@ function ReminderSubmitButton({ sent }: { sent: boolean }) {
   return (
     <button
       className={cn(
-        "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
+        buttonVariants({ size: "sm", variant: "secondary" }),
         sent
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-sky-200 bg-white text-sky-700 hover:bg-sky-50",
+          ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
+          : "text-sky-700",
       )}
       disabled={pending || sent}
       type="submit"
