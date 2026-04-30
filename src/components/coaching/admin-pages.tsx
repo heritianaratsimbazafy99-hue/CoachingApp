@@ -22,6 +22,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPercent } from "@/utils/format";
 import type {
   AdminCohort,
@@ -93,7 +95,7 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
         description="Supervision globale de la plateforme, des coachs, cohortes et résultats."
         title="Dashboard admin"
       />
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-3">
           <StatCard
             helper="Utilisateurs coach"
@@ -157,9 +159,9 @@ export function AdminUsersPage({
           title="Utilisateurs"
         />
       )}
-      <div className={compact ? "" : "p-6"}>
+      <div className={compact ? "" : "p-4 sm:p-6"}>
         {compact ? null : (
-          <section className="mb-6 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
+          <Card className="mb-6 p-5">
             <div className="mb-5">
               <h2 className="font-semibold">Créer un utilisateur</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -168,25 +170,25 @@ export function AdminUsersPage({
               </p>
             </div>
             <AdminUserCreateForm />
-          </section>
+          </Card>
         )}
         {visibleUsers.length ? (
-          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
+          <Card className="overflow-hidden">
             {compact ? (
-              <div className="flex items-center justify-between border-b border-sky-100 p-5">
+              <CardHeader className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-semibold">Utilisateurs récents</h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <CardTitle>Utilisateurs récents</CardTitle>
+                  <CardDescription>
                     Comptes Supabase synchronisés avec les profils.
-                  </p>
+                  </CardDescription>
                 </div>
                 <Link
-                  className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
+                  className={buttonVariants({ size: "sm", variant: "secondary" })}
                   href="/admin/users"
                 >
                   Tout voir
                 </Link>
-              </div>
+              </CardHeader>
             ) : null}
           <div className="divide-y divide-slate-100">
             {visibleUsers.map((profile) => {
@@ -241,7 +243,7 @@ export function AdminUsersPage({
               );
             })}
           </div>
-          </div>
+          </Card>
         ) : (
           <EmptyState
             description="Aucun compte n'a encore été synchronisé dans Supabase Auth."
@@ -269,11 +271,11 @@ export function AdminCoachesPage({
         description="Liste des coachs et charge de cohortes."
         title="Coachs"
       />
-      <div className="grid gap-4 p-6 lg:grid-cols-2">
+      <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-2">
         {coaches.length ? (
           coaches.map((coach) => (
             <article
-              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
               key={coach.id}
             >
               <p className="text-lg font-semibold">{coach.fullName}</p>

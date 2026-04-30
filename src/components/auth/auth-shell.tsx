@@ -15,20 +15,19 @@ const benefits = [
 
 export function AuthShell({ children, description, title }: AuthShellProps) {
   return (
-    <main className="min-h-screen bg-[linear-gradient(135deg,#f7efe2_0%,#f5f8ef_48%,#e8f3ef_100%)] text-slate-800">
-      <div className="mx-auto grid min-h-screen w-full max-w-6xl px-6 py-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_12%,rgb(14_165_233_/_0.16),transparent_28rem),radial-gradient(circle_at_86%_18%,rgb(99_102_241_/_0.13),transparent_30rem),linear-gradient(180deg,#ffffff_0%,#f7f9fc_100%)] text-slate-800">
+      <div className="mx-auto grid min-h-screen w-full max-w-6xl px-4 py-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
         <section className="flex min-w-0 flex-col gap-10 lg:justify-between">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+          <Link href="/" className="text-lg font-semibold tracking-normal">
             Coaching Platform
           </Link>
 
-          <div className="py-8 lg:py-0">
+          <div className="flex w-full justify-start py-8 lg:py-0">
             <div
-              className="rounded-2xl border border-sky-100 bg-[#fffaf2]/92 p-6 shadow-sm shadow-sky-900/5 ring-1 ring-white/70 sm:w-full sm:p-8"
-              style={{ maxWidth: "28rem", width: "calc(100vw - 3rem)" }}
+              className="w-[calc(100vw-2rem)] max-w-[22rem] rounded-xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/[0.07] sm:p-8 lg:max-w-md"
             >
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
+                <h1 className="text-3xl font-semibold tracking-normal text-slate-950">
                   {title}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -47,11 +46,11 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
         </section>
 
         <aside className="hidden items-center lg:flex">
-          <div className="w-full rounded-3xl border border-sky-100 bg-[#fffaf2]/90 p-8 text-slate-800 shadow-sm shadow-sky-900/5">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+          <div className="w-full rounded-xl border border-slate-200 bg-white/88 p-8 text-slate-800 shadow-sm shadow-slate-950/[0.04] backdrop-blur-xl">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
               <ShieldCheck className="h-6 w-6" />
             </div>
-            <h2 className="mt-8 max-w-md text-4xl font-semibold tracking-tight">
+            <h2 className="mt-8 max-w-md text-4xl font-semibold tracking-normal text-slate-950">
               Un espace simple pour piloter chaque relation de coaching.
             </h2>
             <p className="mt-5 max-w-lg text-sm leading-7 text-slate-500">
@@ -63,7 +62,7 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
               {benefits.map((benefit) => (
                 <div
                   key={benefit}
-                  className="flex items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/70 px-4 py-3 text-sm text-slate-700"
+                  className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700"
                 >
                   <CheckCircle2 className="h-4 w-4 text-sky-600" />
                   {benefit}

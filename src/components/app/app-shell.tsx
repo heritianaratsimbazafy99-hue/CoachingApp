@@ -84,24 +84,24 @@ const roleAccent: Record<
 > = {
   admin: {
     active:
-      "border-indigo-100 bg-indigo-50/90 text-indigo-800 shadow-sm shadow-indigo-900/5 ring-1 ring-indigo-100",
+      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
     avatar: "from-indigo-100 to-sky-200 text-sky-950",
-    dot: "bg-indigo-300",
-    shell: "from-[#f8f1e6] via-[#f5f7ef] to-[#e8f3ef]",
+    dot: "bg-indigo-500",
+    shell: "from-slate-50 via-white to-indigo-50",
   },
   coach: {
     active:
-      "border-sky-100 bg-sky-50/95 text-sky-800 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
+      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
     avatar: "from-sky-200 to-indigo-100 text-sky-950",
-    dot: "bg-sky-400",
-    shell: "from-[#f7efe2] via-[#f5f8ef] to-[#e8f3ef]",
+    dot: "bg-sky-500",
+    shell: "from-slate-50 via-white to-sky-50",
   },
   coachee: {
     active:
-      "border-sky-100 bg-sky-50/90 text-sky-800 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
+      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
     avatar: "from-sky-100 to-indigo-200 text-sky-950",
-    dot: "bg-sky-300",
-    shell: "from-[#f8f1e6] via-[#f6f7ec] to-[#edf7f3]",
+    dot: "bg-emerald-500",
+    shell: "from-slate-50 via-white to-emerald-50",
   },
 };
 
@@ -157,7 +157,7 @@ function QuickNavigationSearch({
 
   return (
     <form
-      className="group relative flex min-w-0 flex-1 items-center rounded-xl border border-sky-100 bg-[#fffaf2] px-3 py-2 shadow-sm shadow-sky-900/5 transition focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-100"
+      className="group relative flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm shadow-slate-950/[0.03] transition focus-within:border-sky-300 focus-within:ring-4 focus-within:ring-sky-100"
       onSubmit={handleSubmit}
     >
       <Search className="h-4 w-4 shrink-0 text-sky-500" />
@@ -172,7 +172,7 @@ function QuickNavigationSearch({
         placeholder="Rechercher une page..."
         value={query}
       />
-      <div className="invisible absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-xl border border-sky-100 bg-[#fffaf2] opacity-0 shadow-xl shadow-sky-950/10 transition group-focus-within:visible group-focus-within:opacity-100">
+      <div className="invisible absolute left-0 right-0 top-[calc(100%+8px)] z-30 overflow-hidden rounded-xl border border-slate-200 bg-white opacity-0 shadow-xl shadow-slate-950/10 transition group-focus-within:visible group-focus-within:opacity-100">
         {suggestions.length ? (
           suggestions.map((item) => {
             const badge = navBadge(navBadges, item.href);
@@ -233,22 +233,22 @@ export function AppShell({
     >
       <AppShellRealtimeBridge role={role} userId={account?.userId} />
       <a
-        className="sr-only z-50 rounded-lg bg-[#fffaf2] px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         href="#app-content"
       >
         Aller au contenu
       </a>
-      <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-sky-100/80 bg-[#fffaf2]/90 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
+      <div className="grid min-h-screen lg:grid-cols-[272px_1fr]">
+        <aside className="hidden border-r border-slate-200/80 bg-white/94 text-slate-700 shadow-sm shadow-slate-950/[0.03] backdrop-blur-xl lg:block">
           <div className="flex h-full flex-col">
-            <div className="border-b border-sky-100 p-6">
+            <div className="border-b border-slate-200 p-6">
               <Link
                 href="/"
                 className="flex items-center gap-3 text-lg font-semibold tracking-tight"
               >
                 <span
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br text-sm font-bold",
+                    "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold shadow-sm shadow-slate-950/5",
                     accent.avatar,
                   )}
                 >
@@ -256,10 +256,10 @@ export function AppShell({
                 </span>
                 <span className="text-slate-800">Coaching Platform</span>
               </Link>
-              <p className="mt-3 text-sm text-slate-500">{subtitle}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-500">{subtitle}</p>
             </div>
 
-            <nav className="flex-1 space-y-1 p-4">
+            <nav className="flex-1 space-y-1.5 p-4">
               {navItems.map((item) => {
                 const badge = navBadge(navBadges, item.href);
                 const isActive = isActivePath(pathname, item.href, role);
@@ -271,7 +271,7 @@ export function AppShell({
                       "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
                       isActive
                         ? accent.active
-                        : "text-slate-500 hover:border-sky-100 hover:bg-sky-50/80 hover:text-sky-700",
+                        : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950",
                     )}
                     href={item.href}
                     key={item.href}
@@ -279,7 +279,7 @@ export function AppShell({
                     <Icon className="h-4 w-4" />
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     {badge ? (
-                      <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500 ring-1 ring-slate-100">
+                      <span className="rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
                         {badgeLabel(badge)}
                       </span>
                     ) : null}
@@ -288,8 +288,8 @@ export function AppShell({
               })}
             </nav>
 
-            <div className="border-t border-sky-100 p-4">
-              <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
+            <div className="border-t border-slate-200 p-4">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
@@ -312,11 +312,11 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100/80 bg-[#fffaf2]/88 px-4 py-3 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl lg:px-6">
+          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200/80 bg-white/86 px-4 py-3 shadow-sm shadow-slate-950/[0.03] backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
               aria-expanded={isMobileNavOpen}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-[#fffaf2] text-slate-600 shadow-sm shadow-sky-900/5 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm shadow-slate-950/[0.03] lg:hidden"
               onClick={() => setIsMobileNavOpen((current) => !current)}
               type="button"
             >
@@ -329,7 +329,7 @@ export function AppShell({
             <QuickNavigationSearch navBadges={navBadges} navItems={navItems} />
             <Link
               aria-label="Notifications"
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-sky-100 bg-[#fffaf2] text-slate-600 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:text-sky-700"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:text-sky-700"
               href={notificationHref}
             >
               <Bell className="h-5 w-5" />
@@ -343,7 +343,7 @@ export function AppShell({
           </header>
 
           {signals.alerts.length ? (
-            <div className="border-b border-sky-100/80 bg-[#fffaf2]/78 px-4 py-2 backdrop-blur-xl lg:px-6">
+            <div className="border-b border-slate-200/80 bg-white/78 px-4 py-2 backdrop-blur-xl lg:px-6">
               <div className="flex gap-2 overflow-x-auto">
                 {signals.alerts.slice(0, 4).map((alert) => (
                   <Link
@@ -365,7 +365,7 @@ export function AppShell({
           ) : null}
 
           {isMobileNavOpen ? (
-            <div className="border-b border-sky-100 bg-[#fffaf2]/95 p-4 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:hidden">
+            <div className="border-b border-slate-200 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.03] backdrop-blur-xl lg:hidden">
               <nav className="grid gap-1">
                 {navItems.map((item) => {
                   const badge = navBadge(navBadges, item.href);
@@ -378,7 +378,7 @@ export function AppShell({
                         "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
                         isActive
                           ? accent.active
-                          : "text-slate-500 hover:border-sky-100 hover:bg-sky-50/80 hover:text-sky-700",
+                          : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950",
                       )}
                       href={item.href}
                       key={item.href}
@@ -389,7 +389,7 @@ export function AppShell({
                         {item.label}
                       </span>
                       {badge ? (
-                        <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500 ring-1 ring-slate-100">
+                        <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
                           {badgeLabel(badge)}
                         </span>
                       ) : null}
@@ -397,7 +397,7 @@ export function AppShell({
                   );
                 })}
               </nav>
-              <div className="mt-4 rounded-xl border border-sky-100 bg-sky-50/70 p-3">
+              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <p className="truncate text-sm font-semibold text-slate-800">
                   {accountName}
                 </p>

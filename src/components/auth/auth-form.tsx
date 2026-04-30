@@ -9,6 +9,9 @@ import {
   getUserRole,
   type UserRole,
 } from "@/lib/auth/roles";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName, labelClassName } from "@/components/ui/form-field";
+import { cn } from "@/utils/cn";
 
 type AuthMode = "forgot-password" | "login" | "register";
 
@@ -152,11 +155,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     <form className="space-y-5" onSubmit={handleSubmit}>
       {isRegister ? (
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">
-            Nom complet
-          </span>
+          <span className={labelClassName}>Nom complet</span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             name="fullName"
             onChange={(event) => setFullName(event.target.value)}
             placeholder="Marie Rakoto"
@@ -168,10 +169,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       ) : null}
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">Email</span>
+        <span className={labelClassName}>Email</span>
         <input
           autoComplete="email"
-          className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="email"
           onChange={(event) => setEmail(event.target.value)}
           placeholder="vous@exemple.com"
@@ -183,12 +184,10 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       {isForgotPassword ? null : (
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">
-            Mot de passe
-          </span>
+          <span className={labelClassName}>Mot de passe</span>
           <input
             autoComplete={isRegister ? "new-password" : "current-password"}
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+            className={inputClassName()}
             minLength={6}
             name="password"
             onChange={(event) => setPassword(event.target.value)}
@@ -213,7 +212,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       ) : null}
 
       <button
-        className="inline-flex w-full items-center justify-center rounded-lg bg-sky-600 px-5 py-3 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+        className={cn(buttonVariants({ size: "lg" }), "w-full")}
         disabled={isLoading}
         type="submit"
       >

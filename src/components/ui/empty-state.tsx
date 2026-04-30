@@ -14,8 +14,8 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <div className="rounded-xl border border-dashed border-sky-200/80 bg-white/80 p-8 text-center shadow-sm shadow-sky-900/[0.04] ring-1 ring-white/70">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-8 text-center shadow-sm shadow-slate-950/[0.03]">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-sky-700 ring-1 ring-sky-100">
         <Icon className="h-6 w-6" />
       </div>
       <h3 className="mt-4 text-base font-semibold text-slate-950">{title}</h3>

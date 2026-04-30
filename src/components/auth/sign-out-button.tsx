@@ -29,7 +29,7 @@ export function SignOutButton({
   return (
     <button
       className={cn(
-        "items-center gap-2 rounded-xl border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60",
+        "items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60",
         display === "desktop" ? "hidden sm:inline-flex" : "inline-flex",
         className,
       )}

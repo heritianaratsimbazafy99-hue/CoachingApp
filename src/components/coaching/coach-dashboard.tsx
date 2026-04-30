@@ -14,6 +14,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   CoachDashboardAttentionItem,
   CoachDashboardData,
@@ -42,7 +44,7 @@ function AttentionItemCard({ item }: { item: CoachDashboardAttentionItem }) {
 
   return (
     <Link
-      className="group grid min-h-32 gap-4 rounded-xl border border-slate-100 bg-white p-4 shadow-sm shadow-sky-900/[0.03] transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
+      className="group grid min-h-32 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
       href={item.href}
     >
       <div className="flex items-start justify-between gap-3">
@@ -77,13 +79,13 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
         actions={
           <>
             <Link
-              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
+              className={buttonVariants()}
               href="/coach/assignments/new"
             >
               Nouvelle assignation
             </Link>
             <Link
-              className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:bg-sky-50 hover:text-sky-700"
+              className={buttonVariants({ variant: "secondary" })}
               href="/coach/calendar"
             >
               Planifier
@@ -94,7 +96,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
         title="Cockpit coach"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             helper="Coachés avec une activité récente"
@@ -125,31 +127,31 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
           />
         </section>
 
-        <section className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
-          <div className="flex flex-col gap-3 border-b border-sky-100 pb-5 md:flex-row md:items-center md:justify-between">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-lg font-semibold">À traiter maintenant</h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <CardTitle>À traiter maintenant</CardTitle>
+              <CardDescription>
                 {data.metrics.unreadMessagesCount} messages non lus ·{" "}
                 {data.metrics.blockedLearningPathsCount} blocages parcours ·{" "}
                 {data.metrics.lateAssignmentsCount} retards
-              </p>
+              </CardDescription>
             </div>
             <Link
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+              className={buttonVariants({ variant: "soft" })}
               href="/coach/notifications"
             >
               Voir les notifications
             </Link>
-          </div>
+          </CardHeader>
           {data.attentionItems.length ? (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
               {data.attentionItems.map((item) => (
                 <AttentionItemCard item={item} key={item.id} />
               ))}
             </div>
           ) : (
-            <div className="mt-5">
+            <div className="p-5">
               <EmptyState
                 description="Aucun message non lu, correction en attente, retard ou blocage parcours détecté."
                 icon={CheckSquare}
@@ -157,16 +159,16 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               />
             </div>
           )}
-        </section>
+        </Card>
 
         <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-          <div className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
-            <div className="flex items-center justify-between border-b border-sky-100 p-5">
+          <Card className="overflow-hidden">
+            <CardHeader className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold">Coachés à suivre</h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <CardTitle>Coachés à suivre</CardTitle>
+                <CardDescription>
                   Priorités calculées à partir des deadlines et derniers scores.
-                </p>
+                </CardDescription>
               </div>
               <Link
                 className="text-sm font-medium text-sky-700 hover:underline"
@@ -174,7 +176,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               >
                 Tout voir
               </Link>
-            </div>
+            </CardHeader>
             {data.coachees.length ? (
               <div className="divide-y divide-slate-100">
                 {data.coachees.map((coachee) => (
@@ -201,7 +203,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                       <ProgressBar value={coachee.progress} />
                     </div>
                     <Link
-                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+                      className={buttonVariants({ variant: "soft" })}
                       href={`/coach/coachees/${coachee.id}`}
                     >
                       Ouvrir le suivi
@@ -218,18 +220,20 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                 />
               </div>
             )}
-          </div>
+          </Card>
 
           <div className="space-y-6">
-            <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+            <Card className="p-5">
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-slate-500" />
-                <h2 className="text-lg font-semibold">Prochains rendez-vous</h2>
+                <h2 className="text-base font-semibold text-slate-950">
+                  Prochains rendez-vous
+                </h2>
               </div>
               <div className="mt-4 space-y-3">
                 {data.calendarEvents.length ? (
                   data.calendarEvents.map((event) => (
-                    <div className="rounded-lg bg-sky-50/70 p-4" key={event.id}>
+                    <div className="rounded-lg bg-slate-50 p-4" key={event.id}>
                       <p className="font-medium">{event.title}</p>
                       <p className="mt-1 text-sm text-slate-500">
                         {formatDateTime(event.startTime)}
@@ -242,18 +246,20 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                   </p>
                 )}
               </div>
-            </div>
+            </Card>
 
-            <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+            <Card className="p-5">
               <div className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5 text-slate-500" />
-                <h2 className="text-lg font-semibold">Activité récente</h2>
+                <h2 className="text-base font-semibold text-slate-950">
+                  Activité récente
+                </h2>
               </div>
               <div className="mt-4 space-y-3">
                 {data.activityLogs.length ? (
                   data.activityLogs.map((activity) => (
                     <div
-                      className="rounded-lg border border-sky-100 p-3"
+                      className="rounded-lg border border-slate-200 p-3"
                       key={activity.id}
                     >
                       <p className="text-sm font-medium">{activity.action}</p>
@@ -263,20 +269,20 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-lg border border-sky-100 p-3 text-sm text-slate-500">
+                  <p className="rounded-lg border border-slate-200 p-3 text-sm text-slate-500">
                     Aucune activité récente.
                   </p>
                 )}
               </div>
-            </div>
+            </Card>
           </div>
         </section>
 
-        <section className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
-          <div className="flex items-center gap-2 border-b border-sky-100 p-5">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex items-center gap-2">
             <CheckSquare className="h-5 w-5 text-slate-500" />
-            <h2 className="text-lg font-semibold">Assignations récentes</h2>
-          </div>
+            <CardTitle>Assignations récentes</CardTitle>
+          </CardHeader>
           {data.assignments.length ? (
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
@@ -309,7 +315,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               />
             </div>
           )}
-        </section>
+        </Card>
       </div>
     </>
   );

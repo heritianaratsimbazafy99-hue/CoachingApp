@@ -24,19 +24,19 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-sky-100/80 bg-[#fffaf2]/95 p-5 shadow-sm shadow-sky-900/[0.04] ring-1 ring-white/70 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+          <p className="text-sm font-semibold text-slate-500">{label}</p>
+          <p className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
             {value}
           </p>
         </div>
-        <div className={`rounded-lg border p-2 ${toneStyles[tone]}`}>
+        <div className={`rounded-lg border p-2.5 ${toneStyles[tone]}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>
-      {helper ? <p className="mt-4 text-xs text-slate-500">{helper}</p> : null}
+      {helper ? <p className="mt-4 text-sm leading-5 text-slate-500">{helper}</p> : null}
     </div>
   );
 }
