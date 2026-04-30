@@ -2,10 +2,8 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import {
-  initialUpdateUserRoleState,
-  updateUserRoleAction,
-} from "@/app/admin/actions";
+import { updateUserRoleAction } from "@/app/admin/actions";
+import type { UpdateUserRoleState } from "@/app/admin/actions";
 import type { UserRole } from "@/types/coaching";
 import { cn } from "@/utils/cn";
 
@@ -19,6 +17,11 @@ const roleOptions: Array<{ label: string; value: UserRole }> = [
   { label: "Coach", value: "coach" },
   { label: "Coaché", value: "coachee" },
 ];
+
+const initialUpdateUserRoleState: UpdateUserRoleState = {
+  message: "",
+  status: "idle",
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();

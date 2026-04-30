@@ -5,9 +5,9 @@ import { useFormStatus } from "react-dom";
 import { CheckCircle2, PlusCircle, Save } from "lucide-react";
 import {
   addQuizQuestionAction,
-  initialFormState,
   saveQuizAction,
 } from "@/app/coach/quizzes/actions";
+import type { FormState } from "@/app/coach/quizzes/actions";
 import type { CoachQuizEditorData } from "@/services/coach-service";
 import type { QuestionType } from "@/types/coaching";
 import { cn } from "@/utils/cn";
@@ -23,6 +23,11 @@ const questionTypeLabels: Record<QuestionType, string> = {
   multiple_choice: "Choix multiple",
   open: "Réponse ouverte",
   single_choice: "Choix unique",
+};
+
+const initialFormState: FormState = {
+  message: "",
+  status: "idle",
 };
 
 function SubmitButton({

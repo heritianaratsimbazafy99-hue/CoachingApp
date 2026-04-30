@@ -24,21 +24,6 @@ export type AdminAuthEmailState = {
   status: "error" | "idle" | "success";
 };
 
-export const initialUpdateUserRoleState: UpdateUserRoleState = {
-  message: "",
-  status: "idle",
-};
-
-export const initialCreateAdminUserState: CreateAdminUserState = {
-  message: "",
-  status: "idle",
-};
-
-export const initialAdminAuthEmailState: AdminAuthEmailState = {
-  message: "",
-  status: "idle",
-};
-
 const createAdminUserBaseSchema = z.object({
   email: z.string().trim().email("Email invalide."),
   fullName: z

@@ -6,9 +6,9 @@ import { Power, RotateCcw, ShieldCheck, UserPlus } from "lucide-react";
 import {
   assignAdminCoacheeToCohortAction,
   changeAdminCoacheeCoachAction,
-  initialAdminCoacheeActionState,
   toggleAdminCoacheeStatusAction,
 } from "@/app/admin/coachees/actions";
+import type { AdminCoacheeActionState } from "@/app/admin/coachees/actions";
 import type {
   AdminCoacheeAssignment,
   AdminCohort,
@@ -28,6 +28,11 @@ type ChangeCoachFormProps = {
 
 type ToggleCoacheeStatusFormProps = {
   coachee: AdminCoacheeAssignment;
+};
+
+const initialAdminCoacheeActionState: AdminCoacheeActionState = {
+  message: "",
+  status: "idle",
 };
 
 function ActionMessage({

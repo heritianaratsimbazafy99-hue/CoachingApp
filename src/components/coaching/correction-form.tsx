@@ -3,12 +3,15 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Check } from "lucide-react";
-import {
-  initialFormState,
-  saveCorrectionAction,
-} from "@/app/coach/quizzes/actions";
+import { saveCorrectionAction } from "@/app/coach/quizzes/actions";
+import type { FormState } from "@/app/coach/quizzes/actions";
 import type { CoachCorrectionItem } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
+
+const initialFormState: FormState = {
+  message: "",
+  status: "idle",
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();

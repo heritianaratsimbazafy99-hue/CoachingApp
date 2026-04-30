@@ -4,14 +4,19 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { KeyRound, MailPlus } from "lucide-react";
 import {
-  initialAdminAuthEmailState,
   sendPasswordResetAction,
   sendUserInvitationAction,
 } from "@/app/admin/actions";
+import type { AdminAuthEmailState } from "@/app/admin/actions";
 import { cn } from "@/utils/cn";
 
 type AdminUserOnboardingActionsProps = {
   userId: string;
+};
+
+const initialAdminAuthEmailState: AdminAuthEmailState = {
+  message: "",
+  status: "idle",
 };
 
 function InvitationSubmitButton() {

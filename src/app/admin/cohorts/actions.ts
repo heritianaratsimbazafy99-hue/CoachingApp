@@ -56,11 +56,6 @@ export type AdminCohortActionState = {
   status: "error" | "idle" | "success";
 };
 
-export const initialAdminCohortActionState: AdminCohortActionState = {
-  message: "",
-  status: "idle",
-};
-
 function nullableDate(value: string) {
   return value ? value : null;
 }

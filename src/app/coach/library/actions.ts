@@ -60,11 +60,6 @@ export type ContentFileUploadState = {
   token?: string;
 };
 
-export const initialSaveContentState: SaveContentState = {
-  message: "",
-  status: "idle",
-};
-
 function nullableText(value: string | undefined) {
   return value?.trim() ? value.trim() : null;
 }

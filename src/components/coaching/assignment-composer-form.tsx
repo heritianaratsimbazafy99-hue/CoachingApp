@@ -3,13 +3,16 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { SendHorizonal } from "lucide-react";
-import {
-  createAssignmentAction,
-  initialCreateAssignmentState,
-} from "@/app/coach/assignments/actions";
+import { createAssignmentAction } from "@/app/coach/assignments/actions";
+import type { CreateAssignmentState } from "@/app/coach/assignments/actions";
 import type { CoachAssignmentComposerData } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 import { contentTypeLabel } from "@/utils/format";
+
+const initialCreateAssignmentState: CreateAssignmentState = {
+  message: "",
+  status: "idle",
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();

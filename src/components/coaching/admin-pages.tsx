@@ -41,11 +41,17 @@ function formatDate(value: string | null) {
     return "Jamais";
   }
 
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date invalide";
+  }
+
   return new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function formatCohortDate(value: string | null) {

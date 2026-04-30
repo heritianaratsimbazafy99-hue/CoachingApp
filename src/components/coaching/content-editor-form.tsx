@@ -7,9 +7,9 @@ import { useActionState, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   createContentFileUploadAction,
-  initialSaveContentState,
   saveContentAction,
 } from "@/app/coach/library/actions";
+import type { SaveContentState } from "@/app/coach/library/actions";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import type {
   CoachContent,
@@ -45,6 +45,11 @@ const statusOptions: Array<{ label: string; value: ContentStatus }> = [
   { label: "Brouillon", value: "draft" },
   { label: "Publié", value: "published" },
 ];
+
+const initialSaveContentState: SaveContentState = {
+  message: "",
+  status: "idle",
+};
 
 function SubmitButton({ isUploading }: { isUploading: boolean }) {
   const { pending } = useFormStatus();

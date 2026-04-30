@@ -6,11 +6,16 @@ import { Plus, UserMinus, UserPlus } from "lucide-react";
 import {
   addCohortMemberAction,
   createCohortAction,
-  initialCohortActionState,
   removeCohortMemberAction,
 } from "@/app/coach/cohorts/actions";
+import type { CohortActionState } from "@/app/coach/cohorts/actions";
 import type { CoachCoacheeSummary } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
+
+const initialCohortActionState: CohortActionState = {
+  message: "",
+  status: "idle",
+};
 
 function CohortSubmitButton() {
   const { pending } = useFormStatus();

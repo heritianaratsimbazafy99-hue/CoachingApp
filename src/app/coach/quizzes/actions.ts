@@ -61,11 +61,6 @@ export type FormState = {
   status: "error" | "idle" | "success";
 };
 
-export const initialFormState: FormState = {
-  message: "",
-  status: "idle",
-};
-
 function nullableText(value: string | undefined) {
   return value?.trim() ? value.trim() : null;
 }

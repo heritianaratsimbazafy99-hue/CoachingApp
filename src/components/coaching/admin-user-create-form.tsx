@@ -4,10 +4,8 @@ import { useActionState } from "react";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { MailPlus, UserPlus } from "lucide-react";
-import {
-  createAdminUserAction,
-  initialCreateAdminUserState,
-} from "@/app/admin/actions";
+import { createAdminUserAction } from "@/app/admin/actions";
+import type { CreateAdminUserState } from "@/app/admin/actions";
 import { cn } from "@/utils/cn";
 
 const roleOptions = [
@@ -15,6 +13,11 @@ const roleOptions = [
   { label: "Coach", value: "coach" },
   { label: "Admin", value: "admin" },
 ];
+
+const initialCreateAdminUserState: CreateAdminUserState = {
+  message: "",
+  status: "idle",
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();

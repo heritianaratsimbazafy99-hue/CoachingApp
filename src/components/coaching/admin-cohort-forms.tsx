@@ -7,10 +7,10 @@ import {
   addAdminCohortMemberAction,
   createAdminCohortAction,
   deleteAdminCohortAction,
-  initialAdminCohortActionState,
   removeAdminCohortMemberAction,
   updateAdminCohortAction,
 } from "@/app/admin/cohorts/actions";
+import type { AdminCohortActionState } from "@/app/admin/cohorts/actions";
 import type { AdminCohort, AdminUser } from "@/services/admin-service";
 import { cn } from "@/utils/cn";
 
@@ -30,6 +30,11 @@ type AdminCohortMemberFormProps = {
 type AdminCohortMemberRemoveFormProps = {
   cohortId: string;
   memberId: string;
+};
+
+const initialAdminCohortActionState: AdminCohortActionState = {
+  message: "",
+  status: "idle",
 };
 
 function ActionMessage({

@@ -40,11 +40,6 @@ export type CohortActionState = {
   status: "error" | "idle" | "success";
 };
 
-export const initialCohortActionState: CohortActionState = {
-  message: "",
-  status: "idle",
-};
-
 function nullableDate(value: string | undefined) {
   return value?.trim() ? value.trim() : null;
 }

@@ -33,11 +33,6 @@ export type CreateAssignmentState = {
   status: "error" | "idle";
 };
 
-export const initialCreateAssignmentState: CreateAssignmentState = {
-  message: "",
-  status: "idle",
-};
-
 function parseTarget(value: string) {
   const [type, id] = value.split(":");
 

@@ -2,11 +2,19 @@ import { NextResponse } from "next/server";
 import { getUserRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getAdminCohorts, getAdminUsers } from "@/services/admin-service";
 
 type DiagnosticCheck = {
   message: string;
   name: string;
   ok: boolean;
+};
+
+type DiagnosticDetails = {
+  adminCohortsPage?: {
+    cohortsCount: number;
+    usersCount: number;
+  };
 };
 
 function envStatus(name: string) {
@@ -93,6 +101,7 @@ export async function GET() {
     }
 
     const checks: DiagnosticCheck[] = [];
+    const details: DiagnosticDetails = {};
 
     checks.push(
       await runCheck("Service role Supabase", async () => {
@@ -148,10 +157,25 @@ export async function GET() {
           assertNoSupabaseError(error);
         }),
       );
+
+      checks.push(
+        await runCheck("Données page admin cohortes", async () => {
+          const [cohorts, users] = await Promise.all([
+            getAdminCohorts(),
+            getAdminUsers(),
+          ]);
+
+          details.adminCohortsPage = {
+            cohortsCount: cohorts.length,
+            usersCount: users.length,
+          };
+        }),
+      );
     }
 
     return NextResponse.json({
       checks,
+      details,
       env: {
         cronSecret: envStatus("CRON_SECRET"),
         nextPublicSupabaseAnonKey: envStatus("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
@@ -162,6 +186,10 @@ export async function GET() {
       },
       ok: checks.every((check) => check.ok),
       role,
+      runtime: {
+        arrayToSorted: typeof Array.prototype.toSorted === "function",
+        node: process.version,
+      },
     });
   } catch (error) {
     return NextResponse.json(

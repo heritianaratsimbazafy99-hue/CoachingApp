@@ -172,6 +172,14 @@ function average(values: number[]) {
   );
 }
 
+function byFullName(first: { fullName: string }, second: { fullName: string }) {
+  return first.fullName.localeCompare(second.fullName, "fr");
+}
+
+function byName(first: { name: string }, second: { name: string }) {
+  return first.name.localeCompare(second.name, "fr");
+}
+
 async function getAuthUsersSafely() {
   try {
     const adminSupabase = createServiceSupabaseClient();
@@ -257,7 +265,7 @@ export const getAdminCoacheeAssignments =
     const usersById = new Map(users.map((user) => [user.id, user]));
     const coaches = users
       .filter((user) => user.role === "coach" && !isUserDisabled(user))
-      .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+      .sort(byFullName);
     const coachees = users
       .filter((user) => user.role === "coachee")
       .map((coachee) => {
@@ -276,7 +284,7 @@ export const getAdminCoacheeAssignments =
               name: cohort.name,
             };
           })
-          .toSorted((a, b) => a.name.localeCompare(b.name, "fr"));
+          .sort(byName);
         const hasActiveCoach = assignedCohorts.some(
           (cohort) => cohort.isCoachActive,
         );
@@ -293,7 +301,7 @@ export const getAdminCoacheeAssignments =
           lastSignInAt: coachee.lastSignInAt,
         };
       })
-      .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+      .sort(byFullName);
 
     return {
       coachees,
@@ -414,9 +422,7 @@ export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
       endDate: cohort.end_date,
       id: cohort.id,
       memberCount: memberCounts.get(cohort.id) ?? 0,
-      members: (membersByCohort.get(cohort.id) ?? []).toSorted((a, b) =>
-        a.fullName.localeCompare(b.fullName, "fr"),
-      ),
+      members: [...(membersByCohort.get(cohort.id) ?? [])].sort(byFullName),
       name: cohort.name,
       progress,
       startDate: cohort.start_date,

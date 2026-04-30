@@ -28,11 +28,6 @@ export type AdminCoacheeActionState = {
   status: "error" | "idle" | "success";
 };
 
-export const initialAdminCoacheeActionState: AdminCoacheeActionState = {
-  message: "",
-  status: "idle",
-};
-
 function revalidateAdminCoacheePaths(cohortId?: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/coachees");
