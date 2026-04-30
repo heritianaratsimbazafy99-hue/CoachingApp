@@ -1,8 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { useFormStatus } from "react-dom";
-import { Save, SendHorizonal, Trash2 } from "lucide-react";
+import { Bell, CheckCircle2, Save, SendHorizonal, Trash2 } from "lucide-react";
 import {
   createReminderTemplateAction,
   deleteReminderTemplateAction,
@@ -15,6 +21,16 @@ import type {
   ReminderTemplate,
 } from "@/services/profile-service";
 import { cn } from "@/utils/cn";
+import {
+  coacheeNotificationPreferenceOptions,
+  coachNotificationPreferenceOptions,
+  getStoredNotificationPreferenceSnapshot,
+  normalizeNotificationPreferenceSelection,
+  notificationPreferenceStorageKeys,
+  notificationPreferencesChangedEvent,
+  subscribeToNotificationPreferenceChanges,
+  type NotificationRole,
+} from "@/utils/notification-preferences";
 import { reminderTemplateUsageLabels } from "@/utils/reminders";
 
 const initialProfileState: ProfileActionState = {
@@ -124,6 +140,129 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       <StateMessage message={state.message} status={state.status} />
       <ProfileSubmitButton />
     </form>
+  );
+}
+
+export function NotificationPreferenceForm({
+  role,
+}: {
+  role: NotificationRole;
+}) {
+  const options =
+    role === "coach"
+      ? coachNotificationPreferenceOptions
+      : coacheeNotificationPreferenceOptions;
+  const storageKey = notificationPreferenceStorageKeys[role];
+  const allCategories = useMemo<string[]>(
+    () => options.map((option) => option.category),
+    [options],
+  );
+  const preferenceSnapshot = useSyncExternalStore(
+    subscribeToNotificationPreferenceChanges,
+    () => getStoredNotificationPreferenceSnapshot(storageKey),
+    () => "",
+  );
+  const enabledCategories = useMemo(() => {
+    if (!preferenceSnapshot) {
+      return allCategories;
+    }
+
+    try {
+      return normalizeNotificationPreferenceSelection(
+        JSON.parse(preferenceSnapshot),
+        allCategories,
+      );
+    } catch {
+      return allCategories;
+    }
+  }, [allCategories, preferenceSnapshot]);
+
+  function persist(nextCategories: readonly string[]) {
+    const normalizedCategories = normalizeNotificationPreferenceSelection(
+      nextCategories,
+      allCategories,
+    );
+
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify(normalizedCategories),
+    );
+    window.dispatchEvent(new Event(notificationPreferencesChangedEvent));
+  }
+
+  function toggleCategory(category: string) {
+    const isEnabled = enabledCategories.includes(category);
+
+    if (isEnabled && enabledCategories.length === 1) {
+      return;
+    }
+
+    persist(
+      isEnabled
+        ? enabledCategories.filter(
+            (enabledCategory) => enabledCategory !== category,
+          )
+        : [...enabledCategories, category],
+    );
+  }
+
+  return (
+    <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Bell className="h-5 w-5 text-sky-600" />
+          <h2 className="font-semibold text-slate-950">Notifications</h2>
+        </div>
+        <button
+          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-55"
+          disabled={enabledCategories.length === allCategories.length}
+          onClick={() => persist(allCategories)}
+          type="button"
+        >
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Tout activer
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        {options.map((option) => {
+          const isEnabled = enabledCategories.includes(option.category);
+          const isLastEnabled = isEnabled && enabledCategories.length === 1;
+
+          return (
+            <label
+              className={cn(
+                "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm transition",
+                isEnabled
+                  ? "border-sky-200 bg-sky-50/70 text-slate-950"
+                  : "border-slate-200 bg-white text-slate-500 hover:border-sky-200",
+                isLastEnabled ? "cursor-not-allowed opacity-70" : "",
+              )}
+              key={option.category}
+            >
+              <span className="font-semibold">{option.label}</span>
+              <input
+                checked={isEnabled}
+                className="sr-only"
+                disabled={isLastEnabled}
+                onChange={() => toggleCategory(option.category)}
+                type="checkbox"
+              />
+              <span
+                className={cn(
+                  "inline-flex h-5 w-5 items-center justify-center rounded-md border",
+                  isEnabled
+                    ? "border-sky-500 bg-sky-600 text-white"
+                    : "border-slate-300 bg-white",
+                )}
+              >
+                {isEnabled ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

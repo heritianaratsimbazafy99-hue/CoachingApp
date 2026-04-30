@@ -11,7 +11,10 @@ import {
   UserRound,
 } from "lucide-react";
 import { completeContentAction } from "@/app/coachee/actions";
-import { ProfileForm } from "@/components/coaching/profile-settings-forms";
+import {
+  NotificationPreferenceForm,
+  ProfileForm,
+} from "@/components/coaching/profile-settings-forms";
 import { QuizRunner } from "@/components/coaching/quiz-runner";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -370,25 +373,29 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
             </div>
           </section>
 
-          <aside className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
-            <div className="flex items-center gap-2">
-              <UserRound className="h-5 w-5 text-slate-500" />
-              <h2 className="font-semibold text-slate-950">Compte</h2>
-            </div>
-            <div className="mt-5 space-y-3 text-sm">
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="font-medium text-slate-500">Email</p>
-                <p className="mt-1 font-semibold text-slate-950">
-                  {data.profile.email}
-                </p>
+          <aside className="space-y-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5">
+              <div className="flex items-center gap-2">
+                <UserRound className="h-5 w-5 text-slate-500" />
+                <h2 className="font-semibold text-slate-950">Compte</h2>
               </div>
-              <div className="rounded-xl bg-slate-50 p-4">
-                <p className="font-medium text-slate-500">Profil créé le</p>
-                <p className="mt-1 font-semibold text-slate-950">
-                  {formatDate(data.profile.createdAt)}
-                </p>
+              <div className="mt-5 space-y-3 text-sm">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="font-medium text-slate-500">Email</p>
+                  <p className="mt-1 font-semibold text-slate-950">
+                    {data.profile.email}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="font-medium text-slate-500">Profil créé le</p>
+                  <p className="mt-1 font-semibold text-slate-950">
+                    {formatDate(data.profile.createdAt)}
+                  </p>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <NotificationPreferenceForm role="coachee" />
           </aside>
         </div>
 

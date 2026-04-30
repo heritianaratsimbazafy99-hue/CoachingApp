@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, useSyncExternalStore } from "react";
 import { useFormStatus } from "react-dom";
 import {
   AlertTriangle,
@@ -25,6 +25,13 @@ import type {
 } from "@/services/coachee-service";
 import { cn } from "@/utils/cn";
 import { formatDateTime } from "@/utils/format";
+import {
+  coacheeNotificationPreferenceOptions,
+  getStoredNotificationPreferenceSnapshot,
+  normalizeNotificationPreferenceSelection,
+  notificationPreferenceStorageKeys,
+  subscribeToNotificationPreferenceChanges,
+} from "@/utils/notification-preferences";
 
 const categoryIcons: Record<CoacheeNotificationCategory, typeof Bell> = {
   agenda: CalendarDays,
@@ -46,6 +53,10 @@ const categoryStyles: Record<CoacheeNotificationCategory, string> = {
   paths: "border-indigo-100 bg-indigo-50 text-indigo-700",
   results: "border-amber-100 bg-amber-50 text-amber-700",
 };
+
+const defaultEnabledCategories = coacheeNotificationPreferenceOptions.map(
+  (option) => option.category,
+);
 
 const initialReadState: MarkCoacheeNotificationsReadState = {
   message: "",
@@ -78,15 +89,69 @@ export function CoacheeNotificationsList({
     markCoacheeNotificationMessagesReadAction,
     initialReadState,
   );
-  const visibleNotifications = useMemo(() => {
-    if (activeFilter === "all") {
-      return data.notifications;
+  const preferenceSnapshot = useSyncExternalStore(
+    subscribeToNotificationPreferenceChanges,
+    () =>
+      getStoredNotificationPreferenceSnapshot(
+        notificationPreferenceStorageKeys.coachee,
+      ),
+    () => "",
+  );
+  const enabledCategories = useMemo(() => {
+    if (!preferenceSnapshot) {
+      return defaultEnabledCategories;
     }
 
-    return data.notifications.filter(
-      (notification) => notification.category === activeFilter,
+    try {
+      return normalizeNotificationPreferenceSelection(
+        JSON.parse(preferenceSnapshot),
+        defaultEnabledCategories,
+      );
+    } catch {
+      return defaultEnabledCategories;
+    }
+  }, [preferenceSnapshot]);
+  const effectiveFilter =
+    activeFilter !== "all" && !enabledCategories.includes(activeFilter)
+      ? "all"
+      : activeFilter;
+  const enabledNotifications = useMemo(
+    () =>
+      data.notifications.filter((notification) =>
+        enabledCategories.includes(notification.category),
+      ),
+    [data.notifications, enabledCategories],
+  );
+  const visibleNotifications = useMemo(() => {
+    if (effectiveFilter === "all") {
+      return enabledNotifications;
+    }
+
+    return enabledNotifications.filter(
+      (notification) => notification.category === effectiveFilter,
     );
-  }, [activeFilter, data.notifications]);
+  }, [effectiveFilter, enabledNotifications]);
+  const visibleFilters = useMemo(
+    () =>
+      data.filters
+        .filter(
+          (filter) =>
+            filter.id === "all" || enabledCategories.includes(filter.id),
+        )
+        .map((filter) => {
+          if (filter.id === "all") {
+            return { ...filter, count: enabledNotifications.length };
+          }
+
+          return {
+            ...filter,
+            count: enabledNotifications.filter(
+              (notification) => notification.category === filter.id,
+            ).length,
+          };
+        }),
+    [data.filters, enabledCategories, enabledNotifications],
+  );
 
   return (
     <section className="rounded-2xl border border-indigo-100 bg-white shadow-sm shadow-indigo-900/5">
@@ -121,8 +186,8 @@ export function CoacheeNotificationsList({
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {data.filters.map((filter) => {
-            const isActive = activeFilter === filter.id;
+          {visibleFilters.map((filter) => {
+            const isActive = effectiveFilter === filter.id;
 
             return (
               <button

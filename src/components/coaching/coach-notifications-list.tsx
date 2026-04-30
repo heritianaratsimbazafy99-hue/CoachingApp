@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, useSyncExternalStore } from "react";
 import { useFormStatus } from "react-dom";
 import {
   Activity,
@@ -25,6 +25,13 @@ import type {
 } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 import { formatDateTime } from "@/utils/format";
+import {
+  coachNotificationPreferenceOptions,
+  getStoredNotificationPreferenceSnapshot,
+  normalizeNotificationPreferenceSelection,
+  notificationPreferenceStorageKeys,
+  subscribeToNotificationPreferenceChanges,
+} from "@/utils/notification-preferences";
 
 const categoryIcons: Record<CoachNotificationCategory, typeof Bell> = {
   activity: Activity,
@@ -49,6 +56,10 @@ const categoryStyles: Record<CoachNotificationCategory, string> = {
   messages: "border-sky-100 bg-sky-50 text-sky-700",
   paths: "border-rose-100 bg-rose-50 text-rose-700",
 };
+
+const defaultEnabledCategories = coachNotificationPreferenceOptions.map(
+  (option) => option.category,
+);
 
 const initialReadState: MarkCoachNotificationsReadState = {
   message: "",
@@ -81,15 +92,69 @@ export function CoachNotificationsList({
     markCoachNotificationMessagesReadAction,
     initialReadState,
   );
-  const visibleNotifications = useMemo(() => {
-    if (activeFilter === "all") {
-      return data.notifications;
+  const preferenceSnapshot = useSyncExternalStore(
+    subscribeToNotificationPreferenceChanges,
+    () =>
+      getStoredNotificationPreferenceSnapshot(
+        notificationPreferenceStorageKeys.coach,
+      ),
+    () => "",
+  );
+  const enabledCategories = useMemo(() => {
+    if (!preferenceSnapshot) {
+      return defaultEnabledCategories;
     }
 
-    return data.notifications.filter(
-      (notification) => notification.category === activeFilter,
+    try {
+      return normalizeNotificationPreferenceSelection(
+        JSON.parse(preferenceSnapshot),
+        defaultEnabledCategories,
+      );
+    } catch {
+      return defaultEnabledCategories;
+    }
+  }, [preferenceSnapshot]);
+  const effectiveFilter =
+    activeFilter !== "all" && !enabledCategories.includes(activeFilter)
+      ? "all"
+      : activeFilter;
+  const enabledNotifications = useMemo(
+    () =>
+      data.notifications.filter((notification) =>
+        enabledCategories.includes(notification.category),
+      ),
+    [data.notifications, enabledCategories],
+  );
+  const visibleNotifications = useMemo(() => {
+    if (effectiveFilter === "all") {
+      return enabledNotifications;
+    }
+
+    return enabledNotifications.filter(
+      (notification) => notification.category === effectiveFilter,
     );
-  }, [activeFilter, data.notifications]);
+  }, [effectiveFilter, enabledNotifications]);
+  const visibleFilters = useMemo(
+    () =>
+      data.filters
+        .filter(
+          (filter) =>
+            filter.id === "all" || enabledCategories.includes(filter.id),
+        )
+        .map((filter) => {
+          if (filter.id === "all") {
+            return { ...filter, count: enabledNotifications.length };
+          }
+
+          return {
+            ...filter,
+            count: enabledNotifications.filter(
+              (notification) => notification.category === filter.id,
+            ).length,
+          };
+        }),
+    [data.filters, enabledCategories, enabledNotifications],
+  );
 
   return (
     <section className="rounded-xl border border-sky-100 bg-white shadow-sm shadow-sky-900/5">
@@ -124,8 +189,8 @@ export function CoachNotificationsList({
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {data.filters.map((filter) => {
-            const isActive = activeFilter === filter.id;
+          {visibleFilters.map((filter) => {
+            const isActive = effectiveFilter === filter.id;
 
             return (
               <button

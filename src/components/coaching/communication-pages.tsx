@@ -15,6 +15,7 @@ import { CalendarEventForm } from "@/components/coaching/calendar-event-form";
 import { MessageComposerForm } from "@/components/coaching/message-composer-form";
 import { MessageRealtimeBridge } from "@/components/coaching/message-realtime-bridge";
 import {
+  NotificationPreferenceForm,
   ProfileForm,
   ReminderTemplateForm,
   ReminderTemplateList,
@@ -692,6 +693,8 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
               </div>
             </div>
           </section>
+
+          <NotificationPreferenceForm role="coach" />
 
           <section className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
             <h2 className="font-semibold text-slate-950">Nouveau template</h2>
