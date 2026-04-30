@@ -1,7 +1,9 @@
 import Link from "next/link";
 import {
+  Award,
   BarChart3,
   BookCheck,
+  CalendarDays,
   CheckCircle2,
   ClipboardCheck,
   FileQuestion,
@@ -31,6 +33,46 @@ const questionTypeLabel = {
   open: "Question ouverte",
   single_choice: "Choix unique",
 };
+
+function percentWidth(value: number) {
+  return `${Math.min(100, Math.max(0, Math.round(value)))}%`;
+}
+
+function ScoreMeter({ value }: { value: number }) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-2xl font-semibold tracking-normal text-indigo-700">
+          {formatPercent(value)}
+        </p>
+        <p className="text-xs font-semibold uppercase text-slate-400">
+          score
+        </p>
+      </div>
+      <div className="mt-3 h-2 rounded-full bg-white ring-1 ring-indigo-100">
+        <div
+          className="h-full rounded-full bg-indigo-500"
+          style={{ width: percentWidth(value) }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function QuizMetaTile({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-3 py-2">
+      <dt className="text-xs font-semibold text-slate-400">{label}</dt>
+      <dd className="mt-1 text-sm font-semibold text-slate-800">{value}</dd>
+    </div>
+  );
+}
 
 export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
   return (
@@ -85,66 +127,50 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <section className="grid gap-4 xl:grid-cols-2">
             {data.quizzes.map((quiz) => (
               <article
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
+                className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
                 key={quiz.id}
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                <div className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_170px]">
+                  <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
                         {quiz.questionCount} questions
                       </span>
-                      <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                      <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                         {quiz.passingScore}% requis
                       </span>
                     </div>
-                    <h2 className="mt-4 text-lg font-semibold text-slate-950">
+                    <h2 className="mt-4 text-lg font-semibold text-slate-950 transition group-hover:text-sky-700">
                       {quiz.title}
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       {quiz.description || "Aucune description renseignée."}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-indigo-50 px-4 py-3 text-center text-indigo-700 ring-1 ring-indigo-100">
-                    <p className="text-2xl font-semibold">
-                      {formatPercent(quiz.averageScore)}
-                    </p>
-                    <p className="text-xs font-medium">score moyen</p>
+                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4">
+                    <ScoreMeter value={quiz.averageScore} />
                   </div>
                 </div>
 
-                <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-                  <div className="rounded-xl bg-slate-50 p-3">
-                    <dt className="text-xs font-semibold uppercase text-slate-400">
-                      Assigné
-                    </dt>
-                    <dd className="mt-1 font-semibold text-slate-800">
-                      {quiz.assignmentCount}
-                    </dd>
-                  </div>
-                  <div className="rounded-xl bg-slate-50 p-3">
-                    <dt className="text-xs font-semibold uppercase text-slate-400">
-                      À corriger
-                    </dt>
-                    <dd className="mt-1 font-semibold text-slate-800">
-                      {quiz.pendingCorrectionsCount}
-                    </dd>
-                  </div>
-                  <div className="rounded-xl bg-slate-50 p-3">
-                    <dt className="text-xs font-semibold uppercase text-slate-400">
-                      Mis à jour
-                    </dt>
-                    <dd className="mt-1 font-semibold text-slate-800">
-                      {formatDate(quiz.updatedAt)}
-                    </dd>
-                  </div>
+                <dl className="grid gap-3 border-y border-slate-100 bg-slate-50/40 p-4 text-sm sm:grid-cols-3">
+                  <QuizMetaTile label="Assigné" value={quiz.assignmentCount} />
+                  <QuizMetaTile
+                    label="À corriger"
+                    value={quiz.pendingCorrectionsCount}
+                  />
+                  <QuizMetaTile
+                    label="Mis à jour"
+                    value={formatDate(quiz.updatedAt)}
+                  />
                 </dl>
 
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm text-slate-500">{quiz.contentTitle}</p>
+                <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+                  <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600">
+                    {quiz.contentTitle}
+                  </p>
                   {quiz.isOwner ? (
                     <Link
-                      className={buttonVariants()}
+                      className={buttonVariants({ variant: "secondary" })}
                       href={`/coach/quizzes/${quiz.id}/edit`}
                     >
                       <Pencil className="h-4 w-4" />
@@ -305,10 +331,10 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
-                  className="grid gap-4 p-5 md:grid-cols-[1fr_180px_120px_150px]"
+                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_170px]"
                   key={attempt.id}
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold text-slate-950">
                       {attempt.coacheeName}
                     </p>
@@ -319,15 +345,16 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
                       {attempt.coacheeEmail}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    {attempt.scoreObtained}/{attempt.scoreMax} points
-                  </p>
-                  <p className="text-sm font-semibold text-indigo-700">
-                    {formatPercent(attempt.percentage)}
-                  </p>
-                  <div className="space-y-2">
+                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
+                    <ScoreMeter value={attempt.percentage} />
+                    <p className="mt-2 text-xs font-medium text-slate-500">
+                      {attempt.scoreObtained}/{attempt.scoreMax} points
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 lg:flex-col lg:items-start lg:justify-center">
                     <StatusBadge status={attempt.status} />
-                    <p className="text-xs text-slate-400">
+                    <p className="inline-flex items-center gap-2 text-xs text-slate-500">
+                      <CalendarDays className="h-3.5 w-3.5" />
                       {formatDateTime(attempt.submittedAt)}
                     </p>
                   </div>
@@ -376,11 +403,11 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
           <section className="space-y-4">
             {data.corrections.map((item) => (
               <article
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04]"
+                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04]"
                 key={item.answerId}
               >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                <div className="flex flex-col gap-3 border-b border-amber-100 bg-amber-50/40 p-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <p className="font-semibold text-slate-950">
                       {item.coacheeName}
                     </p>
@@ -391,21 +418,24 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
                       {item.coacheeEmail}
                     </p>
                   </div>
-                  <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-100 bg-white px-3 py-1 text-xs font-semibold text-amber-700">
+                    <Award className="h-3.5 w-3.5" />
                     Max {item.pointsMax} pts
                   </span>
                 </div>
 
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-800">
-                    {item.questionText}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {item.answerText}
-                  </p>
-                </div>
+                <div className="p-5">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {item.questionText}
+                    </p>
+                    <p className="mt-3 rounded-lg bg-white p-3 text-sm leading-6 text-slate-600 ring-1 ring-slate-200/80">
+                      {item.answerText}
+                    </p>
+                  </div>
 
-                <CorrectionForm item={item} />
+                  <CorrectionForm item={item} />
+                </div>
               </article>
             ))}
           </section>

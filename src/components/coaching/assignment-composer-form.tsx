@@ -6,7 +6,12 @@ import { SendHorizonal } from "lucide-react";
 import { createAssignmentAction } from "@/app/coach/assignments/actions";
 import type { CreateAssignmentState } from "@/app/coach/assignments/actions";
 import { buttonVariants } from "@/components/ui/button";
-import { inputClassName, labelClassName, textareaClassName } from "@/components/ui/form-field";
+import { Card } from "@/components/ui/card";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type { CoachAssignmentComposerData } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 import { contentTypeLabel } from "@/utils/format";
@@ -53,133 +58,126 @@ export function AssignmentComposerForm({
   const minDate = tomorrow.toISOString().slice(0, 10);
 
   return (
-    <form
-      action={formAction}
-      className="grid gap-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] sm:p-6 lg:grid-cols-[1fr_340px]"
-    >
-      <div className="space-y-5">
-        <label className="block">
-          <span className={labelClassName}>Titre</span>
-          <input
-            className={inputClassName()}
-            name="title"
-            placeholder="Ex : Module posture + quiz"
-            required
-          />
-        </label>
-
-        <label className="block">
-          <span className={labelClassName}>Description courte</span>
-          <input
-            className={inputClassName()}
-            name="description"
-            placeholder="Objectif de l'assignation"
-          />
-        </label>
-
-        <label className="block">
-          <span className={labelClassName}>Instructions</span>
-          <textarea
-            className={textareaClassName("min-h-36")}
-            name="instructions"
-            placeholder="Message visible côté coaché"
-          />
-        </label>
-
-        <div className="grid gap-4 md:grid-cols-2">
+    <Card className="overflow-hidden">
+      <form action={formAction} className="grid gap-0 lg:grid-cols-[1fr_340px]">
+        <div className="space-y-5 p-5 sm:p-6">
           <label className="block">
-            <span className={labelClassName}>Contenu</span>
-            <select
+            <span className={labelClassName}>Titre</span>
+            <input
               className={inputClassName()}
-              name="contentId"
-            >
-              <option value="">Aucun contenu</option>
-              {data.contents.map((content) => (
-                <option key={content.id} value={content.id}>
-                  {content.title} · {contentTypeLabel[content.type]}
-                </option>
-              ))}
-            </select>
+              name="title"
+              placeholder="Ex : Module posture + quiz"
+              required
+            />
           </label>
 
           <label className="block">
-            <span className={labelClassName}>Quiz</span>
-            <select
+            <span className={labelClassName}>Description courte</span>
+            <input
               className={inputClassName()}
-              name="quizId"
-            >
-              <option value="">Aucun quiz</option>
-              {data.quizzes.map((quiz) => (
-                <option key={quiz.id} value={quiz.id}>
-                  {quiz.title}
-                </option>
-              ))}
-            </select>
+              name="description"
+              placeholder="Objectif de l'assignation"
+            />
           </label>
+
+          <label className="block">
+            <span className={labelClassName}>Instructions</span>
+            <textarea
+              className={textareaClassName("min-h-36")}
+              name="instructions"
+              placeholder="Message visible côté coaché"
+            />
+          </label>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className={labelClassName}>Contenu</span>
+              <select className={inputClassName()} name="contentId">
+                <option value="">Aucun contenu</option>
+                {data.contents.map((content) => (
+                  <option key={content.id} value={content.id}>
+                    {content.title} · {contentTypeLabel[content.type]}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className={labelClassName}>Quiz</span>
+              <select className={inputClassName()} name="quizId">
+                <option value="">Aucun quiz</option>
+                {data.quizzes.map((quiz) => (
+                  <option key={quiz.id} value={quiz.id}>
+                    {quiz.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
 
-      <aside className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-5">
-        <label className="block">
-          <span className={labelClassName}>Cible</span>
-          <select
-            className={inputClassName()}
-            defaultValue={targetDefaultValue}
-            name="target"
-            required
-          >
-            <option value="">Choisir une cible</option>
-            {data.coachees.map((coachee) => (
-              <option key={coachee.id} value={`coachee:${coachee.id}`}>
-                Coaché : {coachee.fullName}
-              </option>
-            ))}
-            {data.cohorts.map((cohort) => (
-              <option key={cohort.id} value={`cohort:${cohort.id}`}>
-                Cohorte : {cohort.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <aside className="space-y-5 border-t border-slate-100 bg-slate-50/80 p-5 sm:p-6 lg:border-l lg:border-t-0">
+          <label className="block">
+            <span className={labelClassName}>Cible</span>
+            <select
+              className={inputClassName()}
+              defaultValue={targetDefaultValue}
+              name="target"
+              required
+            >
+              <option value="">Choisir une cible</option>
+              {data.coachees.map((coachee) => (
+                <option key={coachee.id} value={`coachee:${coachee.id}`}>
+                  Coaché : {coachee.fullName}
+                </option>
+              ))}
+              {data.cohorts.map((cohort) => (
+                <option key={cohort.id} value={`cohort:${cohort.id}`}>
+                  Cohorte : {cohort.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Deadline</span>
-          <input
-            className={inputClassName()}
-            min={minDate}
-            name="deadline"
-            type="date"
-            required
-          />
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Deadline</span>
+            <input
+              className={inputClassName()}
+              min={minDate}
+              name="deadline"
+              required
+              type="date"
+            />
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Priorité</span>
-          <select
-            className={inputClassName()}
-            defaultValue="normal"
-            name="priority"
-          >
-            <option value="normal">Normale</option>
-            <option value="high">Importante</option>
-          </select>
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Priorité</span>
+            <select
+              className={inputClassName()}
+              defaultValue="normal"
+              name="priority"
+            >
+              <option value="normal">Normale</option>
+              <option value="high">Importante</option>
+            </select>
+          </label>
 
-        {state.message ? (
-          <p
-            className={cn(
-              "rounded-xl border px-3 py-2 text-sm font-medium",
-              state.status === "error"
-                ? "border-red-200 bg-red-50 text-red-700"
-                : "border-slate-200 bg-white text-slate-600",
-            )}
-          >
-            {state.message}
-          </p>
-        ) : null}
+          {state.message ? (
+            <p
+              className={cn(
+                "rounded-xl border px-3 py-2 text-sm font-medium",
+                state.status === "error"
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-slate-200 bg-white text-slate-600",
+              )}
+            >
+              {state.message}
+            </p>
+          ) : null}
 
-        <SubmitButton />
-      </aside>
-    </form>
+          <SubmitButton />
+        </aside>
+      </form>
+    </Card>
   );
 }

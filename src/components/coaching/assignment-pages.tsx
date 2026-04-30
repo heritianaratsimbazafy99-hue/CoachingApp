@@ -72,26 +72,39 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
                 <div
-                  className="grid gap-4 p-5 lg:grid-cols-[1.2fr_170px_130px_130px_170px]"
+                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_210px]"
                   key={assignment.id}
                 >
-                  <div>
-                    <p className="font-semibold">{assignment.title}</p>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-950">
+                      {assignment.title}
+                    </p>
                     <p className="mt-1 text-sm leading-6 text-slate-500">
                       {assignment.instructions || assignment.description}
                     </p>
-                    <p className="mt-2 text-xs font-medium text-sky-700">
+                    <p className="mt-3 inline-flex max-w-full rounded-lg border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
                       {assignment.contentTitle}
                     </p>
                   </div>
-                  <p className="text-sm font-medium text-slate-600">
-                    {assignment.targetLabel}
-                  </p>
-                  <StatusBadge status={assignment.status} />
-                  <PriorityBadge priority={assignment.priority} />
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <CalendarClock className="h-4 w-4" />
-                    {formatDate(assignment.deadline)}
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+                    <p className="text-xs font-semibold text-slate-400">
+                      Cible
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-slate-700">
+                      {assignment.targetLabel}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                    <div className="flex flex-wrap gap-2">
+                      <StatusBadge status={assignment.status} />
+                      <PriorityBadge priority={assignment.priority} />
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200">
+                      <CalendarClock className="h-4 w-4 text-sky-600" />
+                      {formatDate(assignment.deadline)}
+                    </div>
                   </div>
                 </div>
               ))}
