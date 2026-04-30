@@ -25,7 +25,7 @@ function SubmitButton() {
 
   return (
     <button
-      className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -45,7 +45,7 @@ export function AdminRoleForm({ currentRole, userId }: AdminRoleFormProps) {
       <input name="userId" type="hidden" value={userId} />
       <div className="flex flex-col gap-2 sm:flex-row">
         <select
-          className="min-h-10 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:ring-4 focus:ring-slate-950/10"
+          className="min-h-10 rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
           defaultValue={currentRole}
           name="role"
         >

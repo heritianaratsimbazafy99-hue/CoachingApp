@@ -4,7 +4,6 @@ import {
   BookCheck,
   CheckCircle2,
   ClipboardCheck,
-  Download,
   FileQuestion,
   GripVertical,
   Pencil,
@@ -267,15 +266,6 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
   return (
     <>
       <PageHeader
-        actions={
-          <button
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-            type="button"
-          >
-            <Download className="h-4 w-4" />
-            Export CSV
-          </button>
-        }
         description="Scores, statuts, corrections et feedbacks par coaché."
         title="Résultats quiz"
       />

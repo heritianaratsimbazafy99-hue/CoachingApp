@@ -182,10 +182,10 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
       />
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_360px]">
         <section className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
-                <UserRound className="h-6 w-6 text-slate-700" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 ring-1 ring-sky-100">
+                <UserRound className="h-6 w-6 text-sky-700" />
               </div>
               <div>
                 <p className="font-semibold">{data.profile.fullName}</p>
@@ -194,13 +194,13 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-5">
+          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
+            <div className="flex items-center justify-between gap-3 border-b border-sky-100 p-5">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-sky-600" />
                 <h2 className="font-semibold">Objectifs de coaching</h2>
               </div>
-              <span className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+              <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
                 {data.goals.length} objectif(s)
               </span>
             </div>
@@ -212,7 +212,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                       <div className="flex flex-wrap items-center gap-2">
                         <GoalStatusBadge status={goal.status} />
                         {goal.dueDate ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
                             <CalendarDays className="h-3 w-3" />
                             {formatDate(goal.dueDate)}
                           </span>
@@ -244,8 +244,8 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-5">
+          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
+            <div className="border-b border-sky-100 p-5">
               <h2 className="font-semibold">Progression individuelle</h2>
             </div>
             <div className="divide-y divide-slate-100">
@@ -272,8 +272,8 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 p-5">
+          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
+            <div className="border-b border-sky-100 p-5">
               <h2 className="font-semibold">Résultats quiz</h2>
             </div>
             <div className="divide-y divide-slate-100">
@@ -300,7 +300,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-sky-600" />
               <h2 className="font-semibold">Nouvel objectif</h2>
@@ -313,7 +313,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-2">
               <NotebookPen className="h-5 w-5 text-slate-500" />
               <h2 className="font-semibold">Notes privées coach</h2>
@@ -322,7 +322,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-600"
+                    className="rounded-lg border border-sky-100 bg-sky-50/60 p-3 text-sm leading-6 text-slate-600"
                     key={note.id}
                   >
                     <p>{note.note}</p>
@@ -332,7 +332,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                   </div>
                 ))
               ) : (
-                <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">
+                <p className="rounded-lg border border-sky-100 bg-sky-50/60 p-3 text-sm text-slate-500">
                   Aucune note privée.
                 </p>
               )}

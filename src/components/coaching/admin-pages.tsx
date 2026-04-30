@@ -111,9 +111,9 @@ export function AdminUsersPage({
       )}
       <div className={compact ? "" : "p-6"}>
         {visibleUsers.length ? (
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="rounded-xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
             {compact ? (
-              <div className="flex items-center justify-between border-b border-slate-200 p-5">
+              <div className="flex items-center justify-between border-b border-sky-100 p-5">
                 <div>
                   <h2 className="font-semibold">Utilisateurs récents</h2>
                   <p className="mt-1 text-sm text-slate-500">
@@ -121,7 +121,7 @@ export function AdminUsersPage({
                   </p>
                 </div>
                 <Link
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
                   href="/admin/users"
                 >
                   Tout voir
@@ -192,7 +192,7 @@ export function AdminCoachesPage({
         {coaches.length ? (
           coaches.map((coach) => (
             <article
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
               key={coach.id}
             >
               <p className="text-lg font-semibold">{coach.fullName}</p>
@@ -231,7 +231,7 @@ export function AdminCohortsPage({ cohorts }: { cohorts: AdminCohort[] }) {
         {cohorts.length ? (
           cohorts.map((cohort) => (
             <article
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
               key={cohort.id}
             >
               <p className="text-lg font-semibold">{cohort.name}</p>
@@ -331,7 +331,7 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
         <section className="grid gap-6 lg:grid-cols-3">
           {panels.map((panel) => (
             <div
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5"
               key={panel.label}
             >
               <div className="flex items-center justify-between">
@@ -341,7 +341,7 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
                 </span>
               </div>
               <div className="mt-6 h-48">
-                <div className="flex h-full items-end rounded-lg bg-slate-50 px-5 pb-5">
+                <div className="flex h-full items-end rounded-lg border border-sky-100 bg-sky-50/70 px-5 pb-5">
                   <div
                     className="w-full rounded-t-lg bg-sky-500 transition-all"
                     style={{ height: `${Math.max(8, panel.value)}%` }}

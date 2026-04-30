@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, FileText, Filter, Plus, Search } from "lucide-react";
+import { BookOpen, FileText, Layers3, Plus, Tags } from "lucide-react";
 import { ContentEditorForm } from "@/components/coaching/content-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -27,40 +27,43 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
         title="Bibliothèque de contenus"
       />
 
-      <div className="grid gap-6 p-6 lg:grid-cols-[260px_1fr]">
-        <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-slate-500">Thèmes</h2>
+      <div className="grid gap-6 p-6 lg:grid-cols-[280px_1fr]">
+        <aside className="rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5">
+          <h2 className="text-sm font-semibold text-slate-600">Thèmes</h2>
           <div className="mt-4 space-y-2">
             {data.themes.length ? (
               data.themes.map((theme) => (
-                <div className="rounded-lg bg-slate-50 p-3" key={theme.id}>
-                  <p className="font-medium">{theme.title}</p>
+                <div
+                  className="rounded-lg border border-sky-100 bg-sky-50/70 p-3"
+                  key={theme.id}
+                >
+                  <p className="font-medium text-slate-900">{theme.title}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">
                     {theme.description || "Aucune description"}
                   </p>
                 </div>
               ))
             ) : (
-              <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-500">
+              <p className="rounded-lg bg-sky-50/70 p-3 text-sm text-slate-500">
                 Aucun thème.
               </p>
             )}
           </div>
-          <h2 className="mt-6 text-sm font-semibold text-slate-500">
+          <h2 className="mt-6 text-sm font-semibold text-slate-600">
             Sous-thèmes
           </h2>
           <div className="mt-4 space-y-2">
             {data.subthemes.length ? (
               data.subthemes.map((subtheme) => (
                 <p
-                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
+                  className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-600"
                   key={subtheme.id}
                 >
                   {subtheme.title}
                 </p>
               ))
             ) : (
-              <p className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+              <p className="rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-500">
                 Aucun sous-thème.
               </p>
             )}
@@ -68,53 +71,69 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
         </aside>
 
         <section className="space-y-4">
-          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row">
-            <div className="flex flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <Search className="h-4 w-4 text-slate-400" />
-              <span className="ml-2 text-sm text-slate-500">
-                Rechercher par titre, tag ou thème
-              </span>
+          <div className="grid gap-3 rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 sm:grid-cols-3">
+            <div className="rounded-lg border border-sky-100 bg-sky-50/60 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-sky-700">
+                <BookOpen className="h-4 w-4" />
+                {data.contents.length} contenu(s)
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Publiés ou en brouillon
+              </p>
             </div>
-            <button
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-              type="button"
-            >
-              <Filter className="h-4 w-4" />
-              Filtres
-            </button>
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                <Layers3 className="h-4 w-4" />
+                {data.themes.length} thème(s)
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Structure pédagogique
+              </p>
+            </div>
+            <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                <Tags className="h-4 w-4" />
+                {data.subthemes.length} sous-thème(s)
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Classement des ressources
+              </p>
+            </div>
           </div>
 
           {data.contents.length ? (
             <div className="grid gap-4 xl:grid-cols-2">
               {data.contents.map((content) => (
                 <article
-                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                  className="rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5"
                   key={content.id}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="rounded-lg bg-slate-100 p-2 text-slate-700">
+                    <div className="rounded-lg bg-sky-50 p-2 text-sky-700 ring-1 ring-sky-100">
                       <FileText className="h-5 w-5" />
                     </div>
                     <StatusBadge status={content.status} />
                   </div>
-                  <h2 className="mt-5 text-lg font-semibold">{content.title}</h2>
+                  <h2 className="mt-5 text-lg font-semibold text-slate-950">
+                    {content.title}
+                  </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {content.description}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                    <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700 ring-1 ring-sky-100">
                       {contentTypeLabel[content.type]}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                    <span className="rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
                       {content.themeTitle}
                     </span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                    <span className="rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
                       {content.subthemeTitle}
                     </span>
                   </div>
                   <div className="mt-5 flex flex-wrap gap-3">
                     <Link
-                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white"
+                      className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700"
                       href={`/coach/library/${content.id}/edit`}
                     >
                       Modifier

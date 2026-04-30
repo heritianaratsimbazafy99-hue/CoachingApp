@@ -9,11 +9,11 @@ type StatCardProps = {
 };
 
 const toneStyles = {
-  amber: "border-amber-200 bg-amber-50 text-amber-700",
-  emerald: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  indigo: "border-indigo-200 bg-indigo-50 text-indigo-700",
-  rose: "border-rose-200 bg-rose-50 text-rose-700",
-  sky: "border-sky-200 bg-sky-50 text-sky-700",
+  amber: "border-amber-100 bg-amber-50 text-amber-700",
+  emerald: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  indigo: "border-indigo-100 bg-indigo-50 text-indigo-700",
+  rose: "border-rose-100 bg-rose-50 text-rose-700",
+  sky: "border-sky-100 bg-sky-50 text-sky-700",
 };
 
 export function StatCard({
@@ -24,11 +24,11 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5">
+    <div className="rounded-xl border border-sky-100/80 bg-white/95 p-5 shadow-sm shadow-sky-900/[0.04] ring-1 ring-white/70 transition hover:border-sky-200 hover:shadow-md hover:shadow-sky-900/5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-800">
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
             {value}
           </p>
         </div>

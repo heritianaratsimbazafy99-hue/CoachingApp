@@ -72,8 +72,8 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/5">
-            <div className="border-b border-slate-200 p-5">
+          <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white/95 shadow-sm shadow-sky-900/5">
+            <div className="border-b border-sky-100 p-5">
               <h2 className="font-semibold text-slate-950">À faire</h2>
             </div>
             <div className="divide-y divide-slate-100">
@@ -91,7 +91,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                     </div>
                     <StatusBadge status={task.progressStatus} />
                     <Link
-                      className="rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 transition hover:bg-sky-50 hover:text-sky-700"
                       href={task.href}
                     >
                       {task.ctaLabel}
@@ -106,7 +106,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-sky-900/10 bg-white p-5 shadow-sm shadow-sky-950/5">
+          <aside className="rounded-2xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-sky-600" />
               <h2 className="font-semibold text-slate-950">
@@ -117,7 +117,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
               {data.resources.length ? (
                 data.resources.map((resource) => (
                   <Link
-                    className="block rounded-xl border border-slate-200 p-4 transition hover:bg-sky-50"
+                    className="block rounded-xl border border-sky-100 bg-white p-4 transition hover:bg-sky-50"
                     href={resource.href}
                     key={resource.id}
                   >
@@ -135,7 +135,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                   </Link>
                 ))
               ) : (
-                <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+                <p className="rounded-xl border border-sky-100 bg-sky-50/70 p-4 text-sm text-slate-500">
                   Les ressources assignées apparaîtront ici.
                 </p>
               )}

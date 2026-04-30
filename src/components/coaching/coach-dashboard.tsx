@@ -29,7 +29,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               Nouvelle assignation
             </Link>
             <Link
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="rounded-lg border border-sky-100 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-sky-900/5 transition hover:bg-sky-50 hover:text-sky-700"
               href="/coach/calendar"
             >
               Planifier
@@ -78,7 +78,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                 </p>
               </div>
               <Link
-                className="text-sm font-medium text-slate-700 hover:underline"
+                className="text-sm font-medium text-sky-700 hover:underline"
                 href="/coach/coachees"
               >
                 Tout voir

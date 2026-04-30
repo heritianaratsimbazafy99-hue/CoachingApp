@@ -16,15 +16,15 @@ type StatusBadgeProps = {
 };
 
 const statusStyles: Record<string, string> = {
-  assigned: "border-sky-200 bg-sky-50 text-sky-700",
-  completed: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  draft: "border-slate-200 bg-slate-50 text-slate-600",
-  failed: "border-rose-200 bg-rose-50 text-rose-700",
-  in_progress: "border-amber-200 bg-amber-50 text-amber-700",
-  late: "border-rose-200 bg-rose-50 text-rose-700",
-  passed: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  pending_correction: "border-indigo-200 bg-indigo-50 text-indigo-700",
-  published: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  assigned: "border-sky-100 bg-sky-50 text-sky-700",
+  completed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  draft: "border-slate-200 bg-white text-slate-600",
+  failed: "border-rose-100 bg-rose-50 text-rose-700",
+  in_progress: "border-amber-100 bg-amber-50 text-amber-700",
+  late: "border-rose-100 bg-rose-50 text-rose-700",
+  passed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  pending_correction: "border-indigo-100 bg-indigo-50 text-indigo-700",
+  published: "border-emerald-100 bg-emerald-50 text-emerald-700",
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {
@@ -55,8 +55,8 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
       className={cn(
         "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium",
         priority === "high"
-          ? "border-orange-200 bg-orange-50 text-orange-700"
-          : "border-slate-200 bg-white text-slate-600",
+          ? "border-orange-100 bg-orange-50 text-orange-700"
+          : "border-sky-100 bg-white text-slate-600",
       )}
     >
       {priorityLabel[priority]}

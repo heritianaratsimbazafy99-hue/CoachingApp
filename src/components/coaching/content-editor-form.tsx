@@ -61,14 +61,14 @@ export function ContentEditorForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[1fr_320px]"
+      className="grid gap-6 rounded-xl border border-sky-100 bg-white/95 p-6 shadow-sm shadow-sky-900/5 lg:grid-cols-[1fr_320px]"
     >
       <input name="contentId" type="hidden" value={content?.id ?? ""} />
       <div className="space-y-5">
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Titre</span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.title}
             name="title"
             placeholder="Titre du contenu"
@@ -78,7 +78,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Description</span>
           <textarea
-            className="mt-2 min-h-24 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 min-h-24 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.description}
             name="description"
             placeholder="Résumé court visible dans la bibliothèque"
@@ -89,7 +89,7 @@ export function ContentEditorForm({
             Corps du cours
           </span>
           <textarea
-            className="mt-2 min-h-64 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 min-h-64 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.body}
             name="body"
             placeholder="Texte, consignes, ressources et liens utiles."
@@ -100,7 +100,7 @@ export function ContentEditorForm({
             Tags, séparés par des virgules
           </span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-slate-950/10"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.tags.join(", ")}
             name="tags"
             placeholder="mindset, onboarding, carrière"
@@ -108,11 +108,11 @@ export function ContentEditorForm({
         </label>
       </div>
 
-      <aside className="space-y-5 rounded-xl bg-slate-50 p-5">
+      <aside className="space-y-5 rounded-xl border border-sky-100 bg-sky-50/70 p-5">
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Type</span>
           <select
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.type ?? "text"}
             name="type"
           >
@@ -127,7 +127,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Statut</span>
           <select
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.status ?? "draft"}
             name="status"
           >
@@ -142,7 +142,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Thème</span>
           <select
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.themeId ?? ""}
             name="themeId"
           >
@@ -158,7 +158,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Sous-thème</span>
           <select
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.subthemeId ?? ""}
             name="subthemeId"
           >
@@ -174,7 +174,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">URL vidéo</span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.videoUrl}
             name="videoUrl"
             placeholder="https://..."
@@ -185,7 +185,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Lien externe</span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.externalUrl}
             name="externalUrl"
             placeholder="https://..."
@@ -196,7 +196,7 @@ export function ContentEditorForm({
         <label className="block">
           <span className="text-sm font-medium text-slate-700">URL document</span>
           <input
-            className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm"
+            className="mt-2 w-full rounded-lg border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
             defaultValue={content?.fileUrl}
             name="fileUrl"
             placeholder="https://..."
@@ -210,7 +210,7 @@ export function ContentEditorForm({
               "rounded-lg border px-3 py-2 text-sm font-medium",
               state.status === "error"
                 ? "border-red-200 bg-red-50 text-red-700"
-                : "border-slate-200 bg-white text-slate-600",
+                : "border-emerald-200 bg-emerald-50 text-emerald-700",
             )}
           >
             {state.message}

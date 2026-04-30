@@ -66,22 +66,25 @@ const roleAccent: Record<
   }
 > = {
   admin: {
-    active: "bg-orange-50 text-orange-700 ring-1 ring-orange-100",
+    active:
+      "border-orange-100 bg-orange-50/90 text-orange-700 shadow-sm shadow-orange-900/5 ring-1 ring-orange-100",
     avatar: "from-orange-200 to-rose-200 text-orange-900",
     dot: "bg-orange-300",
-    shell: "from-white via-sky-50 to-orange-50",
+    shell: "from-[#fbfdff] via-[#f3fbff] to-[#fff7ed]",
   },
   coach: {
-    active: "bg-sky-50 text-sky-700 ring-1 ring-sky-100",
+    active:
+      "border-sky-100 bg-sky-50/95 text-sky-700 shadow-sm shadow-sky-900/5 ring-1 ring-sky-100",
     avatar: "from-sky-200 to-emerald-200 text-sky-900",
     dot: "bg-sky-300",
-    shell: "from-white via-sky-50 to-emerald-50",
+    shell: "from-[#fbfdff] via-[#effaff] to-[#f2fff8]",
   },
   coachee: {
-    active: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100",
+    active:
+      "border-indigo-100 bg-indigo-50/90 text-indigo-700 shadow-sm shadow-indigo-900/5 ring-1 ring-indigo-100",
     avatar: "from-indigo-200 to-sky-200 text-indigo-900",
     dot: "bg-indigo-300",
-    shell: "from-white via-indigo-50 to-sky-50",
+    shell: "from-[#fbfdff] via-[#f5f7ff] to-[#effaff]",
   },
 };
 
@@ -182,7 +185,7 @@ export function AppShell({
         Aller au contenu
       </a>
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="hidden border-r border-sky-100 bg-white/92 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
+        <aside className="hidden border-r border-sky-100/80 bg-white/88 text-slate-700 shadow-sm shadow-sky-900/5 backdrop-blur-xl lg:block">
           <div className="flex h-full flex-col">
             <div className="border-b border-sky-100 p-6">
               <Link
@@ -210,10 +213,10 @@ export function AppShell({
                 return (
                   <Link
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                      "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
                       isActive
                         ? accent.active
-                        : "text-slate-500 hover:bg-sky-50 hover:text-sky-700",
+                        : "text-slate-500 hover:border-sky-100 hover:bg-sky-50/80 hover:text-sky-700",
                     )}
                     href={item.href}
                     key={item.href}
@@ -249,7 +252,7 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100 bg-white/88 px-4 py-3 backdrop-blur-xl lg:px-6">
+          <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-sky-100/80 bg-white/86 px-4 py-3 shadow-sm shadow-sky-900/[0.03] backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"
               aria-expanded={isMobileNavOpen}
@@ -284,10 +287,10 @@ export function AppShell({
                   return (
                     <Link
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                        "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
                         isActive
                           ? accent.active
-                          : "text-slate-500 hover:bg-sky-50 hover:text-sky-700",
+                          : "text-slate-500 hover:border-sky-100 hover:bg-sky-50/80 hover:text-sky-700",
                       )}
                       href={item.href}
                       key={item.href}
@@ -314,7 +317,7 @@ export function AppShell({
             </div>
           ) : null}
 
-          <main className="mx-auto max-w-7xl" id="app-content">
+          <main className="mx-auto w-full max-w-[1480px]" id="app-content">
             {children}
           </main>
         </div>
