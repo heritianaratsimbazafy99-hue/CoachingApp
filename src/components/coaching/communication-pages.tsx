@@ -337,8 +337,8 @@ function MetricCard({
 
 function CalendarFilters({ data }: { data: CalendarPageData }) {
   return (
-    <form className="grid gap-3 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5 md:grid-cols-[1fr_1fr_1.4fr_auto]">
-      <label className="block">
+    <form className="grid min-w-0 gap-3 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5 md:grid-cols-[1fr_1fr_1.4fr_auto]">
+      <label className="block min-w-0">
         <span className="text-xs font-semibold uppercase text-slate-500">Type</span>
         <select
           className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
@@ -354,7 +354,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
         </select>
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="text-xs font-semibold uppercase text-slate-500">
           Statut
         </span>
@@ -372,7 +372,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
         </select>
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="text-xs font-semibold uppercase text-slate-500">
           Cible
         </span>
@@ -391,7 +391,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
         </select>
       </label>
 
-      <div className="flex items-end gap-2">
+      <div className="flex min-w-0 flex-wrap items-end gap-2">
         <button
           className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700"
           type="submit"
@@ -443,22 +443,22 @@ function EventCard({
   event: CalendarAgendaEvent;
 }) {
   return (
-    <article className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className="min-w-0 rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
+      <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <TypeBadge type={event.type} />
             <CalendarStatusBadge status={event.status} />
           </div>
-          <h3 className="mt-3 text-base font-semibold text-slate-950">
+          <h3 className="mt-3 break-words text-base font-semibold text-slate-950">
             {event.title}
           </h3>
-          <p className="mt-1 text-sm font-medium text-slate-500">
+          <p className="mt-1 break-words text-sm font-medium text-slate-500">
             {formatTime(event.startTime)} - {formatTime(event.endTime)} ·{" "}
             {event.targetLabel}
           </p>
           {event.description ? (
-            <p className="mt-3 text-sm leading-6 text-slate-600">
+            <p className="mt-3 break-words text-sm leading-6 text-slate-600">
               {event.description}
             </p>
           ) : null}
@@ -500,7 +500,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
         title="Agenda"
       />
 
-      <div className="space-y-6 p-6">
+      <div className="min-w-0 space-y-6 overflow-hidden p-4 sm:p-6">
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <MetricCard
             icon={CalendarClock}
@@ -526,13 +526,13 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
 
         {isCoach ? <CalendarFilters data={data} /> : null}
 
-        <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-          <section className="space-y-5">
-            <div className="rounded-xl border border-sky-100 bg-white p-4 shadow-sm shadow-sky-900/5">
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-7">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[1fr_380px]">
+          <section className="min-w-0 space-y-5">
+            <div className="min-w-0 rounded-xl border border-sky-100 bg-white p-3 shadow-sm shadow-sky-900/5 sm:p-4">
+              <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-7">
                 {weekDays.map((day) => (
                   <div
-                    className="min-h-28 rounded-lg border border-sky-100 bg-sky-50/70 p-3"
+                    className="min-h-28 min-w-0 rounded-lg border border-sky-100 bg-sky-50/70 p-3"
                     key={day.key}
                   >
                     <p className="text-xs font-medium uppercase text-slate-400">
@@ -545,7 +545,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                         day: "2-digit",
                       }).format(day.date)}
                     </p>
-                    <p className="mt-3 text-xs font-medium text-slate-500">
+                    <p className="mt-3 break-words text-xs font-medium text-slate-500">
                       {day.count ? `${day.count} événement(s)` : "Libre"}
                     </p>
                     {day.nextEvent ? (
@@ -562,9 +562,9 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
               {agendaGroups.length ? (
                 agendaGroups.map((events) => (
                   <section className="space-y-3" key={getDayKey(events[0].startTime)}>
-                    <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="h-px flex-1 bg-slate-200" />
-                      <h2 className="text-sm font-semibold capitalize text-slate-600">
+                      <h2 className="min-w-0 break-words text-center text-sm font-semibold capitalize text-slate-600">
                         {formatAgendaDay(events[0].startTime)}
                       </h2>
                       <div className="h-px flex-1 bg-slate-200" />
@@ -596,7 +596,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
             </div>
           </section>
 
-          <aside className="space-y-5">
+          <aside className="min-w-0 space-y-5">
             {isCoach ? (
               <section
                 className="rounded-xl border border-sky-100 bg-white p-5 shadow-sm shadow-sky-900/5"
@@ -620,15 +620,15 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                 </h2>
               </div>
               {nextEvent ? (
-                <div className="mt-5 rounded-lg border border-slate-200 p-4">
+                <div className="mt-5 min-w-0 rounded-lg border border-slate-200 p-4">
                   <TypeBadge type={nextEvent.type} />
-                  <p className="mt-3 font-semibold text-slate-950">
+                  <p className="mt-3 break-words font-semibold text-slate-950">
                     {nextEvent.title}
                   </p>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 break-words text-sm text-slate-500">
                     {formatDateTime(nextEvent.startTime)}
                   </p>
-                  <p className="mt-2 text-sm font-medium text-slate-600">
+                  <p className="mt-2 break-words text-sm font-medium text-slate-600">
                     {nextEvent.targetLabel}
                   </p>
                 </div>
