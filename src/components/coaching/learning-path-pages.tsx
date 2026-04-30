@@ -22,6 +22,7 @@ import {
 import {
   deleteLearningPathAction,
   duplicateLearningPathAction,
+  sendLearningPathReminderAction,
 } from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -173,6 +174,33 @@ function LearnerStatusBadge({
   );
 }
 
+function LearningPathReminderForm({
+  coacheeId,
+  pathTitle,
+  reason,
+  reminderType,
+}: {
+  coacheeId: string;
+  pathTitle: string;
+  reason: string;
+  reminderType: "blocked" | "correction";
+}) {
+  return (
+    <form action={sendLearningPathReminderAction}>
+      <input name="coacheeId" type="hidden" value={coacheeId} />
+      <input name="pathTitle" type="hidden" value={pathTitle} />
+      <input name="reason" type="hidden" value={reason} />
+      <input name="reminderType" type="hidden" value={reminderType} />
+      <button
+        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-sky-200 bg-white px-3 text-xs font-semibold text-sky-700 transition hover:bg-sky-50"
+        type="submit"
+      >
+        Relancer
+      </button>
+    </form>
+  );
+}
+
 function CoachPathSignals({
   signals,
 }: {
@@ -220,25 +248,35 @@ function CoachPathSignals({
         <div className="mt-4 space-y-3">
           {signals.blockedLearners.length ? (
             signals.blockedLearners.map((item) => (
-              <Link
-                className="block rounded-xl border border-rose-100 bg-rose-50/50 p-3 transition hover:bg-rose-50"
-                href={item.href}
+              <article
+                className="rounded-xl border border-rose-100 bg-rose-50/50 p-3"
                 key={item.id}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950">
+                  <Link className="min-w-0 hover:underline" href={item.href}>
+                    <span className="block text-sm font-semibold text-slate-950">
                       {item.coacheeName}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    </span>
+                    <span className="mt-1 block text-xs text-slate-500">
                       {item.pathTitle} · {item.reason}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
+                    </span>
+                  </Link>
+                  <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
                     {formatPercent(item.percentage)}
                   </span>
                 </div>
-              </Link>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="text-xs font-medium text-rose-700">
+                    Reprise conseillée
+                  </span>
+                  <LearningPathReminderForm
+                    coacheeId={item.coacheeId}
+                    pathTitle={item.pathTitle}
+                    reason={item.reason}
+                    reminderType="blocked"
+                  />
+                </div>
+              </article>
             ))
           ) : (
             <p className="rounded-xl border border-dashed border-rose-200 bg-rose-50/40 p-3 text-sm text-slate-500">
@@ -256,23 +294,35 @@ function CoachPathSignals({
         <div className="mt-4 space-y-3">
           {signals.pendingCorrections.length ? (
             signals.pendingCorrections.map((item) => (
-              <Link
-                className="block rounded-xl border border-indigo-100 bg-indigo-50/50 p-3 transition hover:bg-indigo-50"
-                href={item.href}
+              <article
+                className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3"
                 key={item.id}
               >
-                <p className="text-sm font-semibold text-slate-950">
-                  {item.coacheeName}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {item.pathTitle} · {item.reason}
-                </p>
-                {item.lastActivityAt ? (
-                  <p className="mt-1 text-xs font-medium text-slate-400">
-                    Soumis le {formatDateTime(item.lastActivityAt)}
-                  </p>
-                ) : null}
-              </Link>
+                <Link className="block hover:underline" href={item.href}>
+                  <span className="block text-sm font-semibold text-slate-950">
+                    {item.coacheeName}
+                  </span>
+                  <span className="mt-1 block text-xs text-slate-500">
+                    {item.pathTitle} · {item.reason}
+                  </span>
+                  {item.lastActivityAt ? (
+                    <span className="mt-1 block text-xs font-medium text-slate-400">
+                      Soumis le {formatDateTime(item.lastActivityAt)}
+                    </span>
+                  ) : null}
+                </Link>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="text-xs font-medium text-indigo-700">
+                    Message rassurant
+                  </span>
+                  <LearningPathReminderForm
+                    coacheeId={item.coacheeId}
+                    pathTitle={item.pathTitle}
+                    reason={item.reason}
+                    reminderType="correction"
+                  />
+                </div>
+              </article>
             ))
           ) : (
             <p className="rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-3 text-sm text-slate-500">

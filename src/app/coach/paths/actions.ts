@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { canMessageUser } from "@/services/messaging-service";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -20,6 +21,21 @@ const pathSchema = z.object({
 
 const deletePathSchema = z.object({
   pathId: z.string().trim().regex(uuidPattern, "Parcours invalide."),
+});
+
+const reminderSchema = z.object({
+  coacheeId: z.string().trim().regex(uuidPattern, "Coaché invalide."),
+  pathTitle: z
+    .string()
+    .trim()
+    .min(2, "Parcours invalide.")
+    .max(160, "Le titre du parcours est trop long."),
+  reason: z
+    .string()
+    .trim()
+    .min(2, "Motif invalide.")
+    .max(180, "Le motif est trop long."),
+  reminderType: z.enum(["blocked", "correction"]),
 });
 
 const updatePathSchema = pathSchema.extend({
@@ -53,6 +69,26 @@ function revalidateLearningPathRoutes() {
   revalidatePath("/coach/paths");
   revalidatePath("/coachee");
   revalidatePath("/coachee/paths");
+}
+
+function learningPathReminderBody({
+  pathTitle,
+  reason,
+  reminderType,
+}: z.infer<typeof reminderSchema>) {
+  if (reminderType === "correction") {
+    return [
+      `Bonjour, petit point sur votre parcours "${pathTitle}".`,
+      `${reason}. Je reviens vers vous dès que la correction est traitée.`,
+      "Vous pouvez continuer les autres étapes disponibles si elles sont ouvertes.",
+    ].join("\n\n");
+  }
+
+  return [
+    `Bonjour, j'ai vu que vous êtes bloqué sur le parcours "${pathTitle}".`,
+    `${reason}. Reprenez la prochaine étape quand vous êtes disponible.`,
+    "Écrivez-moi ici si quelque chose bloque, je vous aiderai à avancer.",
+  ].join("\n\n");
 }
 
 function uniqueItems(items: Array<{ id: string; kind: "content" | "quiz" }>) {
@@ -476,6 +512,61 @@ export async function duplicateLearningPathAction(formData: FormData) {
     user_id: currentUser.user.id,
   });
 
+  revalidateLearningPathRoutes();
+}
+
+export async function sendLearningPathReminderAction(formData: FormData) {
+  const currentUser = await requireRole(["admin", "coach"]);
+  const parsed = reminderSchema.safeParse({
+    coacheeId: formData.get("coacheeId"),
+    pathTitle: formData.get("pathTitle"),
+    reason: formData.get("reason"),
+    reminderType: formData.get("reminderType"),
+  });
+
+  if (!parsed.success) {
+    return;
+  }
+
+  const allowed = await canMessageUser(parsed.data.coacheeId);
+
+  if (!allowed) {
+    return;
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { data: message, error } = await supabase
+    .from("messages")
+    .insert({
+      body: learningPathReminderBody(parsed.data),
+      receiver_id: parsed.data.coacheeId,
+      sender_id: currentUser.user.id,
+    })
+    .select("id")
+    .single<{ id: string }>();
+
+  if (error) {
+    return;
+  }
+
+  await supabase.from("activity_logs").insert({
+    action:
+      parsed.data.reminderType === "correction"
+        ? `Message correction parcours : ${parsed.data.pathTitle}`
+        : `Relance parcours envoyée : ${parsed.data.pathTitle}`,
+    entity_id: message.id,
+    entity_type: "message",
+    metadata: {
+      coacheeId: parsed.data.coacheeId,
+      learningPathTitle: parsed.data.pathTitle,
+      reason: parsed.data.reason,
+      reminderType: parsed.data.reminderType,
+    },
+    user_id: currentUser.user.id,
+  });
+
+  revalidatePath("/coach/messages");
+  revalidatePath("/coachee/messages");
   revalidateLearningPathRoutes();
 }
 
