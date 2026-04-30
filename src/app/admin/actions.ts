@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { normalizeRole } from "@/lib/auth/roles";
 import { requireRole } from "@/lib/auth/session";
@@ -17,6 +18,11 @@ export type CreateAdminUserState = {
   status: "error" | "idle" | "success";
 };
 
+export type AdminAuthEmailState = {
+  message: string;
+  status: "error" | "idle" | "success";
+};
+
 export const initialUpdateUserRoleState: UpdateUserRoleState = {
   message: "",
   status: "idle",
@@ -27,17 +33,39 @@ export const initialCreateAdminUserState: CreateAdminUserState = {
   status: "idle",
 };
 
-const createAdminUserSchema = z.object({
+export const initialAdminAuthEmailState: AdminAuthEmailState = {
+  message: "",
+  status: "idle",
+};
+
+const createAdminUserBaseSchema = z.object({
   email: z.string().trim().email("Email invalide."),
   fullName: z
     .string()
     .trim()
     .min(2, "Le nom doit contenir au moins 2 caractères.")
     .max(120, "Le nom est trop long."),
-  password: z
-    .string()
-    .min(8, "Le mot de passe temporaire doit contenir au moins 8 caractères."),
   role: z.enum(["admin", "coach", "coachee"]),
+});
+
+const createAdminUserSchema = z.discriminatedUnion("creationMode", [
+  createAdminUserBaseSchema.extend({
+    creationMode: z.literal("invite"),
+    password: z.string().optional(),
+  }),
+  createAdminUserBaseSchema.extend({
+    creationMode: z.literal("password"),
+    password: z
+      .string()
+      .min(
+        8,
+        "Le mot de passe temporaire doit contenir au moins 8 caractères.",
+      ),
+  }),
+]);
+
+const adminUserEmailActionSchema = z.object({
+  userId: z.string().uuid("Utilisateur invalide."),
 });
 
 function revalidateAdminUserPages() {
@@ -56,6 +84,101 @@ function userCreationErrorMessage(message: string) {
   return message;
 }
 
+function invitationErrorMessage(message: string) {
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("already") || lowerMessage.includes("registered")) {
+    return "Supabase ne peut pas renvoyer une invitation à ce compte déjà enregistré. Utilisez plutôt la réinitialisation du mot de passe.";
+  }
+
+  return message;
+}
+
+function normalizeBaseUrl(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const withProtocol = value.startsWith("http") ? value : `https://${value}`;
+
+  return withProtocol.replace(/\/+$/, "");
+}
+
+async function getPasswordSetupRedirectUrl() {
+  const requestHeaders = await headers();
+  const forwardedHost = requestHeaders.get("x-forwarded-host");
+  const host = forwardedHost ?? requestHeaders.get("host");
+
+  if (host) {
+    const forwardedProtocol = requestHeaders.get("x-forwarded-proto");
+    const protocol =
+      forwardedProtocol ??
+      (host.startsWith("localhost") || host.startsWith("127.")
+        ? "http"
+        : "https");
+
+    return new URL("/update-password", `${protocol}://${host}`).toString();
+  }
+
+  const configuredBaseUrl = normalizeBaseUrl(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      process.env.VERCEL_URL,
+  );
+
+  return configuredBaseUrl
+    ? new URL("/update-password", configuredBaseUrl).toString()
+    : undefined;
+}
+
+type AdminSupabaseClient = ReturnType<typeof createServiceSupabaseClient>;
+
+async function syncUserProfile({
+  adminSupabase,
+  fullName,
+  role,
+  userId,
+}: {
+  adminSupabase: AdminSupabaseClient;
+  fullName: string;
+  role: UserRole;
+  userId: string;
+}) {
+  const { error } = await adminSupabase.from("profiles").upsert(
+    {
+      full_name: fullName,
+      notification_preferences: {},
+      role,
+      user_id: userId,
+    },
+    { onConflict: "user_id" },
+  );
+
+  return error;
+}
+
+async function logAdminUserActivity({
+  action,
+  adminSupabase,
+  currentUserId,
+  metadata,
+  userId,
+}: {
+  action: string;
+  adminSupabase: AdminSupabaseClient;
+  currentUserId: string;
+  metadata: Record<string, string>;
+  userId: string;
+}) {
+  await adminSupabase.from("activity_logs").insert({
+    action,
+    entity_id: userId,
+    entity_type: "profile",
+    metadata,
+    user_id: currentUserId,
+  });
+}
+
 export async function createAdminUserAction(
   _previousState: CreateAdminUserState,
   formData: FormData,
@@ -65,6 +188,8 @@ export async function createAdminUserAction(
     email: formData.get("email"),
     fullName: formData.get("fullName"),
     password: formData.get("password"),
+    creationMode:
+      formData.get("creationMode") === "password" ? "password" : "invite",
     role: formData.get("role"),
   });
 
@@ -77,18 +202,28 @@ export async function createAdminUserAction(
     };
   }
 
-  const { email, fullName, password, role } = parsed.data;
+  const { creationMode, email, fullName, role } = parsed.data;
   const adminSupabase = createServiceSupabaseClient();
-  const { data, error } = await adminSupabase.auth.admin.createUser({
-    app_metadata: { role },
-    email,
-    email_confirm: true,
-    password,
-    user_metadata: {
-      full_name: fullName,
-      name: fullName,
-    },
-  });
+  const redirectTo = await getPasswordSetupRedirectUrl();
+  const userMetadata = {
+    full_name: fullName,
+    name: fullName,
+    role,
+  };
+
+  const { data, error } =
+    creationMode === "invite"
+      ? await adminSupabase.auth.admin.inviteUserByEmail(email, {
+          data: userMetadata,
+          redirectTo,
+        })
+      : await adminSupabase.auth.admin.createUser({
+          app_metadata: { role },
+          email,
+          email_confirm: true,
+          password: parsed.data.password,
+          user_metadata: userMetadata,
+        });
 
   if (error || !data.user) {
     return {
@@ -99,14 +234,36 @@ export async function createAdminUserAction(
     };
   }
 
-  const { error: profileError } = await adminSupabase.from("profiles").upsert(
+  if (creationMode === "invite") {
+    const { error: roleError } = await adminSupabase.auth.admin.updateUserById(
+      data.user.id,
+      {
+        app_metadata: {
+          ...data.user.app_metadata,
+          role,
+        },
+        user_metadata: {
+          ...data.user.user_metadata,
+          ...userMetadata,
+        },
+      },
+    );
+
+    if (roleError) {
+      return {
+        message: roleError.message,
+        status: "error",
+      };
+    }
+  }
+
+  const profileError = await syncUserProfile(
     {
-      full_name: fullName,
-      notification_preferences: {},
+      adminSupabase,
+      fullName,
       role,
-      user_id: data.user.id,
+      userId: data.user.id,
     },
-    { onConflict: "user_id" },
   );
 
   if (profileError) {
@@ -116,21 +273,169 @@ export async function createAdminUserAction(
     };
   }
 
-  await adminSupabase.from("activity_logs").insert({
-    action: `Utilisateur créé : ${fullName}`,
-    entity_id: data.user.id,
-    entity_type: "profile",
+  await logAdminUserActivity({
+    action:
+      creationMode === "invite"
+        ? `Invitation utilisateur envoyée : ${fullName}`
+        : `Utilisateur créé : ${fullName}`,
+    adminSupabase,
+    currentUserId: currentUser.user.id,
     metadata: {
       createdUserEmail: email,
+      createdUserOnboardingMode: creationMode,
       createdUserRole: role,
     },
-    user_id: currentUser.user.id,
+    userId: data.user.id,
   });
 
   revalidateAdminUserPages();
 
   return {
-    message: `Utilisateur créé avec le rôle ${role}.`,
+    message:
+      creationMode === "invite"
+        ? `Invitation envoyée à ${email}.`
+        : `Utilisateur créé avec le rôle ${role}.`,
+    status: "success",
+  };
+}
+
+export async function sendUserInvitationAction(
+  _previousState: AdminAuthEmailState,
+  formData: FormData,
+): Promise<AdminAuthEmailState> {
+  const currentUser = await requireRole("admin");
+  const parsed = adminUserEmailActionSchema.safeParse({
+    userId: formData.get("userId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      message: parsed.error.issues[0]?.message ?? "Utilisateur invalide.",
+      status: "error",
+    };
+  }
+
+  const adminSupabase = createServiceSupabaseClient();
+  const { data, error } = await adminSupabase.auth.admin.getUserById(
+    parsed.data.userId,
+  );
+
+  if (error || !data.user) {
+    return {
+      message: error?.message ?? "Utilisateur introuvable.",
+      status: "error",
+    };
+  }
+
+  if (!data.user.email) {
+    return {
+      message: "Cet utilisateur n'a pas d'email Supabase.",
+      status: "error",
+    };
+  }
+
+  if (data.user.email_confirmed_at) {
+    return {
+      message:
+        "Ce compte est déjà confirmé. Utilisez la réinitialisation du mot de passe si nécessaire.",
+      status: "error",
+    };
+  }
+
+  const redirectTo = await getPasswordSetupRedirectUrl();
+  const { error: inviteError } =
+    await adminSupabase.auth.admin.inviteUserByEmail(data.user.email, {
+      data: data.user.user_metadata,
+      redirectTo,
+    });
+
+  if (inviteError) {
+    return {
+      message: invitationErrorMessage(inviteError.message),
+      status: "error",
+    };
+  }
+
+  await logAdminUserActivity({
+    action: "Invitation utilisateur renvoyée",
+    adminSupabase,
+    currentUserId: currentUser.user.id,
+    metadata: {
+      invitedUserEmail: data.user.email,
+    },
+    userId: data.user.id,
+  });
+
+  revalidateAdminUserPages();
+
+  return {
+    message: `Invitation renvoyée à ${data.user.email}.`,
+    status: "success",
+  };
+}
+
+export async function sendPasswordResetAction(
+  _previousState: AdminAuthEmailState,
+  formData: FormData,
+): Promise<AdminAuthEmailState> {
+  const currentUser = await requireRole("admin");
+  const parsed = adminUserEmailActionSchema.safeParse({
+    userId: formData.get("userId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      message: parsed.error.issues[0]?.message ?? "Utilisateur invalide.",
+      status: "error",
+    };
+  }
+
+  const adminSupabase = createServiceSupabaseClient();
+  const { data, error } = await adminSupabase.auth.admin.getUserById(
+    parsed.data.userId,
+  );
+
+  if (error || !data.user) {
+    return {
+      message: error?.message ?? "Utilisateur introuvable.",
+      status: "error",
+    };
+  }
+
+  if (!data.user.email) {
+    return {
+      message: "Cet utilisateur n'a pas d'email Supabase.",
+      status: "error",
+    };
+  }
+
+  const redirectTo = await getPasswordSetupRedirectUrl();
+  const { error: resetError } = await adminSupabase.auth.resetPasswordForEmail(
+    data.user.email,
+    { redirectTo },
+  );
+
+  if (resetError) {
+    return {
+      message: resetError.message,
+      status: "error",
+    };
+  }
+
+  await logAdminUserActivity({
+    action: "Lien de réinitialisation mot de passe envoyé",
+    adminSupabase,
+    currentUserId: currentUser.user.id,
+    metadata: {
+      resetUserEmail: data.user.email,
+    },
+    userId: data.user.id,
+  });
+
+  revalidateAdminUserPages();
+
+  return {
+    message: `Lien de réinitialisation envoyé à ${data.user.email}.`,
     status: "success",
   };
 }

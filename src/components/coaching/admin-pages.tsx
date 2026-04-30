@@ -7,6 +7,7 @@ import {
   Layers3,
   UsersRound,
 } from "lucide-react";
+import { AdminUserOnboardingActions } from "@/components/coaching/admin-user-onboarding-actions";
 import { AdminRoleForm } from "@/components/coaching/admin-role-form";
 import { AdminUserCreateForm } from "@/components/coaching/admin-user-create-form";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -37,6 +38,34 @@ function formatDate(value: string | null) {
     month: "short",
     year: "numeric",
   }).format(new Date(value));
+}
+
+function getOnboardingStatus(profile: AdminUser) {
+  if (profile.emailConfirmedAt) {
+    return {
+      className: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+      label: "Confirmé",
+    };
+  }
+
+  if (profile.invitedAt) {
+    return {
+      className: "bg-sky-50 text-sky-700 ring-sky-100",
+      label: "Invité",
+    };
+  }
+
+  if (profile.confirmationSentAt) {
+    return {
+      className: "bg-amber-50 text-amber-700 ring-amber-100",
+      label: "Email envoyé",
+    };
+  }
+
+  return {
+    className: "bg-slate-50 text-slate-600 ring-slate-100",
+    label: "À inviter",
+  };
 }
 
 export function AdminDashboard({ data }: { data: AdminDashboardData }) {
@@ -116,8 +145,8 @@ export function AdminUsersPage({
             <div className="mb-5">
               <h2 className="font-semibold">Créer un utilisateur</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Le compte est créé dans Supabase Auth, confirmé immédiatement et
-                synchronisé avec le profil applicatif.
+                Privilégiez l&apos;invitation email pour laisser la personne définir
+                son mot de passe. Le mode temporaire reste disponible si besoin.
               </p>
             </div>
             <AdminUserCreateForm />
@@ -142,36 +171,57 @@ export function AdminUsersPage({
               </div>
             ) : null}
           <div className="divide-y divide-slate-100">
-            {visibleUsers.map((profile) => (
-              <div
-                className="grid gap-4 p-5 md:grid-cols-[1fr_120px_170px_260px]"
-                key={profile.id}
-              >
-                <div>
-                  <p className="font-medium">{profile.fullName}</p>
-                  <p className="mt-1 text-sm text-slate-500">{profile.email}</p>
+            {visibleUsers.map((profile) => {
+              const onboardingStatus = getOnboardingStatus(profile);
+
+              return (
+                <div
+                  className="grid gap-4 p-5 md:grid-cols-[1fr_120px_170px_280px]"
+                  key={profile.id}
+                >
+                  <div>
+                    <p className="font-medium">{profile.fullName}</p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {profile.email}
+                    </p>
+                  </div>
+                  <p className="capitalize text-sm font-medium text-slate-600">
+                    {roleLabel[profile.role]}
+                  </p>
+                  <div className="space-y-3 text-sm text-slate-500">
+                    <p>
+                      Dernière connexion
+                      <span className="mt-1 block font-medium text-slate-700">
+                        {formatDate(profile.lastSignInAt)}
+                      </span>
+                    </p>
+                    {compact ? null : (
+                      <p>
+                        Onboarding
+                        <span
+                          className={`mt-1 inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
+                        >
+                          {onboardingStatus.label}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  {compact ? (
+                    <span className="text-sm text-slate-500">
+                      Créé le {formatDate(profile.createdAt)}
+                    </span>
+                  ) : (
+                    <div className="space-y-3">
+                      <AdminRoleForm
+                        currentRole={profile.role}
+                        userId={profile.id}
+                      />
+                      <AdminUserOnboardingActions userId={profile.id} />
+                    </div>
+                  )}
                 </div>
-                <p className="capitalize text-sm font-medium text-slate-600">
-                  {roleLabel[profile.role]}
-                </p>
-                <p className="text-sm text-slate-500">
-                  Dernière connexion
-                  <span className="mt-1 block font-medium text-slate-700">
-                    {formatDate(profile.lastSignInAt)}
-                  </span>
-                </p>
-                {compact ? (
-                  <span className="text-sm text-slate-500">
-                    Créé le {formatDate(profile.createdAt)}
-                  </span>
-                ) : (
-                  <AdminRoleForm
-                    currentRole={profile.role}
-                    userId={profile.id}
-                  />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
           </div>
         ) : (

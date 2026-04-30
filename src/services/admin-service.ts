@@ -47,12 +47,16 @@ type QuizAttemptRow = {
 
 export type AdminUser = {
   avatarUrl: string | null;
+  confirmationSentAt: string | null;
   createdAt: string;
   email: string;
+  emailConfirmedAt: string | null;
   fullName: string;
   id: string;
+  invitedAt: string | null;
   lastSignInAt: string | null;
   profileId: string | null;
+  recoverySentAt: string | null;
   role: UserRole;
 };
 
@@ -175,12 +179,17 @@ export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
 
       return {
         avatarUrl: profile?.avatar_url ?? null,
+        confirmationSentAt: user?.confirmation_sent_at ?? null,
         createdAt: profile?.created_at ?? user?.created_at ?? new Date(0).toISOString(),
         email: user?.email ?? "Email non disponible",
+        emailConfirmedAt:
+          user?.email_confirmed_at ?? user?.confirmed_at ?? null,
         fullName: getUserDisplayName(profile, user),
         id: userId,
+        invitedAt: user?.invited_at ?? null,
         lastSignInAt: user?.last_sign_in_at ?? null,
         profileId: profile?.id ?? null,
+        recoverySentAt: user?.recovery_sent_at ?? null,
         role: getProfileRole(profile?.role, user),
       };
     })
