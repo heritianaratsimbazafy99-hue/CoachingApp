@@ -48,6 +48,7 @@ type QuizAttemptRow = {
 
 export type AdminUser = {
   avatarUrl: string | null;
+  bannedUntil: string | null;
   confirmationSentAt: string | null;
   createdAt: string;
   email: string;
@@ -101,6 +102,46 @@ export type AdminDashboardData = {
   metrics: AdminMetrics;
   users: AdminUser[];
 };
+
+export type AdminCoacheeCohortAssignment = {
+  coachId: string;
+  coachName: string;
+  id: string;
+  isCoachActive: boolean;
+  name: string;
+};
+
+export type AdminCoacheeAssignment = {
+  cohorts: AdminCoacheeCohortAssignment[];
+  createdAt: string;
+  email: string;
+  fullName: string;
+  hasActiveCoach: boolean;
+  hasCohort: boolean;
+  id: string;
+  isDisabled: boolean;
+  lastSignInAt: string | null;
+};
+
+export type AdminCoacheeAssignmentsData = {
+  coachees: AdminCoacheeAssignment[];
+  cohorts: AdminCohort[];
+  coaches: AdminUser[];
+  metrics: {
+    disabledCount: number;
+    totalCoachees: number;
+    withoutActiveCoachCount: number;
+    withoutCohortCount: number;
+  };
+};
+
+function isUserDisabled(user?: Pick<AdminUser, "bannedUntil"> | null) {
+  if (!user?.bannedUntil) {
+    return false;
+  }
+
+  return new Date(user.bannedUntil).getTime() > Date.now();
+}
 
 function getProfileRole(profileRole: unknown, user?: User): UserRole {
   return (
@@ -188,6 +229,7 @@ export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
 
       return {
         avatarUrl: profile?.avatar_url ?? null,
+        bannedUntil: user?.banned_until ?? null,
         confirmationSentAt: user?.confirmation_sent_at ?? null,
         createdAt: profile?.created_at ?? user?.created_at ?? new Date(0).toISOString(),
         email: user?.email ?? "Email non disponible",
@@ -204,6 +246,72 @@ export const getAdminUsers = cache(async (): Promise<AdminUser[]> => {
     })
     .sort((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
 });
+
+export const getAdminCoacheeAssignments =
+  cache(async (): Promise<AdminCoacheeAssignmentsData> => {
+    await requireRole("admin");
+
+    const [users, cohorts] = await Promise.all([
+      getAdminUsers(),
+      getAdminCohorts(),
+    ]);
+    const usersById = new Map(users.map((user) => [user.id, user]));
+    const coaches = users
+      .filter((user) => user.role === "coach" && !isUserDisabled(user))
+      .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+    const coachees = users
+      .filter((user) => user.role === "coachee")
+      .map((coachee) => {
+        const assignedCohorts = cohorts
+          .filter((cohort) =>
+            cohort.members.some((member) => member.id === coachee.id),
+          )
+          .map((cohort) => {
+            const coach = usersById.get(cohort.coachId);
+
+            return {
+              coachId: cohort.coachId,
+              coachName: cohort.coachName,
+              id: cohort.id,
+              isCoachActive: !isUserDisabled(coach),
+              name: cohort.name,
+            };
+          })
+          .toSorted((a, b) => a.name.localeCompare(b.name, "fr"));
+        const hasActiveCoach = assignedCohorts.some(
+          (cohort) => cohort.isCoachActive,
+        );
+
+        return {
+          cohorts: assignedCohorts,
+          createdAt: coachee.createdAt,
+          email: coachee.email,
+          fullName: coachee.fullName,
+          hasActiveCoach,
+          hasCohort: assignedCohorts.length > 0,
+          id: coachee.id,
+          isDisabled: isUserDisabled(coachee),
+          lastSignInAt: coachee.lastSignInAt,
+        };
+      })
+      .toSorted((a, b) => a.fullName.localeCompare(b.fullName, "fr"));
+
+    return {
+      coachees,
+      coaches,
+      cohorts,
+      metrics: {
+        disabledCount: coachees.filter((coachee) => coachee.isDisabled)
+          .length,
+        totalCoachees: coachees.length,
+        withoutActiveCoachCount: coachees.filter(
+          (coachee) => !coachee.hasActiveCoach,
+        ).length,
+        withoutCohortCount: coachees.filter((coachee) => !coachee.hasCohort)
+          .length,
+      },
+    };
+  });
 
 export const getAdminCohorts = cache(async (): Promise<AdminCohort[]> => {
   await requireRole("admin");

@@ -30,6 +30,7 @@ export const coacheeNav: NavItem[] = [
 export const adminNav: NavItem[] = [
   { href: "/admin", icon: "home", label: "Dashboard" },
   { href: "/admin/users", icon: "users", label: "Utilisateurs" },
+  { href: "/admin/coachees", icon: "check", label: "Coachés" },
   { href: "/admin/coaches", icon: "graduation", label: "Coachs" },
   { href: "/admin/cohorts", icon: "library", label: "Cohortes" },
   { href: "/admin/stats", icon: "chart", label: "Statistiques" },
