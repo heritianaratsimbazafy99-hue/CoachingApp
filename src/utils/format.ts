@@ -7,10 +7,13 @@ import type {
   QuizAttemptStatus,
 } from "@/types/coaching";
 
+const appTimeZone = "Indian/Antananarivo";
+
 export function formatDate(value: string) {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
     month: "short",
+    timeZone: appTimeZone,
     year: "numeric",
   }).format(new Date(value));
 }
@@ -21,6 +24,7 @@ export function formatDateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
     month: "short",
+    timeZone: appTimeZone,
   }).format(new Date(value));
 }
 
@@ -28,6 +32,7 @@ export function formatTime(value: string) {
   return new Intl.DateTimeFormat("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: appTimeZone,
   }).format(new Date(value));
 }
 
