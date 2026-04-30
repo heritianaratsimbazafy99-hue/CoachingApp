@@ -23,7 +23,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type {
   CoachCoacheesData,
   CoachCoacheeDetail,
@@ -43,7 +48,7 @@ export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
           <div className="grid gap-4">
             {data.coachees.map((coachee) => (
               <article
-                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[1.2fr_220px_140px_250px]"
+                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1.2fr)_220px_140px_250px] [contain-intrinsic-size:180px] [content-visibility:auto]"
                 key={coachee.id}
               >
                 <div>
@@ -210,7 +215,10 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             <div className="divide-y divide-slate-100">
               {data.goals.length ? (
                 data.goals.map((goal) => (
-                  <article className="grid gap-4 p-5 lg:grid-cols-[1fr_auto]" key={goal.id}>
+                  <article
+                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 lg:grid-cols-[minmax(0,1fr)_auto] [contain-intrinsic-size:130px] [content-visibility:auto]"
+                    key={goal.id}
+                  >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <GoalStatusBadge status={goal.status} />
@@ -250,12 +258,15 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
           <Card className="overflow-hidden">
             <CardHeader>
               <CardTitle>Progression individuelle</CardTitle>
+              <CardDescription>
+                Assignations, statuts et avancée opérationnelle.
+              </CardDescription>
             </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.progress.length ? (
                 data.progress.map((item) => (
                   <div
-                    className="grid gap-3 p-5 md:grid-cols-[1fr_140px]"
+                    className="grid gap-3 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_140px] [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={item.id}
                   >
                     <div>
@@ -268,9 +279,13 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                   </div>
                 ))
               ) : (
-                <p className="p-5 text-sm text-slate-500">
-                  Aucune progression enregistrée.
-                </p>
+                <div className="p-5">
+                  <EmptyState
+                    description="Aucune progression enregistrée pour le moment."
+                    icon={CheckCircle2}
+                    title="Aucune progression"
+                  />
+                </div>
               )}
             </div>
           </Card>
@@ -278,25 +293,40 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
           <Card className="overflow-hidden">
             <CardHeader>
               <CardTitle>Résultats quiz</CardTitle>
+              <CardDescription>
+                Dernières tentatives, score obtenu et statut.
+              </CardDescription>
             </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.quizAttempts.length ? (
                 data.quizAttempts.map((attempt) => (
                   <div
-                    className="grid gap-3 p-5 md:grid-cols-[1fr_120px_120px]"
+                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_160px_120px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={attempt.id}
                   >
-                    <p className="font-medium">{attempt.quizTitle}</p>
-                    <p className="text-sm font-semibold">
-                      {attempt.percentage}%
+                    <p className="min-w-0 break-words font-medium">
+                      {attempt.quizTitle}
                     </p>
-                    <StatusBadge status={attempt.status} />
+                    <div>
+                      <div className="mb-2 flex justify-between text-xs font-semibold text-slate-500">
+                        <span>Score</span>
+                        <span>{formatPercent(attempt.percentage)}</span>
+                      </div>
+                      <ProgressBar value={attempt.percentage} />
+                    </div>
+                    <div>
+                      <StatusBadge status={attempt.status} />
+                    </div>
                   </div>
                 ))
               ) : (
-                <p className="p-5 text-sm text-slate-500">
-                  Aucun résultat quiz pour le moment.
-                </p>
+                <div className="p-5">
+                  <EmptyState
+                    description="Aucun résultat quiz pour le moment."
+                    icon={CheckCircle2}
+                    title="Aucun résultat"
+                  />
+                </div>
               )}
             </div>
           </Card>
@@ -329,7 +359,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600"
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600 [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={note.id}
                   >
                     <p className="whitespace-pre-line break-words">
@@ -341,9 +371,11 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                   </div>
                 ))
               ) : (
-                <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
-                  Aucun entretien individuel enregistré.
-                </p>
+                <EmptyState
+                  description="Aucun entretien individuel enregistré."
+                  icon={NotebookPen}
+                  title="Aucune note"
+                />
               )}
             </div>
             <div className="mt-4">
@@ -360,7 +392,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.reminders.length ? (
                 data.reminders.map((reminder) => (
                   <div
-                    className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm leading-6 text-slate-600"
+                    className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm leading-6 text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 [contain-intrinsic-size:150px] [content-visibility:auto]"
                     key={reminder.id}
                   >
                     <div className="flex flex-wrap items-center gap-2">
@@ -384,7 +416,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                       </p>
                     ) : null}
                     <Link
-                      className="mt-3 inline-flex text-xs font-semibold text-indigo-700 hover:underline"
+                      className="mt-3 inline-flex rounded-md px-2 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-white/80"
                       href={`/coach/messages?conversation=${data.profile.id}`}
                     >
                       Ouvrir la conversation
@@ -392,9 +424,11 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                   </div>
                 ))
               ) : (
-                <p className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm text-slate-500">
-                  Aucune relance envoyée depuis les parcours ou templates.
-                </p>
+                <EmptyState
+                  description="Aucune relance envoyée depuis les parcours ou templates."
+                  icon={Send}
+                  title="Aucune relance"
+                />
               )}
             </div>
           </Card>

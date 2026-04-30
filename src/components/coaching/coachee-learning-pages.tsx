@@ -18,7 +18,12 @@ import {
 } from "@/components/coaching/profile-settings-forms";
 import { QuizRunner } from "@/components/coaching/quiz-runner";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -152,27 +157,35 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
 export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
   return (
     <>
-      <PageHeader description={data.content.description} title={data.content.title} />
-      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_320px]">
-        <Card className="p-5 sm:p-8">
+      <PageHeader
+        description={data.content.description}
+        title={data.content.title}
+      />
+      <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <Card className="min-w-0 p-5 sm:p-8">
           <div className="mb-6 flex flex-wrap gap-2">
-            <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+            <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
               {contentTypeLabel[data.content.type]}
             </span>
-            {data.progressStatus ? <StatusBadge status={data.progressStatus} /> : null}
+            {data.progressStatus ? (
+              <StatusBadge status={data.progressStatus} />
+            ) : null}
           </div>
 
-          <div className="prose prose-slate max-w-none">
-            <p className="text-lg leading-8 text-slate-700">
+          <div className="prose prose-slate max-w-none rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+            <p className="whitespace-pre-line text-base leading-8 text-slate-700 sm:text-lg">
               {data.content.body || data.content.description}
             </p>
           </div>
 
           {data.content.videoUrl || data.content.externalUrl || data.content.fileUrl ? (
-            <div className="mt-8 grid gap-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {data.content.videoUrl ? (
                 <a
-                  className={buttonVariants({ variant: "secondary" })}
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "w-full",
+                  )}
                   href={data.content.videoUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -183,7 +196,10 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
               ) : null}
               {data.content.externalUrl ? (
                 <a
-                  className={buttonVariants({ variant: "secondary" })}
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "w-full",
+                  )}
                   href={data.content.externalUrl}
                   rel="noreferrer"
                   target="_blank"
@@ -194,7 +210,10 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
               ) : null}
               {data.content.fileUrl ? (
                 <a
-                  className={buttonVariants({ variant: "secondary" })}
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "w-full",
+                  )}
                   href={contentFileDownloadHref(data.content.id)}
                   rel="noreferrer"
                   target="_blank"
@@ -206,7 +225,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <form action={completeContentAction}>
               <input name="contentId" type="hidden" value={data.content.id} />
               <input
@@ -215,7 +234,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
                 value={data.assignment?.id ?? ""}
               />
               <button
-                className={buttonVariants()}
+                className={cn(buttonVariants(), "w-full sm:w-auto")}
                 type="submit"
               >
                 <CheckCircle2 className="h-4 w-4" />
@@ -224,7 +243,10 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             </form>
             {!data.assignment ? (
               <Link
-                className={buttonVariants({ variant: "secondary" })}
+                className={cn(
+                  buttonVariants({ variant: "secondary" }),
+                  "w-full sm:w-auto",
+                )}
                 href="/coachee/paths"
               >
                 Retour aux parcours
@@ -232,7 +254,10 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             ) : null}
             {data.quizHref ? (
               <Link
-                className={buttonVariants({ variant: "secondary" })}
+                className={cn(
+                  buttonVariants({ variant: "secondary" }),
+                  "w-full sm:w-auto",
+                )}
                 href={data.quizHref}
               >
                 Passer au quiz
@@ -241,18 +266,33 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
           </div>
         </Card>
 
-        <Card>
+        <Card className="xl:sticky xl:top-6 xl:self-start">
           <CardHeader>
             <CardTitle>Progression</CardTitle>
+            <CardDescription>
+              Étapes recommandées pour valider cette ressource.
+            </CardDescription>
           </CardHeader>
           <div className="space-y-3 p-5 text-sm text-slate-600">
-            <p>1. Lire le contenu</p>
-            <p>2. Marquer comme terminé</p>
-            {data.quizTitle ? <p>3. Passer le quiz : {data.quizTitle}</p> : null}
-            {!data.assignment ? (
-              <p>Retour automatique vers vos parcours après validation.</p>
+            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              1. Lire le contenu
+            </p>
+            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              2. Marquer comme terminé
+            </p>
+            {data.quizTitle ? (
+              <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                3. Passer le quiz : {data.quizTitle}
+              </p>
             ) : null}
-            <p>Dernière mise à jour : {formatDate(data.content.updatedAt)}</p>
+            {!data.assignment ? (
+              <p className="rounded-lg border border-sky-100 bg-sky-50 p-3 text-sky-800">
+                Retour automatique vers vos parcours après validation.
+              </p>
+            ) : null}
+            <p className="pt-1 text-xs font-medium text-slate-400">
+              Dernière mise à jour : {formatDate(data.content.updatedAt)}
+            </p>
           </div>
         </Card>
       </div>

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import {
+  ArrowRight,
+  BookOpenCheck,
   CalendarDays,
   CheckSquare,
   History,
-  MessageCircle,
   Trophy,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -11,7 +12,13 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { CoacheeDashboardData } from "@/services/coachee-service";
 import { contentTypeLabel, formatDate, formatDateTime } from "@/utils/format";
 import { cn } from "@/utils/cn";
@@ -24,13 +31,13 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
         title={`Bonjour ${data.firstName}`}
       />
       <div className="space-y-6 p-4 sm:p-6">
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04]">
-          <div className="grid gap-6 p-6 md:grid-cols-[1fr_280px] md:items-center">
+        <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-slate-950/[0.04]">
+          <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-center">
             <div>
               <p className="text-sm font-semibold text-sky-700">
                 Progression globale
               </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+              <h2 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950 sm:text-3xl">
                 {data.nextTask
                   ? "Continuez votre parcours"
                   : "Votre parcours est à jour"}
@@ -41,16 +48,20 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                   : "Aucune action prioritaire pour le moment."}
               </p>
               <Link
-                className={cn(buttonVariants({ size: "lg" }), "mt-5")}
+                className={cn(buttonVariants({ size: "lg" }), "mt-5 w-full sm:w-auto")}
                 href={data.nextTask?.href ?? "/coachee/tasks"}
               >
                 {data.nextTask ? data.nextTask.ctaLabel : "Voir mes tâches"}
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p className="mb-2 text-right text-sm font-semibold">
-                {data.metrics.progress}%
-              </p>
+              <div className="mb-3 flex items-end justify-between gap-3">
+                <p className="text-sm font-semibold text-slate-500">Avancement</p>
+                <p className="text-3xl font-semibold tracking-normal text-slate-950">
+                  {data.metrics.progress}%
+                </p>
+              </div>
               <ProgressBar value={data.metrics.progress} />
             </div>
           </div>
@@ -82,35 +93,52 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
 
         <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
           <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle>À faire</CardTitle>
+            <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <CardTitle>À faire</CardTitle>
+                <CardDescription>
+                  Actions ouvertes et priorités de votre parcours.
+                </CardDescription>
+              </div>
+              <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
+                {data.tasks.length} tâche(s)
+              </span>
             </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.tasks.length ? (
                 data.tasks.map((task) => (
-                  <div
-                    className="grid gap-3 p-5 md:grid-cols-[1fr_120px_130px]"
+                  <article
+                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_140px_150px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={task.id}
                   >
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-semibold text-slate-950">{task.title}</p>
                       <p className="mt-1 text-sm text-slate-500">
                         Deadline {formatDate(task.deadline)}
                       </p>
                     </div>
-                    <StatusBadge status={task.progressStatus} />
+                    <div>
+                      <StatusBadge status={task.progressStatus} />
+                    </div>
                     <Link
-                      className={buttonVariants({ variant: "secondary" })}
+                      className={cn(
+                        buttonVariants({ variant: "secondary" }),
+                        "w-full md:w-auto",
+                      )}
                       href={task.href}
                     >
                       {task.ctaLabel}
                     </Link>
-                  </div>
+                  </article>
                 ))
               ) : (
-                <p className="p-5 text-sm text-slate-500">
-                  Votre coach n&apos;a pas encore assigné de tâche.
-                </p>
+                <div className="p-5">
+                  <EmptyState
+                    description="Votre coach n'a pas encore assigné de tâche."
+                    icon={CheckSquare}
+                    title="Aucune tâche"
+                  />
+                </div>
               )}
             </div>
           </Card>
@@ -118,7 +146,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
           <aside className="space-y-6">
             <Card className="p-5">
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5 text-sky-600" />
+                <BookOpenCheck className="h-5 w-5 text-sky-600" />
                 <h2 className="font-semibold text-slate-950">
                   Ressources importantes
                 </h2>
@@ -127,7 +155,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 {data.resources.length ? (
                   data.resources.map((resource) => (
                     <Link
-                      className="block rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-200 hover:bg-sky-50"
+                      className="block rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-200 hover:bg-sky-50 [contain-intrinsic-size:120px] [content-visibility:auto]"
                       href={resource.href}
                       key={resource.id}
                     >
@@ -145,9 +173,11 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                     </Link>
                   ))
                 ) : (
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-                    Les ressources assignées apparaîtront ici.
-                  </p>
+                  <EmptyState
+                    description="Les ressources assignées apparaîtront ici."
+                    icon={BookOpenCheck}
+                    title="Aucune ressource"
+                  />
                 )}
               </div>
               {data.calendarEvents[0] ? (
@@ -169,7 +199,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 {data.recentActivity.length ? (
                   data.recentActivity.map((activity) => (
                     <Link
-                      className="block rounded-xl border border-slate-200 bg-white p-3 transition hover:border-slate-300 hover:bg-slate-50"
+                      className="block rounded-xl border border-slate-200 bg-white p-3 transition hover:border-slate-300 hover:bg-slate-50 [contain-intrinsic-size:96px] [content-visibility:auto]"
                       href={activity.href}
                       key={activity.id}
                     >
@@ -185,9 +215,11 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                     </Link>
                   ))
                 ) : (
-                  <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
-                    Vos prochaines actions apparaîtront ici.
-                  </p>
+                  <EmptyState
+                    description="Vos prochaines actions apparaîtront ici."
+                    icon={History}
+                    title="Aucune activité"
+                  />
                 )}
               </div>
             </Card>

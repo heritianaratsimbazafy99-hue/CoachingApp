@@ -19,7 +19,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type {
   CoachCorrectionsData,
   CoachQuizEditorData,
@@ -127,7 +132,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <section className="grid gap-4 xl:grid-cols-2">
             {data.quizzes.map((quiz) => (
               <article
-                className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
+                className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:320px] [content-visibility:auto]"
                 key={quiz.id}
               >
                 <div className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_170px]">
@@ -220,7 +225,10 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
           <section className="space-y-4">
             {data.quiz.questions.length ? (
               data.quiz.questions.map((question) => (
-                <Card className="p-5" key={question.id}>
+                <Card
+                  className="p-5 [contain-intrinsic-size:220px] [content-visibility:auto]"
+                  key={question.id}
+                >
                   <div className="flex items-start gap-3">
                     <div className="mt-1 rounded-xl bg-sky-50 p-2 text-sky-700">
                       <GripVertical className="h-5 w-5" />
@@ -328,10 +336,16 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
 
         {data.results.length ? (
           <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle>Tentatives récentes</CardTitle>
+              <CardDescription>
+                Lecture rapide des scores, statuts et dates de soumission.
+              </CardDescription>
+            </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
-                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_170px]"
+                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_170px] [contain-intrinsic-size:160px] [content-visibility:auto]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
@@ -403,7 +417,7 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
           <section className="space-y-4">
             {data.corrections.map((item) => (
               <article
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04]"
+                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
                 key={item.answerId}
               >
                 <div className="flex flex-col gap-3 border-b border-amber-100 bg-amber-50/40 p-5 sm:flex-row sm:items-start sm:justify-between">

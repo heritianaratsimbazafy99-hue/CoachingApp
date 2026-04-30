@@ -189,60 +189,72 @@ export function AdminUsersPage({
                   Tout voir
                 </Link>
               </CardHeader>
-            ) : null}
-          <div className="divide-y divide-slate-100">
-            {visibleUsers.map((profile) => {
-              const onboardingStatus = getOnboardingStatus(profile);
+            ) : (
+              <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <CardTitle>Comptes utilisateurs</CardTitle>
+                  <CardDescription>
+                    Rôle, onboarding et dernière activité.
+                  </CardDescription>
+                </div>
+                <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
+                  {visibleUsers.length} compte(s)
+                </span>
+              </CardHeader>
+            )}
+            <div className="divide-y divide-slate-100">
+              {visibleUsers.map((profile) => {
+                const onboardingStatus = getOnboardingStatus(profile);
 
-              return (
-                <div
-                  className="grid gap-4 p-5 md:grid-cols-[1fr_120px_170px_280px]"
-                  key={profile.id}
-                >
-                  <div>
-                    <p className="font-medium">{profile.fullName}</p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      {profile.email}
+                return (
+                  <div
+                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_120px_170px_280px] [contain-intrinsic-size:150px] [content-visibility:auto]"
+                    key={profile.id}
+                  >
+                    <div>
+                      <p className="font-medium">{profile.fullName}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {profile.email}
+                      </p>
+                    </div>
+                    <p className="capitalize text-sm font-medium text-slate-600">
+                      {roleLabel[profile.role]}
                     </p>
-                  </div>
-                  <p className="capitalize text-sm font-medium text-slate-600">
-                    {roleLabel[profile.role]}
-                  </p>
-                  <div className="space-y-3 text-sm text-slate-500">
-                    <p>
-                      Dernière connexion
-                      <span className="mt-1 block font-medium text-slate-700">
-                        {formatDate(profile.lastSignInAt)}
-                      </span>
-                    </p>
-                    {compact ? null : (
+                    <div className="space-y-3 text-sm text-slate-500">
                       <p>
-                        Onboarding
-                        <span
-                          className={`mt-1 inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
-                        >
-                          {onboardingStatus.label}
+                        Dernière connexion
+                        <span className="mt-1 block font-medium text-slate-700">
+                          {formatDate(profile.lastSignInAt)}
                         </span>
                       </p>
+                      {compact ? null : (
+                        <p>
+                          Onboarding
+                          <span
+                            className={`mt-1 inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
+                          >
+                            {onboardingStatus.label}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                    {compact ? (
+                      <span className="text-sm text-slate-500">
+                        Créé le {formatDate(profile.createdAt)}
+                      </span>
+                    ) : (
+                      <div className="space-y-3">
+                        <AdminRoleForm
+                          currentRole={profile.role}
+                          userId={profile.id}
+                        />
+                        <AdminUserOnboardingActions userId={profile.id} />
+                      </div>
                     )}
                   </div>
-                  {compact ? (
-                    <span className="text-sm text-slate-500">
-                      Créé le {formatDate(profile.createdAt)}
-                    </span>
-                  ) : (
-                    <div className="space-y-3">
-                      <AdminRoleForm
-                        currentRole={profile.role}
-                        userId={profile.id}
-                      />
-                      <AdminUserOnboardingActions userId={profile.id} />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
           </Card>
         ) : (
           <EmptyState
@@ -275,18 +287,40 @@ export function AdminCoachesPage({
         {coaches.length ? (
           coaches.map((coach) => (
             <article
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:150px] [content-visibility:auto]"
               key={coach.id}
             >
-              <p className="text-lg font-semibold">{coach.fullName}</p>
-              <p className="mt-1 text-sm text-slate-500">{coach.email}</p>
-              <p className="mt-4 text-sm text-slate-600">
-                Cohortes responsables :{" "}
-                {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Dernière connexion : {formatDate(coach.lastSignInAt)}
-              </p>
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg border border-sky-100 bg-sky-50 p-2 text-sky-700">
+                  <GraduationCap className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="break-words text-lg font-semibold">
+                    {coach.fullName}
+                  </p>
+                  <p className="mt-1 break-words text-sm text-slate-500">
+                    {coach.email}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <p className="font-medium text-slate-500">
+                    Cohortes responsables
+                  </p>
+                  <p className="mt-1 text-xl font-semibold text-slate-950">
+                    {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <p className="font-medium text-slate-500">
+                    Dernière connexion
+                  </p>
+                  <p className="mt-1 font-semibold text-slate-950">
+                    {formatDate(coach.lastSignInAt)}
+                  </p>
+                </div>
+              </div>
             </article>
           ))
         ) : (
@@ -345,7 +379,7 @@ export function AdminCohortsPage({
           </div>
         ) : null}
         <Card
-          className="p-5"
+          className="p-5 xl:sticky xl:top-6 xl:self-start"
           id="admin-new-cohort"
         >
           <div className="mb-5">
@@ -374,7 +408,7 @@ export function AdminCohortsPage({
 
               return (
                 <article
-                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04]"
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
                   key={cohort.id}
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -388,31 +422,31 @@ export function AdminCohortsPage({
                   </div>
 
                   <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
-                    <p>
-                      Coach
-                      <span className="mt-1 block font-medium text-slate-900">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="font-medium text-slate-500">Coach</p>
+                      <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.coachName}
                       </span>
-                    </p>
-                    <p>
-                      Membres
-                      <span className="mt-1 block font-medium text-slate-900">
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="font-medium text-slate-500">Membres</p>
+                      <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.memberCount}
                       </span>
-                    </p>
-                    <p>
-                      Assignations
-                      <span className="mt-1 block font-medium text-slate-900">
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="font-medium text-slate-500">Assignations</p>
+                      <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.assignmentCount}
                       </span>
-                    </p>
-                    <p>
-                      Dates
-                      <span className="mt-1 block font-medium text-slate-900">
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="font-medium text-slate-500">Dates</p>
+                      <span className="mt-1 block font-semibold text-slate-900">
                         {formatCohortDate(cohort.startDate)} →{" "}
                         {formatCohortDate(cohort.endDate)}
                       </span>
-                    </p>
+                    </div>
                   </div>
 
                   <div className="mt-5">
@@ -424,7 +458,7 @@ export function AdminCohortsPage({
                   </div>
 
                   <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition open:bg-white">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Modifier la cohorte
                       </summary>
@@ -436,7 +470,7 @@ export function AdminCohortsPage({
                       </div>
                     </details>
 
-                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition open:bg-white">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Gérer les coachés
                       </summary>
@@ -449,7 +483,7 @@ export function AdminCohortsPage({
                           {cohort.members.length ? (
                             cohort.members.map((member) => (
                               <div
-                                className="grid grid-cols-[1fr_auto] items-center gap-3 p-3"
+                                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3"
                                 key={member.id}
                               >
                                 <div>
@@ -545,24 +579,35 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
           />
         </section>
         <section className="grid gap-6 lg:grid-cols-3">
-          {panels.map((panel) => (
-            <Card className="p-5" key={panel.label}>
-              <div className="flex items-center justify-between">
-                <p className="font-semibold">{panel.label}</p>
-                <span className="text-sm font-semibold text-slate-500">
-                  {formatPercent(panel.value)}
-                </span>
-              </div>
-              <div className="mt-6 h-48">
-                <div className="flex h-full items-end rounded-lg border border-slate-200 bg-slate-50 px-5 pb-5">
-                  <div
-                    className="w-full rounded-t-lg bg-sky-600 transition-all"
-                    style={{ height: `${Math.max(8, panel.value)}%` }}
-                  />
+          {panels.map((panel) => {
+            const visualValue = Math.min(100, Math.max(8, panel.value));
+
+            return (
+              <Card className="overflow-hidden" key={panel.label}>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle>{panel.label}</CardTitle>
+                    <span className="text-sm font-semibold text-slate-500">
+                      {formatPercent(panel.value)}
+                    </span>
+                  </div>
+                </CardHeader>
+                <div className="p-5">
+                  <div className="h-48 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex h-full items-end rounded-lg bg-white px-4 pb-4 ring-1 ring-slate-200">
+                      <div
+                        className="w-full rounded-t-lg bg-gradient-to-t from-sky-700 to-sky-500 transition-all"
+                        style={{ height: `${visualValue}%` }}
+                      />
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs font-medium text-slate-500">
+                    Indicateur agrégé sur les données Supabase disponibles.
+                  </p>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </section>
       </div>
     </>

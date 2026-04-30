@@ -344,7 +344,7 @@ export function AppShell({
 
           {signals.alerts.length ? (
             <div className="border-b border-slate-200/80 bg-white/78 px-4 py-2 backdrop-blur-xl lg:px-6">
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto">
                 {signals.alerts.slice(0, 4).map((alert) => (
                   <Link
                     className={cn(
