@@ -1109,8 +1109,14 @@ for select using (
 
 drop policy if exists "cohorts_write_admin_or_owner" on public.cohorts;
 create policy "cohorts_write_admin_or_owner" on public.cohorts
-for all using (public.is_admin() or coach_id = (select auth.uid()))
-with check (public.is_admin() or coach_id = (select auth.uid()));
+for all using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+);
 
 drop policy if exists "cohort_members_select" on public.cohort_members;
 create policy "cohort_members_select" on public.cohort_members
@@ -1124,12 +1130,18 @@ drop policy if exists "cohort_members_write_coach" on public.cohort_members;
 create policy "cohort_members_write_coach" on public.cohort_members
 for all to authenticated using (
   public.is_admin()
-  or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+  or (
+    public.is_coach()
+    and public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+  )
 )
 with check (
   (
     public.is_admin()
-    or public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+    or (
+      public.is_coach()
+      and public.coach_owns_cohort(cohort_members.cohort_id, (select auth.uid()))
+    )
   )
   and exists (
     select 1
@@ -1145,8 +1157,14 @@ for select using (auth.uid() is not null);
 
 drop policy if exists "themes_write_coach_admin" on public.themes;
 create policy "themes_write_coach_admin" on public.themes
-for all using (public.is_admin() or created_by = auth.uid())
-with check (public.is_admin() or created_by = auth.uid());
+for all using (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+);
 
 drop policy if exists "subthemes_select_all_authenticated" on public.subthemes;
 create policy "subthemes_select_all_authenticated" on public.subthemes
@@ -1156,16 +1174,26 @@ drop policy if exists "subthemes_write_theme_owner" on public.subthemes;
 create policy "subthemes_write_theme_owner" on public.subthemes
 for all using (
   public.is_admin()
-  or exists (
-    select 1 from public.themes t
-    where t.id = subthemes.theme_id and t.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.themes t
+      where t.id = subthemes.theme_id
+        and t.created_by = (select auth.uid())
+    )
   )
 )
 with check (
   public.is_admin()
-  or exists (
-    select 1 from public.themes t
-    where t.id = subthemes.theme_id and t.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.themes t
+      where t.id = subthemes.theme_id
+        and t.created_by = (select auth.uid())
+    )
   )
 );
 
@@ -1186,8 +1214,14 @@ for select using (
 
 drop policy if exists "contents_write_owner" on public.contents;
 create policy "contents_write_owner" on public.contents
-for all using (public.is_admin() or created_by = (select auth.uid()))
-with check (public.is_admin() or created_by = (select auth.uid()));
+for all using (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+);
 
 drop policy if exists "quizzes_select" on public.quizzes;
 create policy "quizzes_select" on public.quizzes
@@ -1200,8 +1234,14 @@ for select using (
 
 drop policy if exists "quizzes_write_owner" on public.quizzes;
 create policy "quizzes_write_owner" on public.quizzes
-for all using (public.is_admin() or created_by = (select auth.uid()))
-with check (public.is_admin() or created_by = (select auth.uid()));
+for all using (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and created_by = (select auth.uid()))
+);
 
 drop policy if exists "quiz_questions_select_via_quiz" on public.quiz_questions;
 create policy "quiz_questions_select_via_quiz" on public.quiz_questions
@@ -1213,16 +1253,26 @@ drop policy if exists "quiz_questions_write_owner" on public.quiz_questions;
 create policy "quiz_questions_write_owner" on public.quiz_questions
 for all using (
   public.is_admin()
-  or exists (
-    select 1 from public.quizzes q
-    where q.id = quiz_questions.quiz_id and q.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.quizzes q
+      where q.id = quiz_questions.quiz_id
+        and q.created_by = (select auth.uid())
+    )
   )
 )
 with check (
   public.is_admin()
-  or exists (
-    select 1 from public.quizzes q
-    where q.id = quiz_questions.quiz_id and q.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.quizzes q
+      where q.id = quiz_questions.quiz_id
+        and q.created_by = (select auth.uid())
+    )
   )
 );
 
@@ -1239,20 +1289,28 @@ drop policy if exists "quiz_options_write_owner" on public.quiz_options;
 create policy "quiz_options_write_owner" on public.quiz_options
 for all using (
   public.is_admin()
-  or exists (
-    select 1
-    from public.quiz_questions qq
-    join public.quizzes q on q.id = qq.quiz_id
-    where qq.id = quiz_options.question_id and q.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.quiz_questions qq
+      join public.quizzes q on q.id = qq.quiz_id
+      where qq.id = quiz_options.question_id
+        and q.created_by = (select auth.uid())
+    )
   )
 )
 with check (
   public.is_admin()
-  or exists (
-    select 1
-    from public.quiz_questions qq
-    join public.quizzes q on q.id = qq.quiz_id
-    where qq.id = quiz_options.question_id and q.created_by = auth.uid()
+  or (
+    public.is_coach()
+    and exists (
+      select 1
+      from public.quiz_questions qq
+      join public.quizzes q on q.id = qq.quiz_id
+      where qq.id = quiz_options.question_id
+        and q.created_by = (select auth.uid())
+    )
   )
 );
 
@@ -1269,7 +1327,8 @@ create policy "assignments_insert_coach" on public.assignments
 for insert with check (
   public.is_admin()
   or (
-    assigned_by = auth.uid()
+    public.is_coach()
+    and assigned_by = (select auth.uid())
     and (
       assigned_to_user_id is null
       or public.coach_owns_coachee((select auth.uid()), assigned_to_user_id)
@@ -1283,8 +1342,14 @@ for insert with check (
 
 drop policy if exists "assignments_update_owner" on public.assignments;
 create policy "assignments_update_owner" on public.assignments
-for update using (public.is_admin() or assigned_by = auth.uid())
-with check (public.is_admin() or assigned_by = auth.uid());
+for update using (
+  public.is_admin()
+  or (public.is_coach() and assigned_by = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and assigned_by = (select auth.uid()))
+);
 
 drop policy if exists "assignment_progress_select" on public.assignment_progress;
 create policy "assignment_progress_select" on public.assignment_progress
@@ -1422,17 +1487,38 @@ for select using (
 
 drop policy if exists "calendar_events_write_coach" on public.calendar_events;
 create policy "calendar_events_write_coach" on public.calendar_events
-for all using (public.is_admin() or coach_id = auth.uid())
-with check (public.is_admin() or coach_id = auth.uid());
-
-drop policy if exists "coach_notes_private" on public.coach_notes;
-create policy "coach_notes_private" on public.coach_notes
-for all using (public.is_admin() or coach_id = auth.uid())
+for all using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+)
 with check (
   public.is_admin()
   or (
-    coach_id = auth.uid()
-    and public.coach_owns_coachee(auth.uid(), coachee_id)
+    public.is_coach()
+    and coach_id = (select auth.uid())
+    and (
+      coachee_id is null
+      or public.coach_owns_coachee((select auth.uid()), coachee_id)
+    )
+    and (
+      cohort_id is null
+      or public.coach_owns_cohort(cohort_id, (select auth.uid()))
+    )
+  )
+);
+
+drop policy if exists "coach_notes_private" on public.coach_notes;
+create policy "coach_notes_private" on public.coach_notes
+for all using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (
+    public.is_coach()
+    and coach_id = (select auth.uid())
+    and public.coach_owns_coachee((select auth.uid()), coachee_id)
   )
 );
 
@@ -1456,33 +1542,78 @@ for select using (
 );
 
 drop policy if exists "coachee_goals_policy" on public.coachee_goals;
-create policy "coachee_goals_policy" on public.coachee_goals
-for all using (
+drop policy if exists "coachee_goals_select" on public.coachee_goals;
+drop policy if exists "coachee_goals_insert_coach" on public.coachee_goals;
+drop policy if exists "coachee_goals_update_coach" on public.coachee_goals;
+drop policy if exists "coachee_goals_delete_coach" on public.coachee_goals;
+
+create policy "coachee_goals_select" on public.coachee_goals
+for select using (
   public.is_admin()
-  or coach_id = auth.uid()
-  or coachee_id = auth.uid()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+  or coachee_id = (select auth.uid())
+);
+
+create policy "coachee_goals_insert_coach" on public.coachee_goals
+for insert
+with check (
+  public.is_admin()
+  or (
+    public.is_coach()
+    and coach_id = (select auth.uid())
+    and public.coach_owns_coachee((select auth.uid()), coachee_id)
+  )
+);
+
+create policy "coachee_goals_update_coach" on public.coachee_goals
+for update using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
 )
 with check (
   public.is_admin()
   or (
-    coach_id = auth.uid()
-    and public.coach_owns_coachee(auth.uid(), coachee_id)
+    public.is_coach()
+    and coach_id = (select auth.uid())
+    and public.coach_owns_coachee((select auth.uid()), coachee_id)
   )
+);
+
+create policy "coachee_goals_delete_coach" on public.coachee_goals
+for delete using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
 );
 
 drop policy if exists "reminder_templates_policy" on public.reminder_templates;
 create policy "reminder_templates_policy" on public.reminder_templates
-for all using (public.is_admin() or coach_id = auth.uid())
-with check (public.is_admin() or coach_id = auth.uid());
+for all using (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+)
+with check (
+  public.is_admin()
+  or (public.is_coach() and coach_id = (select auth.uid()))
+);
 
 drop policy if exists "learning_paths_policy" on public.learning_paths;
 create policy "learning_paths_policy" on public.learning_paths
 for all using (
   public.is_admin()
-  or created_by = (select auth.uid())
+  or (public.is_coach() and created_by = (select auth.uid()))
   or public.is_cohort_member(learning_paths.cohort_id, (select auth.uid()))
 )
-with check (public.is_admin() or created_by = (select auth.uid()));
+with check (
+  public.is_admin()
+  or (
+    public.is_coach()
+    and created_by = (select auth.uid())
+    and (
+      cohort_id is null
+      or public.coach_owns_cohort(cohort_id, (select auth.uid()))
+    )
+  )
+);
 
 drop policy if exists "learning_path_items_policy" on public.learning_path_items;
 create policy "learning_path_items_policy" on public.learning_path_items
@@ -1495,9 +1626,12 @@ for all using (
 )
 with check (
   public.is_admin()
-  or public.user_owns_learning_path(
-    learning_path_items.learning_path_id,
-    (select auth.uid())
+  or (
+    public.is_coach()
+    and public.user_owns_learning_path(
+      learning_path_items.learning_path_id,
+      (select auth.uid())
+    )
   )
 );
 
