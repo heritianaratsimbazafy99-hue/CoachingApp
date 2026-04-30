@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
@@ -660,7 +661,8 @@ export async function submitQuizAction(
     };
   }
 
-  const { data: quiz, error: quizError } = await supabase
+  const adminSupabase = createServiceSupabaseClient();
+  const { data: quiz, error: quizError } = await adminSupabase
     .from("quizzes")
     .select("id,passing_score,title")
     .eq("id", quizId)
@@ -674,7 +676,7 @@ export async function submitQuizAction(
     return { message: "Quiz introuvable.", status: "error" };
   }
 
-  const { data: questions, error: questionError } = await supabase
+  const { data: questions, error: questionError } = await adminSupabase
     .from("quiz_questions")
     .select("id,question_type,points")
     .eq("quiz_id", quizId)
@@ -692,17 +694,17 @@ export async function submitQuizAction(
   }
 
   const learningPathContexts = await findLearningPathContexts(
-    supabase,
+    adminSupabase,
     "quiz",
     quizId,
   );
   const learningPathProgressBefore = await getLearningPathProgressSnapshots(
-    supabase,
+    adminSupabase,
     learningPathContexts.map((context) => context.pathId),
     currentUser.user.id,
   );
 
-  const { data: options, error: optionError } = await supabase
+  const { data: options, error: optionError } = await adminSupabase
     .from("quiz_options")
     .select("id,question_id,is_correct")
     .in(
@@ -724,7 +726,7 @@ export async function submitQuizAction(
     },
     new Map<string, Array<{ id: string; is_correct: boolean; question_id: string }>>(),
   );
-  const { data: attempt, error: attemptError } = await supabase
+  const { data: attempt, error: attemptError } = await adminSupabase
     .from("quiz_attempts")
     .insert({
       assignment_id: assignment?.id ?? null,
@@ -767,15 +769,17 @@ export async function submitQuizAction(
     };
   });
 
-  const { error: answerError } = await supabase.from("quiz_answers").insert(answers);
+  const { error: answerError } = await adminSupabase
+    .from("quiz_answers")
+    .insert(answers);
 
   if (answerError) {
-    await supabase.from("quiz_attempts").delete().eq("id", attempt.id);
+    await adminSupabase.from("quiz_attempts").delete().eq("id", attempt.id);
 
     return { message: answerError.message, status: "error" };
   }
 
-  const { error: rpcError } = await supabase.rpc("recalculate_quiz_attempt", {
+  const { error: rpcError } = await adminSupabase.rpc("recalculate_quiz_attempt", {
     target_attempt_id: attempt.id,
   });
 
@@ -783,14 +787,14 @@ export async function submitQuizAction(
     return { message: rpcError.message, status: "error" };
   }
 
-  const { data: savedAttempt } = await supabase
+  const { data: savedAttempt } = await adminSupabase
     .from("quiz_attempts")
     .select("status")
     .eq("id", attempt.id)
     .maybeSingle<{ status: "failed" | "passed" | "pending_correction" }>();
 
   if (assignment) {
-    await supabase
+    await adminSupabase
       .from("assignment_progress")
       .update({
         completed_at:
@@ -807,14 +811,14 @@ export async function submitQuizAction(
       .eq("user_id", currentUser.user.id);
   }
 
-  await supabase.from("activity_logs").insert({
+  await adminSupabase.from("activity_logs").insert({
     action: "Quiz soumis",
     entity_id: attempt.id,
     entity_type: "quiz_attempt",
     user_id: currentUser.user.id,
   });
 
-  await logLearningPathActivity(supabase, {
+  await logLearningPathActivity(adminSupabase, {
     beforeSnapshots: learningPathProgressBefore,
     contexts: learningPathContexts,
     event: "path_quiz_submitted",

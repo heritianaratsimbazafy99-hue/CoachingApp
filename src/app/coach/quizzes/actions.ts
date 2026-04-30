@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { sendQuizCorrectionAvailableEmail } from "@/services/transactional-email-service";
 
@@ -347,6 +349,7 @@ export async function saveCorrectionAction(
 
   const values = parsed.data;
   const supabase = await createServerSupabaseClient();
+  const adminSupabase = createServiceSupabaseClient();
   const { data: answer, error: answerError } = await supabase
     .from("quiz_answers")
     .select("id,attempt_id,question_id")
@@ -365,7 +368,7 @@ export async function saveCorrectionAction(
     };
   }
 
-  const { error } = await supabase
+  const { error } = await adminSupabase
     .from("quiz_answers")
     .update({
       coach_feedback: nullableText(values.coachFeedback),
@@ -375,32 +378,37 @@ export async function saveCorrectionAction(
       needs_manual_correction: false,
       points_obtained: values.pointsObtained,
     })
-    .eq("id", values.answerId);
+    .eq("id", values.answerId)
+    .eq("attempt_id", values.attemptId);
 
   if (error) {
     return { message: error.message, status: "error" };
   }
 
-  const { error: rpcError } = await supabase.rpc("recalculate_quiz_attempt", {
-    target_attempt_id: values.attemptId,
-  });
+  const { error: rpcError } = await adminSupabase.rpc(
+    "recalculate_quiz_attempt",
+    {
+      target_attempt_id: values.attemptId,
+    },
+  );
 
   if (rpcError) {
     return { message: rpcError.message, status: "error" };
   }
 
-  await supabase.from("activity_logs").insert({
+  await adminSupabase.from("activity_logs").insert({
     action: "Réponse ouverte corrigée",
     entity_id: values.attemptId,
     entity_type: "quiz_attempt",
     user_id: currentUser.user.id,
   });
 
-  const { data: attempt } = await supabase
+  const { data: attempt } = await adminSupabase
     .from("quiz_attempts")
-    .select("id,percentage,status,user_id,quiz:quizzes(title)")
+    .select("assignment_id,id,percentage,status,user_id,quiz:quizzes(title)")
     .eq("id", values.attemptId)
     .maybeSingle<{
+      assignment_id: string | null;
       id: string;
       percentage: number;
       quiz: { title: string } | null;
@@ -409,13 +417,26 @@ export async function saveCorrectionAction(
     }>();
 
   if (attempt && attempt.status !== "pending_correction") {
-    await sendQuizCorrectionAvailableEmail({
-      attemptId: attempt.id,
-      coachId: currentUser.user.id,
-      coacheeId: attempt.user_id,
-      percentage: attempt.percentage,
-      quizTitle: attempt.quiz?.title ?? "Quiz",
-      status: attempt.status,
+    if (attempt.assignment_id) {
+      await adminSupabase
+        .from("assignment_progress")
+        .update({
+          completed_at: new Date().toISOString(),
+          status: "completed",
+        })
+        .eq("assignment_id", attempt.assignment_id)
+        .eq("user_id", attempt.user_id);
+    }
+
+    after(async () => {
+      await sendQuizCorrectionAvailableEmail({
+        attemptId: attempt.id,
+        coachId: currentUser.user.id,
+        coacheeId: attempt.user_id,
+        percentage: attempt.percentage,
+        quizTitle: attempt.quiz?.title ?? "Quiz",
+        status: attempt.status,
+      });
     });
   }
 
@@ -423,6 +444,11 @@ export async function saveCorrectionAction(
   revalidatePath("/coach/corrections");
   revalidatePath("/coach/quiz-results");
   revalidatePath("/coach/coachees");
+  revalidatePath("/coachee");
+  revalidatePath("/coachee/notifications");
+  revalidatePath("/coachee/paths");
+  revalidatePath("/coachee/results");
+  revalidatePath("/coachee/tasks");
 
   return {
     message: "Correction enregistrée.",

@@ -74,6 +74,7 @@ type CalendarEmailKind = "reminder" | "scheduled";
 
 const appName = "CoachingApp";
 const resendApiUrl = "https://api.resend.com/emails";
+const emailRequestTimeoutMs = 1_500;
 const coachPreferenceCategories = new Set<string>(
   coachNotificationPreferenceOptions.map((option) => option.category),
 );
@@ -467,6 +468,7 @@ async function sendTransactionalEmailWithClient(
         "Content-Type": "application/json",
       },
       method: "POST",
+      signal: AbortSignal.timeout(emailRequestTimeoutMs),
     });
     const payload: unknown = await response.json().catch(() => null);
 

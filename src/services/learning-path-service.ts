@@ -51,8 +51,8 @@ type QuizRow = {
 type ContentProgressRow = {
   completed_at: string | null;
   content_id: string;
+  created_at: string;
   status: AssignmentStatus;
-  updated_at: string;
   user_id: string;
 };
 
@@ -298,7 +298,7 @@ function contentProgress(
 ): LearningPathItemProgress {
   const completed = latestByDate(
     progressRows?.filter((progress) => progress.status === "completed"),
-    (progress) => progress.completed_at ?? progress.updated_at,
+    (progress) => progress.completed_at ?? progress.created_at,
   );
 
   if (completed) {
@@ -747,10 +747,10 @@ async function fetchContentProgress(
   return getRows<ContentProgressRow>(
     supabase
       .from("content_progress")
-      .select("content_id,user_id,status,completed_at,updated_at")
+      .select("content_id,user_id,status,completed_at,created_at")
       .eq("user_id", userId)
       .in("content_id", contentIds)
-      .order("updated_at", { ascending: false }),
+      .order("created_at", { ascending: false }),
   );
 }
 
@@ -834,10 +834,10 @@ async function fetchContentProgressForUsers(
   return getRows<ContentProgressRow>(
     supabase
       .from("content_progress")
-      .select("content_id,user_id,status,completed_at,updated_at")
+      .select("content_id,user_id,status,completed_at,created_at")
       .in("user_id", userIds)
       .in("content_id", contentIds)
-      .order("updated_at", { ascending: false }),
+      .order("created_at", { ascending: false }),
   );
 }
 

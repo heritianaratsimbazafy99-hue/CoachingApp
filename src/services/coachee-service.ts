@@ -569,10 +569,9 @@ async function fetchLearningPathItems(supabase: SupabaseServerClient) {
   );
 }
 
-async function fetchQuizQuestions(
-  supabase: SupabaseServerClient,
-  quizId: string,
-) {
+async function fetchQuizQuestions(quizId: string) {
+  const supabase = createServiceSupabaseClient();
+
   return getRows<QuizQuestionRow>(
     supabase
       .from("quiz_questions")
@@ -582,13 +581,12 @@ async function fetchQuizQuestions(
   );
 }
 
-async function fetchQuizOptions(
-  supabase: SupabaseServerClient,
-  questionIds: string[],
-) {
+async function fetchQuizOptions(questionIds: string[]) {
   if (!questionIds.length) {
     return [];
   }
+
+  const supabase = createServiceSupabaseClient();
 
   return getRows<QuizOptionRow>(
     supabase
@@ -1073,7 +1071,6 @@ export const getCoacheeContentDetail = cache(
 export const getCoacheeQuizData = cache(
   async (quizId: string, assignmentId?: string): Promise<CoacheeQuizData | null> => {
     const base = await getCoacheeBaseData();
-    const supabase = await createServerSupabaseClient();
     const tasks = buildTasks(base);
     const quiz = base.quizzes.find((item) => item.id === quizId);
 
@@ -1085,9 +1082,8 @@ export const getCoacheeQuizData = cache(
       (assignmentId ? tasks.find((task) => task.id === assignmentId) : null) ??
       tasks.find((task) => task.quizId === quizId) ??
       null;
-    const questions = await fetchQuizQuestions(supabase, quizId);
+    const questions = await fetchQuizQuestions(quizId);
     const options = await fetchQuizOptions(
-      supabase,
       questions.map((question) => question.id),
     );
     const optionsByQuestion = groupBy(options, (option) => option.question_id);
