@@ -1,7 +1,12 @@
 import { cache } from "react";
 import { requireRole } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import type { ContentStatus, ContentType } from "@/types/coaching";
+import type {
+  AssignmentStatus,
+  ContentStatus,
+  ContentType,
+  QuizAttemptStatus,
+} from "@/types/coaching";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createServerSupabaseClient>>;
 
@@ -43,7 +48,33 @@ type QuizRow = {
   title: string;
 };
 
+type ContentProgressRow = {
+  completed_at: string | null;
+  content_id: string;
+  status: AssignmentStatus;
+  updated_at: string;
+};
+
+type QuizAttemptRow = {
+  created_at: string;
+  id: string;
+  passed: boolean;
+  percentage: number;
+  quiz_id: string;
+  status: QuizAttemptStatus;
+  submitted_at: string | null;
+};
+
 export type LearningPathItemKind = "content" | "quiz";
+
+export type LearningPathItemProgress = {
+  completedAt: string | null;
+  isCompleted: boolean;
+  label: string;
+  percentage: number | null;
+  status: "todo" | "completed" | "failed" | "passed" | "pending_correction";
+  submittedAt: string | null;
+};
 
 export type LearningPathItemOption = {
   description: string;
@@ -61,8 +92,18 @@ export type LearningPathItem = {
   kind: LearningPathItemKind;
   label: string;
   position: number;
+  progress?: LearningPathItemProgress;
   status?: ContentStatus;
   type?: ContentType;
+};
+
+export type LearningPathProgress = {
+  completedCount: number;
+  nextActionLabel: string;
+  nextHref: string;
+  nextLabel: string;
+  percentage: number;
+  totalCount: number;
 };
 
 export type CoachLearningPath = {
@@ -73,6 +114,7 @@ export type CoachLearningPath = {
   id: string;
   itemCount: number;
   items: LearningPathItem[];
+  progress?: LearningPathProgress;
   title: string;
 };
 
@@ -88,6 +130,7 @@ export type CoachLearningPathData = {
 
 export type CoacheeLearningPathData = {
   metrics: {
+    completedItemCount: number;
     contentCount: number;
     pathCount: number;
     quizCount: number;
@@ -116,11 +159,134 @@ function itemValue(kind: LearningPathItemKind, id: string) {
   return `${kind}:${id}`;
 }
 
+function groupBy<T>(items: T[], getKey: (item: T) => string) {
+  return items.reduce((map, item) => {
+    const key = getKey(item);
+    const bucket = map.get(key) ?? [];
+    bucket.push(item);
+    map.set(key, bucket);
+
+    return map;
+  }, new Map<string, T[]>());
+}
+
+function latestByDate<T>(
+  items: T[] | undefined,
+  getDate: (item: T) => string | null,
+) {
+  if (!items?.length) {
+    return null;
+  }
+
+  return items.toSorted((first, second) => {
+    const firstTime = new Date(getDate(first) ?? "").getTime() || 0;
+    const secondTime = new Date(getDate(second) ?? "").getTime() || 0;
+
+    return secondTime - firstTime;
+  })[0];
+}
+
+function contentProgress(
+  progressRows: ContentProgressRow[] | undefined,
+): LearningPathItemProgress {
+  const completed = latestByDate(
+    progressRows?.filter((progress) => progress.status === "completed"),
+    (progress) => progress.completed_at ?? progress.updated_at,
+  );
+
+  if (completed) {
+    return {
+      completedAt: completed.completed_at,
+      isCompleted: true,
+      label: "Terminé",
+      percentage: null,
+      status: "completed",
+      submittedAt: null,
+    };
+  }
+
+  return {
+    completedAt: null,
+    isCompleted: false,
+    label: "À lire",
+    percentage: null,
+    status: "todo",
+    submittedAt: null,
+  };
+}
+
+function quizProgress(
+  attempts: QuizAttemptRow[] | undefined,
+): LearningPathItemProgress {
+  const latestAttempt = latestByDate(
+    attempts,
+    (attempt) => attempt.submitted_at ?? attempt.created_at,
+  );
+
+  if (!latestAttempt) {
+    return {
+      completedAt: null,
+      isCompleted: false,
+      label: "À faire",
+      percentage: null,
+      status: "todo",
+      submittedAt: null,
+    };
+  }
+
+  const isCompleted =
+    latestAttempt.status === "passed" ||
+    latestAttempt.status === "pending_correction";
+  const labelByStatus: Record<QuizAttemptStatus, string> = {
+    failed: "À reprendre",
+    passed: "Réussi",
+    pending_correction: "En correction",
+  };
+
+  return {
+    completedAt: isCompleted
+      ? latestAttempt.submitted_at ?? latestAttempt.created_at
+      : null,
+    isCompleted,
+    label: labelByStatus[latestAttempt.status],
+    percentage: Number(latestAttempt.percentage),
+    status: latestAttempt.status,
+    submittedAt: latestAttempt.submitted_at ?? latestAttempt.created_at,
+  };
+}
+
+function pathProgress(items: LearningPathItem[]): LearningPathProgress | undefined {
+  const trackedItems = items.filter((item) => item.progress);
+
+  if (!trackedItems.length) {
+    return undefined;
+  }
+
+  const completedCount = trackedItems.filter(
+    (item) => item.progress?.isCompleted,
+  ).length;
+  const nextItem = trackedItems.find((item) => !item.progress?.isCompleted);
+  const isComplete = completedCount === trackedItems.length;
+
+  return {
+    completedCount,
+    nextActionLabel: isComplete ? "Revoir" : "Continuer",
+    nextHref: nextItem?.href ?? trackedItems[0]?.href ?? "/coachee/paths",
+    nextLabel: nextItem?.label ?? "Parcours terminé",
+    percentage: Math.round((completedCount / trackedItems.length) * 100),
+    totalCount: trackedItems.length,
+  };
+}
+
 function getPathItems(
   path: LearningPathRow,
   items: LearningPathItemRow[],
   contentsById: Map<string, ContentRow>,
   quizzesById: Map<string, QuizRow>,
+  progressMaps?: {
+    contentProgressByContentId: Map<string, ContentProgressRow[]>;
+    quizAttemptsByQuizId: Map<string, QuizAttemptRow[]>;
+  },
 ): LearningPathItem[] {
   return items
     .filter((item) => item.learning_path_id === path.id)
@@ -136,6 +302,11 @@ function getPathItems(
           kind: "content" as const,
           label: content?.title ?? "Contenu indisponible",
           position: item.position,
+          progress: progressMaps
+            ? contentProgress(
+                progressMaps.contentProgressByContentId.get(item.content_id),
+              )
+            : undefined,
           status: content?.status,
           type: content?.type,
         };
@@ -151,6 +322,9 @@ function getPathItems(
         kind: "quiz" as const,
         label: quiz?.title ?? "Quiz indisponible",
         position: item.position,
+        progress: progressMaps
+          ? quizProgress(progressMaps.quizAttemptsByQuizId.get(quizId))
+          : undefined,
       };
     });
 }
@@ -222,15 +396,63 @@ async function fetchQuizzes(
   return getRows<QuizRow>(query);
 }
 
+async function fetchContentProgress(
+  supabase: SupabaseServerClient,
+  userId: string,
+  contentIds: string[],
+) {
+  if (!contentIds.length) {
+    return [];
+  }
+
+  return getRows<ContentProgressRow>(
+    supabase
+      .from("content_progress")
+      .select("content_id,status,completed_at,updated_at")
+      .eq("user_id", userId)
+      .in("content_id", contentIds)
+      .order("updated_at", { ascending: false }),
+  );
+}
+
+async function fetchQuizAttempts(
+  supabase: SupabaseServerClient,
+  userId: string,
+  quizIds: string[],
+) {
+  if (!quizIds.length) {
+    return [];
+  }
+
+  return getRows<QuizAttemptRow>(
+    supabase
+      .from("quiz_attempts")
+      .select("id,quiz_id,percentage,status,passed,submitted_at,created_at")
+      .eq("user_id", userId)
+      .in("quiz_id", quizIds)
+      .order("created_at", { ascending: false }),
+  );
+}
+
 function buildPaths(
   paths: LearningPathRow[],
   items: LearningPathItemRow[],
   cohortsById: Map<string, CohortRow>,
   contentsById: Map<string, ContentRow>,
   quizzesById: Map<string, QuizRow>,
+  progressMaps?: {
+    contentProgressByContentId: Map<string, ContentProgressRow[]>;
+    quizAttemptsByQuizId: Map<string, QuizAttemptRow[]>;
+  },
 ): CoachLearningPath[] {
   return paths.map((path) => {
-    const pathItems = getPathItems(path, items, contentsById, quizzesById);
+    const pathItems = getPathItems(
+      path,
+      items,
+      contentsById,
+      quizzesById,
+      progressMaps,
+    );
     const cohort = path.cohort_id ? cohortsById.get(path.cohort_id) : null;
 
     return {
@@ -241,6 +463,7 @@ function buildPaths(
       id: path.id,
       itemCount: pathItems.length,
       items: pathItems,
+      progress: pathProgress(pathItems),
       title: path.title,
     };
   });
@@ -311,7 +534,7 @@ export const getCoachLearningPathData = cache(
 
 export const getCoacheeLearningPathData = cache(
   async (): Promise<CoacheeLearningPathData> => {
-    await requireRole(["admin", "coachee"]);
+    const currentUser = await requireRole(["admin", "coachee"]);
     const supabase = await createServerSupabaseClient();
     const paths = await getRows<LearningPathRow>(
       supabase
@@ -330,31 +553,51 @@ export const getCoacheeLearningPathData = cache(
     const cohortIds = paths
       .map((path) => path.cohort_id)
       .filter(Boolean) as string[];
-    const [contents, quizzes, cohorts] = await Promise.all([
-      fetchContents(supabase, contentIds),
-      fetchQuizzes(supabase, quizIds),
-      cohortIds.length
-        ? getRows<CohortRow>(
-            supabase
-              .from("cohorts")
-              .select("id,name,description,coach_id")
-              .in("id", cohortIds),
-          )
-        : [],
-    ]);
+    const [contents, quizzes, cohorts, contentProgressRows, quizAttempts] =
+      await Promise.all([
+        fetchContents(supabase, contentIds),
+        fetchQuizzes(supabase, quizIds),
+        cohortIds.length
+          ? getRows<CohortRow>(
+              supabase
+                .from("cohorts")
+                .select("id,name,description,coach_id")
+                .in("id", cohortIds),
+            )
+          : [],
+        fetchContentProgress(supabase, currentUser.user.id, contentIds),
+        fetchQuizAttempts(supabase, currentUser.user.id, quizIds),
+      ]);
     const contentsById = new Map(contents.map((content) => [content.id, content]));
     const quizzesById = new Map(quizzes.map((quiz) => [quiz.id, quiz]));
     const cohortsById = new Map(cohorts.map((cohort) => [cohort.id, cohort]));
+    const contentProgressByContentId = groupBy(
+      contentProgressRows,
+      (progress) => progress.content_id,
+    );
+    const quizAttemptsByQuizId = groupBy(
+      quizAttempts,
+      (attempt) => attempt.quiz_id,
+    );
     const mappedPaths = buildPaths(
       paths,
       items,
       cohortsById,
       contentsById,
       quizzesById,
+      {
+        contentProgressByContentId,
+        quizAttemptsByQuizId,
+      },
+    );
+    const completedItemCount = mappedPaths.reduce(
+      (sum, path) => sum + (path.progress?.completedCount ?? 0),
+      0,
     );
 
     return {
       metrics: {
+        completedItemCount,
         contentCount: items.filter((item) => item.content_id).length,
         pathCount: mappedPaths.length,
         quizCount: items.filter((item) => item.quiz_id).length,

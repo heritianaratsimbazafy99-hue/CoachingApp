@@ -1,25 +1,37 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   BookOpenCheck,
+  CheckCircle2,
+  Circle,
   FileText,
   GraduationCap,
   Layers3,
   ListChecks,
   Plus,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { deleteLearningPathAction } from "@/app/coach/paths/actions";
 import { LearningPathForm } from "@/components/coaching/learning-path-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
 import type {
   CoachLearningPath,
   CoachLearningPathData,
   CoacheeLearningPathData,
   LearningPathItem,
+  LearningPathItemProgress,
 } from "@/services/learning-path-service";
-import { contentTypeLabel, formatDate } from "@/utils/format";
+import {
+  contentTypeLabel,
+  formatDate,
+  formatDateTime,
+  formatPercent,
+} from "@/utils/format";
+import { cn } from "@/utils/cn";
 
 function ItemBadge({ item }: { item: LearningPathItem }) {
   if (item.kind === "quiz") {
@@ -37,6 +49,71 @@ function ItemBadge({ item }: { item: LearningPathItem }) {
   );
 }
 
+const progressStyles: Record<LearningPathItemProgress["status"], string> = {
+  completed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  failed: "border-rose-100 bg-rose-50 text-rose-700",
+  passed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  pending_correction: "border-indigo-100 bg-indigo-50 text-indigo-700",
+  todo: "border-slate-200 bg-white text-slate-600",
+};
+
+function ProgressBadge({
+  progress,
+}: {
+  progress: LearningPathItemProgress | undefined;
+}) {
+  if (!progress) {
+    return null;
+  }
+
+  return (
+    <span
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-xs font-semibold",
+        progressStyles[progress.status],
+      )}
+    >
+      {progress.label}
+    </span>
+  );
+}
+
+function StepIcon({ item }: { item: LearningPathItem }) {
+  if (item.progress?.isCompleted) {
+    return <CheckCircle2 className="h-5 w-5" />;
+  }
+
+  if (item.progress?.status === "failed") {
+    return <RotateCcw className="h-5 w-5" />;
+  }
+
+  if (item.kind === "quiz") {
+    return <ListChecks className="h-5 w-5" />;
+  }
+
+  return item.progress ? (
+    <Circle className="h-5 w-5" />
+  ) : (
+    <FileText className="h-5 w-5" />
+  );
+}
+
+function stepCtaLabel(item: LearningPathItem) {
+  if (item.kind === "content") {
+    return item.progress?.isCompleted ? "Revoir" : "Lire";
+  }
+
+  if (item.progress?.status === "failed") {
+    return "Repasser";
+  }
+
+  if (item.progress?.status === "passed") {
+    return "Revoir";
+  }
+
+  return "Passer";
+}
+
 function LearningPathItemRow({
   item,
   variant,
@@ -45,18 +122,31 @@ function LearningPathItemRow({
   variant: "coach" | "coachee";
 }) {
   const content = (
-    <div className="grid gap-3 rounded-xl border border-sky-100 bg-white p-3 sm:grid-cols-[44px_1fr_auto] sm:items-center">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
-        {item.kind === "quiz" ? (
-          <ListChecks className="h-5 w-5" />
-        ) : (
-          <FileText className="h-5 w-5" />
+    <div
+      className={cn(
+        "grid gap-3 rounded-xl border bg-white p-3 transition sm:grid-cols-[44px_1fr_auto] sm:items-center",
+        item.progress?.isCompleted
+          ? "border-emerald-100"
+          : "border-sky-100 hover:border-sky-200 hover:bg-sky-50/40",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-11 w-11 items-center justify-center rounded-xl ring-1",
+          item.progress?.isCompleted
+            ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
+            : item.progress?.status === "failed"
+              ? "bg-rose-50 text-rose-700 ring-rose-100"
+              : "bg-sky-50 text-sky-700 ring-sky-100",
         )}
+      >
+        <StepIcon item={item} />
       </div>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-medium text-slate-950">{item.label}</p>
           <ItemBadge item={item} />
+          <ProgressBadge progress={item.progress} />
           {item.status === "draft" ? (
             <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
               Brouillon
@@ -66,10 +156,27 @@ function LearningPathItemRow({
         <p className="mt-1 text-sm leading-6 text-slate-500">
           {item.description}
         </p>
+        {item.progress?.percentage !== null &&
+        item.progress?.percentage !== undefined ? (
+          <p className="mt-2 text-xs font-medium text-slate-500">
+            Dernier score {formatPercent(item.progress.percentage)}
+            {item.progress.submittedAt
+              ? ` · ${formatDateTime(item.progress.submittedAt)}`
+              : ""}
+          </p>
+        ) : null}
       </div>
-      <span className="text-sm font-semibold text-slate-400">
-        #{item.position}
-      </span>
+      <div className="flex items-center justify-between gap-3 sm:justify-end">
+        <span className="text-sm font-semibold text-slate-400">
+          #{item.position}
+        </span>
+        {variant === "coachee" && !item.label.includes("indisponible") ? (
+          <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
+            {stepCtaLabel(item)}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 
@@ -78,7 +185,7 @@ function LearningPathItemRow({
   }
 
   return (
-    <Link className="block transition hover:scale-[1.005]" href={item.href}>
+    <Link className="block" href={item.href}>
       {content}
     </Link>
   );
@@ -122,6 +229,36 @@ function LearningPathCard({
           </form>
         ) : null}
       </div>
+
+      {variant === "coachee" && path.progress ? (
+        <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50/50 p-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-slate-800">
+              {path.progress.completedCount}/{path.progress.totalCount} étapes
+              terminées
+            </p>
+            <span className="text-sm font-semibold text-sky-700">
+              {formatPercent(path.progress.percentage)}
+            </span>
+          </div>
+          <ProgressBar value={path.progress.percentage} />
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-600">
+              Prochaine étape :{" "}
+              <span className="font-semibold text-slate-900">
+                {path.progress.nextLabel}
+              </span>
+            </p>
+            <Link
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-700"
+              href={path.progress.nextHref}
+            >
+              {path.progress.nextActionLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-5 space-y-2">
         {path.items.length ? (
@@ -245,11 +382,11 @@ export function CoacheeLearningPathsPage({
             value={String(data.metrics.quizCount)}
           />
           <StatCard
-            helper="Toutes étapes"
+            helper={`${data.metrics.totalItemCount} étape(s) au total`}
             icon={Layers3}
-            label="Étapes"
+            label="Terminées"
             tone="amber"
-            value={String(data.metrics.totalItemCount)}
+            value={String(data.metrics.completedItemCount)}
           />
         </section>
 

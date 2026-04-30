@@ -114,6 +114,78 @@ async function canUseQuizFromLearningPath(
   return Boolean(data?.length);
 }
 
+async function saveContentProgress(
+  supabase: SupabaseServerClient,
+  payload: {
+    assignmentId: string | null;
+    completedAt: string;
+    contentId: string;
+    userId: string;
+  },
+) {
+  if (payload.assignmentId) {
+    const { error } = await supabase.from("content_progress").upsert(
+      {
+        assignment_id: payload.assignmentId,
+        completed_at: payload.completedAt,
+        content_id: payload.contentId,
+        status: "completed",
+        user_id: payload.userId,
+      },
+      {
+        onConflict: "content_id,user_id,assignment_id",
+      },
+    );
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return;
+  }
+
+  const { data: existingProgress, error: existingError } = await supabase
+    .from("content_progress")
+    .select("id")
+    .eq("content_id", payload.contentId)
+    .eq("user_id", payload.userId)
+    .is("assignment_id", null)
+    .limit(1)
+    .maybeSingle<{ id: string }>();
+
+  if (existingError) {
+    throw new Error(existingError.message);
+  }
+
+  if (existingProgress) {
+    const { error } = await supabase
+      .from("content_progress")
+      .update({
+        completed_at: payload.completedAt,
+        status: "completed",
+      })
+      .eq("id", existingProgress.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return;
+  }
+
+  const { error } = await supabase.from("content_progress").insert({
+    assignment_id: null,
+    completed_at: payload.completedAt,
+    content_id: payload.contentId,
+    status: "completed",
+    user_id: payload.userId,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function completeContentAction(formData: FormData) {
   const currentUser = await requireRole(["admin", "coachee"]);
   const parsed = contentSchema.safeParse({
@@ -130,18 +202,16 @@ export async function completeContentAction(formData: FormData) {
   const assignment = await findAssignmentForContent(contentId, assignmentId);
   const now = new Date().toISOString();
 
-  await supabase.from("content_progress").upsert(
-    {
-      assignment_id: assignment?.id ?? null,
-      completed_at: now,
-      content_id: contentId,
-      status: "completed",
-      user_id: currentUser.user.id,
-    },
-    {
-      onConflict: "content_id,user_id,assignment_id",
-    },
-  );
+  try {
+    await saveContentProgress(supabase, {
+      assignmentId: assignment?.id ?? null,
+      completedAt: now,
+      contentId,
+      userId: currentUser.user.id,
+    });
+  } catch {
+    redirect(`/coachee/contents/${contentId}`);
+  }
 
   if (assignment) {
     await supabase
@@ -169,6 +239,10 @@ export async function completeContentAction(formData: FormData) {
 
   if (assignment?.quiz_id) {
     redirect(`/coachee/quiz/${assignment.quiz_id}?assignment=${assignment.id}`);
+  }
+
+  if (!assignment) {
+    redirect("/coachee/paths");
   }
 
   redirect("/coachee/tasks");

@@ -161,6 +161,14 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
                 Marquer comme terminé
               </button>
             </form>
+            {!data.assignment ? (
+              <Link
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                href="/coachee/paths"
+              >
+                Retour aux parcours
+              </Link>
+            ) : null}
             {data.quizHref ? (
               <Link
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -178,6 +186,9 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
             <p>1. Lire le contenu</p>
             <p>2. Marquer comme terminé</p>
             {data.quizTitle ? <p>3. Passer le quiz : {data.quizTitle}</p> : null}
+            {!data.assignment ? (
+              <p>Retour automatique vers vos parcours après validation.</p>
+            ) : null}
             <p>Dernière mise à jour : {formatDate(data.content.updatedAt)}</p>
           </div>
         </aside>
