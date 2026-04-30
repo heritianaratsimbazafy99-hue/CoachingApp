@@ -197,6 +197,7 @@ type ActivityLogRow = {
   entity_id: string | null;
   entity_type: string;
   id: string;
+  metadata: Record<string, unknown> | null;
   user_id: string;
 };
 
@@ -411,6 +412,15 @@ export type CoachCoacheeDetail = {
     status: QuizAttemptStatus;
     submittedAt: string;
   }>;
+  reminders: Array<{
+    action: string;
+    createdAt: string;
+    id: string;
+    messageId: string | null;
+    reason: string;
+    title: string;
+    type: string;
+  }>;
 };
 
 export type CoachCohortSummary = {
@@ -544,6 +554,16 @@ function percentCompleted(progressRows: AssignmentProgressRow[]) {
 
 function ensureDescription(value: string | null) {
   return value?.trim() || "Aucune description renseignée.";
+}
+
+function metadataText(
+  metadata: Record<string, unknown> | null,
+  key: string,
+  fallback = "",
+) {
+  const value = metadata?.[key];
+
+  return typeof value === "string" && value.trim() ? value : fallback;
 }
 
 async function getRows<T>(
@@ -714,11 +734,34 @@ async function fetchActivityLogs(
   return getRows<ActivityLogRow>(
     supabase
       .from("activity_logs")
-      .select("id,user_id,action,entity_type,entity_id,created_at")
+      .select("id,user_id,action,entity_type,entity_id,metadata,created_at")
       .in("user_id", userIds)
       .order("created_at", { ascending: false })
       .limit(8),
   );
+}
+
+async function fetchCoacheeReminderLogs(
+  supabase: SupabaseServerClient,
+  payload: {
+    coacheeId: string;
+    currentUserId: string;
+    isAdmin: boolean;
+  },
+) {
+  let query = supabase
+    .from("activity_logs")
+    .select("id,user_id,action,entity_type,entity_id,metadata,created_at")
+    .eq("entity_type", "message")
+    .contains("metadata", { coacheeId: payload.coacheeId })
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  if (!payload.isAdmin) {
+    query = query.eq("user_id", payload.currentUserId);
+  }
+
+  return getRows<ActivityLogRow>(query);
 }
 
 async function fetchAuthUsersById(userIds: string[]) {
@@ -1133,7 +1176,14 @@ export const getCoachCoacheeDetail = cache(
       goalsQuery = goalsQuery.eq("coach_id", base.currentUserId);
     }
 
-    const goals = await getRows<CoacheeGoalRow>(goalsQuery);
+    const [goals, reminderLogs] = await Promise.all([
+      getRows<CoacheeGoalRow>(goalsQuery),
+      fetchCoacheeReminderLogs(supabase, {
+        coacheeId,
+        currentUserId: base.currentUserId,
+        isAdmin: base.isAdmin,
+      }),
+    ]);
 
     return {
       goals: goals.map((goal) => ({
@@ -1175,6 +1225,18 @@ export const getCoachCoacheeDetail = cache(
           status: attempt.status,
           submittedAt: attempt.submitted_at ?? attempt.created_at,
         })),
+      reminders: reminderLogs.map((reminder) => ({
+        action: reminder.action,
+        createdAt: reminder.created_at,
+        id: reminder.id,
+        messageId: reminder.entity_id,
+        reason: metadataText(reminder.metadata, "reason"),
+        title:
+          metadataText(reminder.metadata, "learningPathTitle") ||
+          metadataText(reminder.metadata, "reminderTitle") ||
+          "Relance",
+        type: metadataText(reminder.metadata, "reminderType", "message"),
+      })),
     };
   },
 );

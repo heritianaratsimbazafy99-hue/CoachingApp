@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   NotebookPen,
   PauseCircle,
+  Send,
   Target,
   Trash2,
   UserRound,
@@ -339,6 +340,54 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
             </div>
             <div className="mt-4">
               <CoachNoteForm coacheeId={data.profile.id} />
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-indigo-100 bg-white/95 p-5 shadow-sm shadow-indigo-900/5">
+            <div className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-indigo-600" />
+              <h2 className="font-semibold">Relances envoyées</h2>
+            </div>
+            <div className="mt-4 space-y-3">
+              {data.reminders.length ? (
+                data.reminders.map((reminder) => (
+                  <div
+                    className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm leading-6 text-slate-600"
+                    key={reminder.id}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-indigo-100 bg-white px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                        {reminder.type === "correction"
+                          ? "Correction"
+                          : reminder.type === "blocked"
+                            ? "Blocage"
+                            : "Template"}
+                      </span>
+                      <span className="text-xs font-medium text-slate-400">
+                        {formatDateTime(reminder.createdAt)}
+                      </span>
+                    </div>
+                    <p className="mt-3 font-medium text-slate-950">
+                      {reminder.title}
+                    </p>
+                    {reminder.reason ? (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {reminder.reason}
+                      </p>
+                    ) : null}
+                    <Link
+                      className="mt-3 inline-flex text-xs font-semibold text-indigo-700 hover:underline"
+                      href={`/coach/messages?conversation=${data.profile.id}`}
+                    >
+                      Ouvrir la conversation
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm text-slate-500">
+                  Aucune relance envoyée depuis les parcours ou templates.
+                </p>
+              )}
             </div>
           </div>
         </aside>

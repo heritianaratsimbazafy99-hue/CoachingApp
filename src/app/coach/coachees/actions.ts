@@ -316,6 +316,12 @@ export async function sendReminderTemplateAction(
     action: `Relance envoyée : ${template.title}`,
     entity_id: message.id,
     entity_type: "message",
+    metadata: {
+      coacheeId: parsed.data.coacheeId,
+      reminderTemplateId: template.id,
+      reminderTitle: template.title,
+      reminderType: "template",
+    },
     user_id: currentUser.user.id,
   });
 
