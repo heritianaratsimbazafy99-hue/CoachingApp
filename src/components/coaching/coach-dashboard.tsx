@@ -44,7 +44,7 @@ function AttentionItemCard({ item }: { item: CoachDashboardAttentionItem }) {
 
   return (
     <Link
-      className="group grid min-h-32 gap-4 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06]"
+      className="group grid min-h-32 w-full gap-4 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] sm:max-w-[280px]"
       href={item.href}
     >
       <div className="flex items-start justify-between gap-3">
@@ -145,7 +145,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             </Link>
           </CardHeader>
           {data.attentionItems.length ? (
-            <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="flex flex-wrap gap-3 p-5">
               {data.attentionItems.map((item) => (
                 <AttentionItemCard item={item} key={item.id} />
               ))}
@@ -161,7 +161,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
           )}
         </Card>
 
-        <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <section className="grid items-start gap-6 xl:grid-cols-[1.25fr_0.75fr]">
           <Card className="overflow-hidden">
             <CardHeader className="flex items-center justify-between">
               <div>
@@ -272,7 +272,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                   </div>
                 </div>
               </CardHeader>
-              <div className="space-y-3 p-5">
+              <div className="ui-scrollbar max-h-[430px] space-y-3 overflow-y-auto p-5 pr-4">
                 {data.activityLogs.length ? (
                   data.activityLogs.map((activity) => (
                     <div
