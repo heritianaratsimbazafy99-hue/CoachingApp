@@ -143,15 +143,22 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
             </div>
           </Card>
 
-          <aside className="space-y-6">
-            <Card className="p-5">
-              <div className="flex items-center gap-2">
-                <BookOpenCheck className="h-5 w-5 text-sky-600" />
-                <h2 className="font-semibold text-slate-950">
-                  Ressources importantes
-                </h2>
-              </div>
-              <div className="mt-5 space-y-3">
+          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                    <BookOpenCheck className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <CardTitle>Ressources importantes</CardTitle>
+                    <CardDescription>
+                      Supports utiles pour continuer votre parcours.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="space-y-3 p-5">
                 {data.resources.length ? (
                   data.resources.map((resource) => (
                     <Link
@@ -179,23 +186,30 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                     title="Aucune ressource"
                   />
                 )}
+                {data.calendarEvents[0] ? (
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 ring-1 ring-white">
+                    Prochain rendez-vous :{" "}
+                    {formatDateTime(data.calendarEvents[0].startTime)}
+                  </div>
+                ) : null}
               </div>
-              {data.calendarEvents[0] ? (
-                <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 ring-1 ring-white">
-                  Prochain rendez-vous :{" "}
-                  {formatDateTime(data.calendarEvents[0].startTime)}
-                </div>
-              ) : null}
             </Card>
 
-            <Card className="p-5">
-              <div className="flex items-center gap-2">
-                <History className="h-5 w-5 text-indigo-600" />
-                <h2 className="font-semibold text-slate-950">
-                  Dernières actions
-                </h2>
-              </div>
-              <div className="mt-5 space-y-3">
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                    <History className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <CardTitle>Dernières actions</CardTitle>
+                    <CardDescription>
+                      Historique récent de vos activités.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="space-y-3 p-5">
                 {data.recentActivity.length ? (
                   data.recentActivity.map((activity) => (
                     <Link

@@ -106,7 +106,7 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
         {data.tasks.length ? (
           data.tasks.map((task) => (
             <Card
-              className="grid gap-4 p-5 transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1fr)_180px_190px_auto]"
+              className="grid gap-4 p-5 transition hover:border-sky-200 hover:bg-sky-50/30 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1fr)_180px_190px_auto] [contain-intrinsic-size:170px] [content-visibility:auto]"
               key={task.id}
             >
               <div className="min-w-0">
@@ -120,8 +120,10 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                         : "Contenu"}
                   </span>
                 </div>
-                <p className="mt-3 font-semibold text-slate-950">{task.title}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
+                <p className="mt-3 break-words font-semibold text-slate-950">
+                  {task.title}
+                </p>
+                <p className="mt-1 break-words text-sm leading-6 text-slate-500">
                   {task.instructions || task.description || "Consigne à suivre."}
                 </p>
               </div>
@@ -162,131 +164,142 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
         title={data.content.title}
       />
       <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="min-w-0 p-5 sm:p-8">
-          <div className="mb-6 flex flex-wrap gap-2">
-            <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-              {contentTypeLabel[data.content.type]}
-            </span>
-            {data.progressStatus ? (
-              <StatusBadge status={data.progressStatus} />
-            ) : null}
-          </div>
-
-          <div className="prose prose-slate max-w-none rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
-            <p className="whitespace-pre-line text-base leading-8 text-slate-700 sm:text-lg">
-              {data.content.body || data.content.description}
-            </p>
-          </div>
-
-          {data.content.videoUrl || data.content.externalUrl || data.content.fileUrl ? (
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {data.content.videoUrl ? (
-                <a
-                  className={cn(
-                    buttonVariants({ variant: "secondary" }),
-                    "w-full",
-                  )}
-                  href={data.content.videoUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Ouvrir la vidéo
-                </a>
-              ) : null}
-              {data.content.externalUrl ? (
-                <a
-                  className={cn(
-                    buttonVariants({ variant: "secondary" }),
-                    "w-full",
-                  )}
-                  href={data.content.externalUrl}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Ouvrir la ressource
-                </a>
-              ) : null}
-              {data.content.fileUrl ? (
-                <a
-                  className={cn(
-                    buttonVariants({ variant: "secondary" }),
-                    "w-full",
-                  )}
-                  href={contentFileDownloadHref(data.content.id)}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <FileText className="h-4 w-4" />
-                  Ouvrir le document
-                </a>
+        <Card className="min-w-0 overflow-hidden">
+          <div className="p-5 sm:p-8">
+            <div className="mb-6 flex flex-wrap gap-2">
+              <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                {contentTypeLabel[data.content.type]}
+              </span>
+              {data.progressStatus ? (
+                <StatusBadge status={data.progressStatus} />
               ) : null}
             </div>
-          ) : null}
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <form action={completeContentAction}>
-              <input name="contentId" type="hidden" value={data.content.id} />
-              <input
-                name="assignmentId"
-                type="hidden"
-                value={data.assignment?.id ?? ""}
-              />
-              <button
-                className={cn(buttonVariants(), "w-full sm:w-auto")}
-                type="submit"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Marquer comme terminé
-              </button>
-            </form>
-            {!data.assignment ? (
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "secondary" }),
-                  "w-full sm:w-auto",
-                )}
-                href="/coachee/paths"
-              >
-                Retour aux parcours
-              </Link>
+            <div className="prose prose-slate max-w-none rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+              <p className="whitespace-pre-line text-base leading-8 text-slate-700 sm:text-lg">
+                {data.content.body || data.content.description}
+              </p>
+            </div>
+
+            {data.content.videoUrl ||
+            data.content.externalUrl ||
+            data.content.fileUrl ? (
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {data.content.videoUrl ? (
+                  <a
+                    className={cn(
+                      buttonVariants({ variant: "secondary" }),
+                      "w-full",
+                    )}
+                    href={data.content.videoUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Ouvrir la vidéo
+                  </a>
+                ) : null}
+                {data.content.externalUrl ? (
+                  <a
+                    className={cn(
+                      buttonVariants({ variant: "secondary" }),
+                      "w-full",
+                    )}
+                    href={data.content.externalUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Ouvrir la ressource
+                  </a>
+                ) : null}
+                {data.content.fileUrl ? (
+                  <a
+                    className={cn(
+                      buttonVariants({ variant: "secondary" }),
+                      "w-full",
+                    )}
+                    href={contentFileDownloadHref(data.content.id)}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Ouvrir le document
+                  </a>
+                ) : null}
+              </div>
             ) : null}
-            {data.quizHref ? (
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "secondary" }),
-                  "w-full sm:w-auto",
-                )}
-                href={data.quizHref}
-              >
-                Passer au quiz
-              </Link>
-            ) : null}
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <form action={completeContentAction}>
+                <input name="contentId" type="hidden" value={data.content.id} />
+                <input
+                  name="assignmentId"
+                  type="hidden"
+                  value={data.assignment?.id ?? ""}
+                />
+                <button
+                  className={cn(buttonVariants(), "w-full sm:w-auto")}
+                  type="submit"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Marquer comme terminé
+                </button>
+              </form>
+              {!data.assignment ? (
+                <Link
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "w-full sm:w-auto",
+                  )}
+                  href="/coachee/paths"
+                >
+                  Retour aux parcours
+                </Link>
+              ) : null}
+              {data.quizHref ? (
+                <Link
+                  className={cn(
+                    buttonVariants({ variant: "secondary" }),
+                    "w-full sm:w-auto",
+                  )}
+                  href={data.quizHref}
+                >
+                  Passer au quiz
+                </Link>
+              ) : null}
+            </div>
           </div>
         </Card>
 
-        <Card className="xl:sticky xl:top-6 xl:self-start">
+        <Card className="overflow-hidden xl:sticky xl:top-24 xl:self-start">
           <CardHeader>
-            <CardTitle>Progression</CardTitle>
-            <CardDescription>
-              Étapes recommandées pour valider cette ressource.
-            </CardDescription>
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 ring-1 ring-white">
+                <CheckCircle2 className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <CardTitle>Progression</CardTitle>
+                <CardDescription>
+                  Étapes recommandées pour valider cette ressource.
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <div className="space-y-3 p-5 text-sm text-slate-600">
-            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
               1. Lire le contenu
             </p>
-            <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
               2. Marquer comme terminé
             </p>
             {data.quizTitle ? (
-              <p className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                 3. Passer le quiz : {data.quizTitle}
               </p>
             ) : null}
             {!data.assignment ? (
-              <p className="rounded-lg border border-sky-100 bg-sky-50 p-3 text-sky-800">
+              <p className="rounded-xl border border-sky-100 bg-sky-50 p-3 text-sky-800 ring-1 ring-white">
                 Retour automatique vers vos parcours après validation.
               </p>
             ) : null}
@@ -443,39 +456,41 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
-          <Card className="p-5 sm:p-6">
-            <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
-                {data.profile.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt=""
-                    className="h-full w-full object-cover"
-                    src={data.profile.avatarUrl}
-                  />
-                ) : (
-                  data.profile.fullName.slice(0, 1)
-                )}
+          <Card className="overflow-hidden">
+            <div className="p-5 sm:p-6">
+              <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
+                  {data.profile.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt=""
+                      className="h-full w-full object-cover"
+                      src={data.profile.avatarUrl}
+                    />
+                  ) : (
+                    data.profile.fullName.slice(0, 1)
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-emerald-700">
+                    Coaché
+                  </p>
+                  <h2 className="truncate text-xl font-semibold text-slate-950">
+                    {data.profile.fullName}
+                  </h2>
+                  <p className="mt-1 truncate text-sm text-slate-500">
+                    {data.profile.email}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-emerald-700">
-                  Coaché
-                </p>
-                <h2 className="truncate text-xl font-semibold text-slate-950">
-                  {data.profile.fullName}
-                </h2>
-                <p className="mt-1 truncate text-sm text-slate-500">
-                  {data.profile.email}
-                </p>
-              </div>
-            </div>
 
-            <div className="mt-6">
-              <ProfileForm profile={data.profile} />
+              <div className="mt-6">
+                <ProfileForm profile={data.profile} />
+              </div>
             </div>
           </Card>
 
-          <aside className="space-y-6">
+          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">

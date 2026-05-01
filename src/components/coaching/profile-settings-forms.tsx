@@ -77,9 +77,9 @@ function StateMessage({
   return (
     <p
       className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium",
+        "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
         status === "error"
-          ? "border-red-200 bg-red-50 text-red-700"
+          ? "border-rose-200 bg-rose-50 text-rose-700"
           : "border-emerald-200 bg-emerald-50 text-emerald-700",
       )}
     >
@@ -265,14 +265,16 @@ export function NotificationPreferenceForm({
         <input name="role" type="hidden" value={role} />
         <CardHeader>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-sky-600" />
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                <Bell className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
                 <CardTitle>Notifications</CardTitle>
+                <CardDescription>
+                  Choisissez les catégories à afficher dans votre centre.
+                </CardDescription>
               </div>
-              <CardDescription>
-                Choisissez les catégories à afficher dans votre centre.
-              </CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -297,10 +299,10 @@ export function NotificationPreferenceForm({
             return (
               <label
                 className={cn(
-                  "flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm transition",
+                  "flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm ring-1 ring-white transition",
                   isEnabled
                     ? "border-sky-200 bg-sky-50/70 text-slate-950 shadow-sm shadow-sky-950/[0.03]"
-                    : "border-slate-200 bg-white text-slate-500 hover:border-sky-200 hover:bg-slate-50",
+                    : "border-slate-200/80 bg-white text-slate-500 hover:border-sky-200 hover:bg-sky-50/35",
                   isLastEnabled ? "cursor-not-allowed opacity-70" : "",
                 )}
                 key={option.category}
@@ -413,7 +415,7 @@ export function ReminderTemplateList({
     <div className="grid gap-3 lg:grid-cols-2">
       {templates.map((template) => (
         <article
-          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/[0.03] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.05] [contain-intrinsic-size:160px] [content-visibility:auto]"
+          className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/30 hover:shadow-md hover:shadow-slate-950/[0.05] [contain-intrinsic-size:160px] [content-visibility:auto]"
           key={template.id}
         >
           <div className="flex items-start justify-between gap-3">

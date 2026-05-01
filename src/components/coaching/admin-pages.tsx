@@ -177,15 +177,25 @@ export function AdminUsersPage({
       )}
       <div className={compact ? "" : "p-4 sm:p-6"}>
         {compact ? null : (
-          <Card className="mb-6 p-5">
-            <div className="mb-5">
-              <h2 className="font-semibold">Créer un utilisateur</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Privilégiez l&apos;invitation email pour laisser la personne définir
-                son mot de passe. Le mode temporaire reste disponible si besoin.
-              </p>
+          <Card className="mb-6 overflow-hidden">
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                  <UsersRound className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <CardTitle>Créer un utilisateur</CardTitle>
+                  <CardDescription>
+                    Privilégiez l&apos;invitation email pour laisser la personne
+                    définir son mot de passe. Le mode temporaire reste
+                    disponible si besoin.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <div className="p-5">
+              <AdminUserCreateForm />
             </div>
-            <AdminUserCreateForm />
           </Card>
         )}
         {visibleUsers.length ? (
@@ -241,7 +251,7 @@ export function AdminUsersPage({
                       </div>
                     </div>
                     <span
-                      className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
+                      className={`inline-flex w-fit self-start rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
                     >
                       {roleLabel[profile.role]}
                     </span>
@@ -391,7 +401,7 @@ export function AdminCohortsPage({
       />
       <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[380px_1fr]">
         {loadError ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm shadow-red-950/[0.04] xl:col-span-2">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 shadow-sm shadow-rose-950/[0.04] ring-1 ring-white xl:col-span-2">
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
               <div>
@@ -404,21 +414,25 @@ export function AdminCohortsPage({
           </div>
         ) : null}
         <Card
-          className="p-5 xl:sticky xl:top-6 xl:self-start"
+          className="overflow-hidden xl:sticky xl:top-24 xl:self-start"
           id="admin-new-cohort"
         >
-          <div className="mb-5">
-            <p className="text-xs font-semibold uppercase text-sky-700">
-              Administration
-            </p>
-            <h2 className="mt-2 text-lg font-semibold text-slate-950">
-              Nouvelle cohorte
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Créez la cohorte avec son coach responsable dès le départ.
-            </p>
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                <Layers3 className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <CardTitle>Nouvelle cohorte</CardTitle>
+                <CardDescription>
+                  Créez la cohorte avec son coach responsable dès le départ.
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <div className="p-5">
+            <AdminCohortCreateForm coaches={coaches} />
           </div>
-          <AdminCohortCreateForm coaches={coaches} />
         </Card>
 
         <section className="space-y-4">
@@ -437,9 +451,11 @@ export function AdminCohortsPage({
                   key={cohort.id}
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold">{cohort.name}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <div className="min-w-0">
+                      <p className="break-words text-lg font-semibold">
+                        {cohort.name}
+                      </p>
+                      <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                         {cohort.description}
                       </p>
                     </div>
@@ -483,7 +499,7 @@ export function AdminCohortsPage({
                   </div>
 
                   <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition open:bg-white">
+                    <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Modifier la cohorte
                       </summary>
@@ -495,7 +511,7 @@ export function AdminCohortsPage({
                       </div>
                     </details>
 
-                    <details className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition open:bg-white">
+                    <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
                       <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                         Gérer les coachés
                       </summary>
@@ -504,7 +520,7 @@ export function AdminCohortsPage({
                           cohortId={cohort.id}
                           options={availableCoachees}
                         />
-                        <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
+                        <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white ring-1 ring-white">
                           {cohort.members.length ? (
                             cohort.members.map((member) => (
                               <div
@@ -515,7 +531,7 @@ export function AdminCohortsPage({
                                   <p className="text-sm font-medium text-slate-800">
                                     {member.fullName}
                                   </p>
-                                  <p className="mt-1 text-xs text-slate-500">
+                                  <p className="mt-1 break-all text-xs text-slate-500">
                                     {member.email}
                                   </p>
                                 </div>
@@ -618,10 +634,10 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
                   </div>
                 </CardHeader>
                 <div className="p-5">
-                  <div className="h-48 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex h-full items-end rounded-lg bg-white px-4 pb-4 ring-1 ring-slate-200">
+                  <div className="h-48 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
+                    <div className="flex h-full items-end rounded-xl bg-white px-4 pb-4 ring-1 ring-slate-200">
                       <div
-                        className="w-full rounded-t-lg bg-gradient-to-t from-sky-700 to-sky-500 transition-all"
+                        className="w-full rounded-t-xl bg-gradient-to-t from-sky-700 to-sky-500 transition-all"
                         style={{ height: `${visualValue}%` }}
                       />
                     </div>

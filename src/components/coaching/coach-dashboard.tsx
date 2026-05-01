@@ -222,15 +222,22 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             )}
           </Card>
 
-          <div className="space-y-6">
-            <Card className="p-5">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-950">
-                  Prochains rendez-vous
-                </h2>
-              </div>
-              <div className="mt-4 space-y-3">
+          <div className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 ring-1 ring-white">
+                    <CalendarDays className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <CardTitle>Prochains rendez-vous</CardTitle>
+                    <CardDescription>
+                      Sessions et ateliers planifiés à court terme.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="space-y-3 p-5">
                 {data.calendarEvents.length ? (
                   data.calendarEvents.map((event) => (
                     <div
@@ -244,21 +251,28 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-lg bg-sky-50/70 p-4 text-sm text-slate-500">
+                  <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm text-slate-500 ring-1 ring-white">
                     Aucun rendez-vous planifié.
                   </p>
                 )}
               </div>
             </Card>
 
-            <Card className="p-5">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5 text-slate-500" />
-                <h2 className="text-base font-semibold text-slate-950">
-                  Activité récente
-                </h2>
-              </div>
-              <div className="mt-4 space-y-3">
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                    <MessageCircle className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <CardTitle>Activité récente</CardTitle>
+                    <CardDescription>
+                      Derniers signaux utiles pour le suivi.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <div className="space-y-3 p-5">
                 {data.activityLogs.length ? (
                   data.activityLogs.map((activity) => (
                     <div
@@ -272,7 +286,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                     </div>
                   ))
                 ) : (
-                  <p className="rounded-lg border border-slate-200 p-3 text-sm text-slate-500">
+                  <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 text-sm text-slate-500 ring-1 ring-white">
                     Aucune activité récente.
                   </p>
                 )}
