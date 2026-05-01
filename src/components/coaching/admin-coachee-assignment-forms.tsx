@@ -15,6 +15,7 @@ import type {
   AdminUser,
 } from "@/services/admin-service";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { inputClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
@@ -36,31 +37,6 @@ const initialAdminCoacheeActionState: AdminCoacheeActionState = {
   message: "",
   status: "idle",
 };
-
-function ActionMessage({
-  message,
-  status,
-}: {
-  message: string;
-  status: "error" | "idle" | "success";
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p
-      className={cn(
-        "break-words rounded-xl border px-3 py-2 text-xs font-medium ring-1",
-        status === "error"
-          ? "border-rose-200 bg-rose-50 text-rose-700 ring-rose-100"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-100",
-      )}
-    >
-      {message}
-    </p>
-  );
-}
 
 function InlineSubmitButton({
   disabled = false,
@@ -160,7 +136,11 @@ export function AssignCoacheeToCohortForm({
           type="assign"
         />
       </div>
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
@@ -233,7 +213,11 @@ export function ChangeCoacheeCoachForm({
         Le changement s&apos;applique au coach responsable de la cohorte
         sélectionnée.
       </p>
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
@@ -278,7 +262,11 @@ export function ToggleCoacheeStatusForm({
           Le compte est actuellement bloqué côté Supabase Auth.
         </p>
       ) : null}
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }

@@ -18,6 +18,7 @@ import {
 import { AdminUserOnboardingActions } from "@/components/coaching/admin-user-onboarding-actions";
 import { AdminRoleForm } from "@/components/coaching/admin-role-form";
 import { AdminUserCreateForm } from "@/components/coaching/admin-user-create-form";
+import { DisclosurePanel } from "@/components/ui/disclosure-panel";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   ListMetaTile,
@@ -491,36 +492,34 @@ export function AdminCohortsPage({
                     </div>
 
                     <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                      <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
-                        <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                          Modifier la cohorte
-                        </summary>
-                        <div className="mt-4">
-                          <AdminCohortEditForm
-                            coaches={coaches}
-                            cohort={cohort}
-                          />
-                        </div>
-                      </details>
+                      <DisclosurePanel
+                        description="Nom, coach responsable, période et description."
+                        title="Modifier la cohorte"
+                      >
+                        <AdminCohortEditForm
+                          coaches={coaches}
+                          cohort={cohort}
+                        />
+                      </DisclosurePanel>
 
-                      <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
-                        <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                          Gérer les coachés
-                        </summary>
-                        <div className="mt-4 space-y-4">
+                      <DisclosurePanel
+                        description={`${cohort.memberCount} membre(s) dans cette cohorte.`}
+                        title="Gérer les coachés"
+                      >
+                        <div className="space-y-4">
                           <AdminCohortMemberForm
                             cohortId={cohort.id}
                             options={availableCoachees}
                           />
-                          <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white ring-1 ring-white">
+                          <div className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200/80 bg-white ring-1 ring-white">
                             {cohort.members.length ? (
                               cohort.members.map((member) => (
                                 <div
                                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3"
                                   key={member.id}
                                 >
-                                  <div>
-                                    <p className="text-sm font-medium text-slate-800">
+                                  <div className="min-w-0">
+                                    <p className="break-words text-sm font-medium text-slate-800">
                                       {member.fullName}
                                     </p>
                                     <p className="mt-1 break-all text-xs text-slate-500">
@@ -540,7 +539,7 @@ export function AdminCohortsPage({
                             )}
                           </div>
                         </div>
-                      </details>
+                      </DisclosurePanel>
                     </div>
                   </ListPanelRow>
                 );

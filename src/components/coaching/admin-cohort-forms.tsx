@@ -13,6 +13,7 @@ import {
 import type { AdminCohortActionState } from "@/app/admin/cohorts/actions";
 import type { AdminCohort, AdminUser } from "@/services/admin-service";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -42,31 +43,6 @@ const initialAdminCohortActionState: AdminCohortActionState = {
   message: "",
   status: "idle",
 };
-
-function ActionMessage({
-  message,
-  status,
-}: {
-  message: string;
-  status: "error" | "idle" | "success";
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p
-      className={cn(
-        "rounded-lg border px-3 py-2 text-xs font-medium",
-        status === "error"
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700",
-      )}
-    >
-      {message}
-    </p>
-  );
-}
 
 function SubmitButton({
   disabled = false,
@@ -218,7 +194,11 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
         </p>
       ) : null}
 
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
 
       <div className="flex justify-end">
         <SubmitButton
@@ -290,7 +270,11 @@ export function AdminCohortEditForm({
         </label>
       </div>
 
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
 
       <div className="flex justify-end">
         <SubmitButton
@@ -331,7 +315,11 @@ export function AdminCohortDeleteForm({ cohort }: { cohort: AdminCohort }) {
         tone="danger"
         type="delete"
       />
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
@@ -385,7 +373,11 @@ export function AdminCohortMemberForm({
           Ajouter
         </button>
       </div>
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
@@ -412,7 +404,11 @@ export function AdminCohortMemberRemoveForm({
       <input name="cohortId" type="hidden" value={cohortId} />
       <input name="userId" type="hidden" value={memberId} />
       <RemoveMemberSubmitButton />
-      <ActionMessage message={state.message} status={state.status} />
+      <FormStatusMessage
+        compact
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
