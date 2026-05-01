@@ -8,16 +8,16 @@ import {
 } from "lucide-react";
 import { AssignmentComposerForm } from "@/components/coaching/assignment-composer-form";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
 import { StatCard } from "@/components/ui/stat-card";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import type {
   CoachAssignmentComposerData,
   CoachAssignmentsData,
@@ -69,23 +69,17 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
           />
         </section>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <CardTitle>Liste des assignations</CardTitle>
-              <CardDescription>
-                Priorités, échéances et cible opérationnelle.
-              </CardDescription>
-            </div>
-            <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
-              {data.assignments.length} assignation(s)
-            </span>
-          </CardHeader>
+        <ListPanel
+          countLabel={`${data.assignments.length} assignation(s)`}
+          description="Priorités, échéances et cible opérationnelle."
+          icon={ClipboardCheck}
+          title="Liste des assignations"
+        >
           {data.assignments.length ? (
-            <div className="divide-y divide-slate-100">
+            <ListPanelBody>
               {data.assignments.map((assignment) => (
-                <div
-                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_230px] [contain-intrinsic-size:170px] [content-visibility:auto]"
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_220px_230px]"
                   key={assignment.id}
                 >
                   <div className="min-w-0">
@@ -100,14 +94,9 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                    <p className="text-xs font-semibold text-slate-400">
-                      Cible
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-700">
-                      {assignment.targetLabel}
-                    </p>
-                  </div>
+                  <ListMetaTile label="Cible">
+                    {assignment.targetLabel}
+                  </ListMetaTile>
 
                   <div className="grid gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-3 lg:grid-cols-1">
                     <div className="flex flex-wrap items-start gap-2">
@@ -119,9 +108,9 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                       {formatDate(assignment.deadline)}
                     </div>
                   </div>
-                </div>
+                </ListPanelRow>
               ))}
-            </div>
+            </ListPanelBody>
           ) : (
             <div className="p-6">
               <EmptyState
@@ -140,7 +129,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
               />
             </div>
           )}
-        </Card>
+        </ListPanel>
       </div>
     </>
   );

@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -25,6 +24,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
@@ -78,23 +83,6 @@ function ResultScoreMeter({
   );
 }
 
-function TaskMetaBox({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-      <p className="text-xs font-semibold text-slate-400">{label}</p>
-      <div className="mt-1 text-sm font-semibold text-slate-700">
-        {children}
-      </div>
-    </div>
-  );
-}
-
 export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
   return (
     <>
@@ -104,46 +92,55 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
       />
       <div className="space-y-4 p-4 sm:p-6">
         {data.tasks.length ? (
-          data.tasks.map((task) => (
-            <Card
-              className="grid gap-4 p-5 transition hover:border-sky-200 hover:bg-sky-50/30 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1fr)_180px_190px_auto] [contain-intrinsic-size:170px] [content-visibility:auto]"
-              key={task.id}
-            >
-              <div className="min-w-0">
-                <div className="flex flex-wrap gap-2">
-                  <PriorityBadge priority={task.priority} />
-                  <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                    {task.assignmentType === "content_quiz"
-                      ? "Contenu + quiz"
-                      : task.quizId
-                        ? "Quiz"
-                        : "Contenu"}
-                  </span>
-                </div>
-                <p className="mt-3 break-words font-semibold text-slate-950">
-                  {task.title}
-                </p>
-                <p className="mt-1 break-words text-sm leading-6 text-slate-500">
-                  {task.instructions || task.description || "Consigne à suivre."}
-                </p>
-              </div>
-              <TaskMetaBox label="Échéance">
-                <span className="inline-flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4 text-sky-600" />
-                  {formatDate(task.deadline)}
-                </span>
-              </TaskMetaBox>
-              <TaskMetaBox label="Ressource">
-                {task.quizTitle || task.contentTitle || "Parcours"}
-              </TaskMetaBox>
-              <div className="flex flex-col gap-3 lg:items-end">
-                <StatusBadge status={task.progressStatus} />
-                <Link className={buttonVariants()} href={task.href}>
-                  {task.ctaLabel}
-                </Link>
-              </div>
-            </Card>
-          ))
+          <ListPanel
+            countLabel={`${data.tasks.length} tâche(s)`}
+            description="Deadlines, ressources et prochaines actions."
+            icon={BookOpen}
+            title="Liste des tâches"
+          >
+            <ListPanelBody>
+              {data.tasks.map((task) => (
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_180px_190px_auto]"
+                  key={task.id}
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap gap-2">
+                      <PriorityBadge priority={task.priority} />
+                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        {task.assignmentType === "content_quiz"
+                          ? "Contenu + quiz"
+                          : task.quizId
+                            ? "Quiz"
+                            : "Contenu"}
+                      </span>
+                    </div>
+                    <p className="mt-3 break-words font-semibold text-slate-950">
+                      {task.title}
+                    </p>
+                    <p className="mt-1 break-words text-sm leading-6 text-slate-500">
+                      {task.instructions || task.description || "Consigne à suivre."}
+                    </p>
+                  </div>
+                  <ListMetaTile label="Échéance">
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4 text-sky-600" />
+                      {formatDate(task.deadline)}
+                    </span>
+                  </ListMetaTile>
+                  <ListMetaTile label="Ressource">
+                    {task.quizTitle || task.contentTitle || "Parcours"}
+                  </ListMetaTile>
+                  <div className="flex flex-col gap-3 lg:items-end">
+                    <StatusBadge status={task.progressStatus} />
+                    <Link className={buttonVariants()} href={task.href}>
+                      {task.ctaLabel}
+                    </Link>
+                  </div>
+                </ListPanelRow>
+              ))}
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             description="Votre coach n'a pas encore assigné de contenu ou quiz."
@@ -357,11 +354,16 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
         </section>
 
         {data.results.length ? (
-          <Card className="overflow-hidden">
-            <div className="divide-y divide-slate-100">
+          <ListPanel
+            countLabel={`${data.results.length} tentative(s)`}
+            description="Lecture rapide des scores, statuts et feedbacks."
+            icon={Trophy}
+            title="Historique des scores"
+          >
+            <ListPanelBody>
               {data.results.map((attempt) => (
-                <div
-                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_150px]"
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_220px_150px]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
@@ -383,10 +385,10 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
                   <div className="flex items-center lg:justify-end">
                     <StatusBadge status={attempt.status} />
                   </div>
-                </div>
+                </ListPanelRow>
               ))}
-            </div>
-          </Card>
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             description="Vos scores apparaîtront dès votre premier quiz soumis."

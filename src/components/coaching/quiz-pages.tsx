@@ -15,16 +15,16 @@ import {
 import { CorrectionForm } from "@/components/coaching/correction-form";
 import { QuizEditorForm } from "@/components/coaching/quiz-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import type {
   CoachCorrectionsData,
   CoachQuizEditorData,
@@ -330,17 +330,16 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
         </section>
 
         {data.results.length ? (
-          <Card className="overflow-hidden">
-            <CardHeader>
-              <CardTitle>Tentatives récentes</CardTitle>
-              <CardDescription>
-                Lecture rapide des scores, statuts et dates de soumission.
-              </CardDescription>
-            </CardHeader>
-            <div className="divide-y divide-slate-100">
+          <ListPanel
+            countLabel={`${data.results.length} tentative(s)`}
+            description="Lecture rapide des scores, statuts et dates de soumission."
+            icon={BarChart3}
+            title="Tentatives récentes"
+          >
+            <ListPanelBody>
               {data.results.map((attempt) => (
-                <div
-                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_170px] [contain-intrinsic-size:160px] [content-visibility:auto]"
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_220px_170px]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
@@ -367,10 +366,10 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
                       {formatDateTime(attempt.submittedAt)}
                     </p>
                   </div>
-                </div>
+                </ListPanelRow>
               ))}
-            </div>
-          </Card>
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             description="Les résultats apparaîtront ici dès qu'un coaché soumettra un quiz."
