@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
@@ -15,6 +15,10 @@ import {
   Library,
   Menu,
   MessageCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Pin,
+  PinOff,
   Route,
   Search,
   Settings,
@@ -56,6 +60,122 @@ const emptySignals: AppShellSignals = {
   navBadges: {},
   notificationCount: 0,
 };
+
+const sidebarPinStorageKey = "coaching-platform-sidebar-pinned";
+const sidebarStateScript = `
+(() => {
+  const storageKey = ${JSON.stringify(sidebarPinStorageKey)};
+  const eventName = "coaching-sidebar-pin-change";
+
+  function isPinned() {
+    return window.localStorage.getItem(storageKey) === "true";
+  }
+
+  function applySidebarState(pinned, open) {
+    const grid = document.querySelector("[data-sidebar-grid]");
+    const zone = document.querySelector("[data-sidebar-zone]");
+    const panel = document.querySelector("[data-sidebar-panel]");
+    const rail = document.querySelector("[data-sidebar-rail]");
+    const buttons = document.querySelectorAll("[data-sidebar-pin-button]");
+    const shouldOpen = pinned || open;
+
+    grid?.setAttribute("data-sidebar-pinned", String(pinned));
+    zone?.setAttribute("data-open", String(shouldOpen));
+
+    if (grid) {
+      grid.style.gridTemplateColumns = pinned
+        ? "296px minmax(0, 1fr)"
+        : "";
+    }
+
+    if (zone) {
+      zone.style.width = shouldOpen ? "296px" : "28px";
+    }
+
+    if (panel) {
+      panel.style.transform = shouldOpen
+        ? "translateX(0)"
+        : "translateX(calc(-100% + 18px))";
+    }
+
+    if (rail) {
+      rail.style.opacity = shouldOpen ? "0" : "1";
+    }
+
+    buttons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(pinned));
+      button.setAttribute(
+        "aria-label",
+        pinned
+          ? "Activer la navigation auto-masquee"
+          : "Epingler la navigation",
+      );
+      button.setAttribute(
+        "title",
+        pinned
+          ? "Desepingler la barre laterale"
+          : "Epingler la navigation",
+      );
+    });
+  }
+
+  function isSidebarElement(node) {
+    return Boolean(node?.closest?.("[data-sidebar-rail], [data-sidebar-zone]"));
+  }
+
+  if (!window.__coachingSidebarShellBound) {
+    window.__coachingSidebarShellBound = true;
+
+    document.addEventListener("mouseover", (event) => {
+      if (!isSidebarElement(event.target) || isPinned()) {
+        return;
+      }
+
+      applySidebarState(false, true);
+    });
+
+    document.addEventListener("mousemove", (event) => {
+      if (isPinned()) {
+        return;
+      }
+
+      const zone = document.querySelector("[data-sidebar-zone]");
+      const isOpen = zone?.getAttribute("data-open") === "true";
+
+      if (event.clientX <= 34 || (isOpen && event.clientX <= 318)) {
+        applySidebarState(false, true);
+        return;
+      }
+
+      if (isOpen) {
+        applySidebarState(false, false);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      const button = event.target?.closest?.("[data-sidebar-pin-button]");
+
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+      const pinned = !isPinned();
+      window.localStorage.setItem(storageKey, String(pinned));
+      applySidebarState(pinned, pinned);
+      window.dispatchEvent(new CustomEvent(eventName, { detail: { pinned } }));
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === storageKey) {
+        applySidebarState(isPinned(), isPinned());
+      }
+    });
+  }
+
+  applySidebarState(isPinned(), isPinned());
+})();
+`;
 
 const iconMap: Record<string, LucideIcon> = {
   bell: Bell,
@@ -213,16 +333,76 @@ export function AppShell({
 }: AppShellProps) {
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isSidebarPinned, setIsSidebarPinned] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return window.localStorage.getItem(sidebarPinStorageKey) === "true";
+  });
+  const [isSidebarPreviewOpen, setIsSidebarPreviewOpen] = useState(false);
   const accountName = account?.fullName ?? roleLabel[role];
   const accountEmail = account?.email ?? "Session active";
   const accent = roleAccent[role];
   const navBadges = signals.navBadges;
+  const isDesktopSidebarOpen = isSidebarPinned || isSidebarPreviewOpen;
   const notificationHref =
     role === "admin"
       ? "/admin/stats"
       : role === "coach"
         ? "/coach/notifications"
         : "/coachee/notifications";
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      sidebarPinStorageKey,
+      String(isSidebarPinned),
+    );
+  }, [isSidebarPinned]);
+
+  useEffect(() => {
+    function syncPinnedState(event: Event) {
+      const pinned = Boolean(
+        (event as CustomEvent<{ pinned?: boolean }>).detail?.pinned,
+      );
+
+      setIsSidebarPinned(pinned);
+
+      if (pinned) {
+        setIsSidebarPreviewOpen(false);
+      }
+    }
+
+    window.addEventListener(
+      "coaching-sidebar-pin-change",
+      syncPinnedState,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "coaching-sidebar-pin-change",
+        syncPinnedState,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isSidebarPinned || !isSidebarPreviewOpen) {
+      return;
+    }
+
+    function closeSidebarWhenPointerLeaves(event: MouseEvent) {
+      if (event.clientX > 318) {
+        setIsSidebarPreviewOpen(false);
+      }
+    }
+
+    window.addEventListener("mousemove", closeSidebarWhenPointerLeaves);
+
+    return () => {
+      window.removeEventListener("mousemove", closeSidebarWhenPointerLeaves);
+    };
+  }, [isSidebarPinned, isSidebarPreviewOpen]);
 
   return (
     <div
@@ -232,34 +412,131 @@ export function AppShell({
       )}
     >
       <AppShellRealtimeBridge role={role} userId={account?.userId} />
+      <script
+        dangerouslySetInnerHTML={{ __html: sidebarStateScript }}
+        suppressHydrationWarning
+      />
       <a
         className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         href="#app-content"
       >
         Aller au contenu
       </a>
-      <div className="grid min-h-screen lg:grid-cols-[272px_1fr]">
-        <aside className="hidden border-r border-slate-200/80 bg-white/94 text-slate-700 shadow-sm shadow-slate-950/[0.03] backdrop-blur-xl lg:block">
-          <div className="flex h-full flex-col">
-            <div className="border-b border-slate-200 p-6">
-              <Link
-                href="/"
-                className="flex items-center gap-3 text-lg font-semibold tracking-tight"
-              >
-                <span
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold shadow-sm shadow-slate-950/5",
-                    accent.avatar,
-                  )}
+      <div
+        className={cn(
+          "grid min-h-screen transition-[grid-template-columns] duration-300 ease-out lg:grid-cols-[0_minmax(0,1fr)]",
+          isSidebarPinned && "lg:grid-cols-[296px_minmax(0,1fr)]",
+        )}
+        data-sidebar-grid
+        data-sidebar-pinned={isSidebarPinned ? "true" : "false"}
+      >
+        {!isSidebarPinned ? (
+          <button
+            aria-label="Épingler la navigation"
+            aria-pressed={isSidebarPinned}
+            className="sidebar-rail fixed inset-y-0 left-0 z-50 hidden w-7 cursor-ew-resize items-center justify-center bg-transparent text-sky-200 transition-opacity duration-200 lg:flex"
+            data-sidebar-pin-button
+            data-sidebar-rail
+            onFocus={() => setIsSidebarPreviewOpen(true)}
+            onMouseEnter={() => setIsSidebarPreviewOpen(true)}
+            title="Épingler la navigation"
+            type="button"
+          >
+            <span className="flex h-16 w-5 items-center justify-center rounded-r-xl border border-l-0 border-slate-800 bg-slate-950 shadow-lg shadow-slate-950/20">
+              <PanelLeftOpen className="h-3.5 w-3.5" />
+            </span>
+          </button>
+        ) : null}
+
+        <div
+          className="sidebar-hover-zone fixed inset-y-0 left-0 z-40 hidden p-3 text-slate-100 lg:block"
+          data-open={isDesktopSidebarOpen ? "true" : "false"}
+          data-sidebar-zone
+          onFocus={() => setIsSidebarPreviewOpen(true)}
+          onMouseEnter={() => setIsSidebarPreviewOpen(true)}
+          onMouseLeave={() => {
+            if (!isSidebarPinned) {
+              setIsSidebarPreviewOpen(false);
+            }
+          }}
+        >
+          <aside
+            aria-label="Navigation principale"
+            className="sidebar-panel flex h-full w-[296px] text-slate-100"
+            data-sidebar-panel
+          >
+          <div className="absolute right-[-10px] top-1/2 flex -translate-y-1/2 items-center">
+            <div
+              className={cn(
+                "flex h-16 w-6 items-center justify-center rounded-r-xl border border-l-0 border-slate-800 bg-slate-950 text-sky-200 shadow-lg shadow-slate-950/20 transition",
+                isSidebarPinned ? "opacity-0" : "opacity-100",
+              )}
+            >
+              <PanelLeftOpen className="h-3.5 w-3.5" />
+            </div>
+          </div>
+
+          <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl shadow-slate-950/25">
+            <div className="border-b border-white/10 p-5">
+              <div className="flex items-start justify-between gap-3">
+                <Link
+                  href="/"
+                  className="flex min-w-0 items-center gap-3 text-lg font-semibold tracking-tight"
                 >
-                  CP
-                </span>
-                <span className="text-slate-800">Coaching Platform</span>
-              </Link>
-              <p className="mt-3 text-sm leading-6 text-slate-500">{subtitle}</p>
+                  <span
+                    className={cn(
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold shadow-sm shadow-sky-950/20",
+                      accent.avatar,
+                    )}
+                  >
+                    CP
+                  </span>
+                  <span className="min-w-0 truncate text-white">
+                    Coaching Platform
+                  </span>
+                </Link>
+                <button
+                  aria-label={
+                    isSidebarPinned
+                      ? "Activer la navigation auto-masquée"
+                      : "Épingler la navigation"
+                  }
+                  aria-pressed={isSidebarPinned}
+                  className={cn(
+                    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border text-slate-300 transition hover:bg-white/10 hover:text-white",
+                    isSidebarPinned
+                      ? "border-sky-400/40 bg-sky-400/10 text-sky-100"
+                      : "border-white/10 bg-white/5",
+                  )}
+                  data-sidebar-pin-button
+                  title={
+                    isSidebarPinned
+                      ? "Désépingler la barre latérale"
+                      : "Épingler la barre latérale"
+                  }
+                  type="button"
+                >
+                  {isSidebarPinned ? (
+                    <PinOff className="h-4 w-4" />
+                  ) : (
+                    <Pin className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                <p className="text-xs font-semibold uppercase text-sky-200">
+                  {subtitle}
+                </p>
+                <p className="mt-1 flex items-center gap-2 text-xs text-slate-400">
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                  {isSidebarPinned
+                    ? "Navigation épinglée"
+                    : "Survolez le bord gauche pour ouvrir"}
+                </p>
+              </div>
             </div>
 
-            <nav className="flex-1 space-y-1.5 p-4">
+            <nav className="flex-1 space-y-1.5 overflow-y-auto p-3">
               {navItems.map((item) => {
                 const badge = navBadge(navBadges, item.href);
                 const isActive = isActivePath(pathname, item.href, role);
@@ -268,18 +545,34 @@ export function AppShell({
                 return (
                   <Link
                     className={cn(
-                      "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
+                      "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition",
                       isActive
-                        ? accent.active
-                        : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950",
+                        ? "border-white/10 bg-white text-slate-950 shadow-lg shadow-slate-950/20"
+                        : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.08] hover:text-white",
                     )}
                     href={item.href}
                     key={item.href}
                   >
-                    <Icon className="h-4 w-4" />
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition",
+                        isActive
+                          ? "bg-sky-50 text-sky-700"
+                          : "bg-white/[0.06] text-slate-300 group-hover:bg-white/10 group-hover:text-sky-100",
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     {badge ? (
-                      <span className="rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1",
+                          isActive
+                            ? "bg-slate-950 text-white ring-slate-950/10"
+                            : "bg-white/10 text-slate-100 ring-white/10",
+                        )}
+                      >
                         {badgeLabel(badge)}
                       </span>
                     ) : null}
@@ -288,8 +581,8 @@ export function AppShell({
               })}
             </nav>
 
-            <div className="border-t border-slate-200 p-4">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="border-t border-white/10 p-3">
+              <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
@@ -298,10 +591,10 @@ export function AppShell({
                     )}
                   />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
+                    <p className="truncate text-sm font-semibold text-white">
                       {accountName}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
                       {roleLabel[role]} · {accountEmail}
                     </p>
                   </div>
@@ -309,9 +602,10 @@ export function AppShell({
               </div>
             </div>
           </div>
-        </aside>
+          </aside>
+        </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 lg:col-start-2">
           <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200/80 bg-white/86 px-4 py-3 shadow-sm shadow-slate-950/[0.03] backdrop-blur-xl lg:px-6">
             <button
               aria-label="Menu"

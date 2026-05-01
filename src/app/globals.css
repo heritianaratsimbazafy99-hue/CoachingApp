@@ -86,3 +86,33 @@ button:disabled,
 [aria-disabled="true"] {
   cursor: not-allowed;
 }
+
+@media (min-width: 1024px) {
+  [data-sidebar-grid][data-sidebar-pinned="true"] {
+    grid-template-columns: 296px minmax(0, 1fr) !important;
+  }
+
+  .sidebar-hover-zone {
+    width: 28px;
+  }
+
+  .sidebar-rail:hover ~ .sidebar-hover-zone,
+  .sidebar-rail:focus-visible ~ .sidebar-hover-zone,
+  .sidebar-hover-zone:hover,
+  .sidebar-hover-zone:focus-within,
+  .sidebar-hover-zone[data-open="true"] {
+    width: 296px !important;
+  }
+
+  .sidebar-hover-zone .sidebar-panel {
+    transform: translateX(calc(-100% + 18px));
+  }
+
+  .sidebar-rail:hover ~ .sidebar-hover-zone .sidebar-panel,
+  .sidebar-rail:focus-visible ~ .sidebar-hover-zone .sidebar-panel,
+  .sidebar-hover-zone:hover .sidebar-panel,
+  .sidebar-hover-zone:focus-within .sidebar-panel,
+  .sidebar-hover-zone[data-open="true"] .sidebar-panel {
+    transform: translateX(0) !important;
+  }
+}
