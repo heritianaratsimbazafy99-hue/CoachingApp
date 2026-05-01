@@ -6,6 +6,12 @@ import {
 } from "@/components/coaching/admin-coachee-assignment-forms";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import type {
@@ -162,44 +168,48 @@ export function AdminCoacheeAssignmentsPage({
         </section>
 
         {data.coachees.length ? (
-          <section className="space-y-4">
-            {data.coachees.map((coachee) => (
-              <article
-                className="min-w-0 overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] sm:p-5 [contain-intrinsic-size:260px] [content-visibility:auto]"
-                key={coachee.id}
-              >
-                <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+          <ListPanel
+            countLabel={`${data.coachees.length} coaché(s)`}
+            description="Affectations, signaux de risque et actions de correction."
+            icon={UsersRound}
+            title="Pilotage des coachés"
+          >
+            <ListPanelBody>
+              {data.coachees.map((coachee) => (
+                <ListPanelRow
+                  className="xl:grid-cols-[minmax(0,1fr)_minmax(240px,320px)_minmax(0,1.25fr)] xl:items-start [contain-intrinsic-size:290px]"
+                  key={coachee.id}
+                >
                   <div className="min-w-0">
-                    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                        <UsersRound className="h-5 w-5" />
+                      </span>
                       <div className="min-w-0">
-                        <p className="break-words text-lg font-semibold text-slate-950">
+                        <p className="break-words text-base font-semibold text-slate-950">
                           {coachee.fullName}
                         </p>
                         <p className="mt-1 break-all text-sm text-slate-500">
                           {coachee.email}
                         </p>
                       </div>
+                    </div>
+                    <div className="mt-4">
                       <CoacheeSignals coachee={coachee} />
                     </div>
+                  </div>
 
-                    <div className="mt-4 grid min-w-0 gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                      <p className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
-                        Dernière connexion
-                        <span className="mt-1 block font-medium text-slate-900">
-                          {safeDate(coachee.lastSignInAt)}
-                        </span>
-                      </p>
-                      <p className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
-                        Cohortes
-                        <span className="mt-1 block break-words font-medium text-slate-900">
-                          {coachee.cohorts.length
-                            ? coachee.cohorts
-                                .map((cohort) => cohort.name)
-                                .join(", ")
-                            : "Aucune"}
-                        </span>
-                      </p>
-                    </div>
+                  <div className="grid min-w-0 gap-3">
+                    <ListMetaTile label="Dernière connexion">
+                      {safeDate(coachee.lastSignInAt)}
+                    </ListMetaTile>
+                    <ListMetaTile label="Cohortes">
+                      {coachee.cohorts.length
+                        ? coachee.cohorts
+                            .map((cohort) => cohort.name)
+                            .join(", ")
+                        : "Aucune"}
+                    </ListMetaTile>
                   </div>
 
                   <div className="min-w-0 max-w-full space-y-4 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white sm:p-4">
@@ -213,10 +223,10 @@ export function AdminCoacheeAssignmentsPage({
                     />
                     <ToggleCoacheeStatusForm coachee={coachee} />
                   </div>
-                </div>
-              </article>
-            ))}
-          </section>
+                </ListPanelRow>
+              ))}
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             description="Créez ou invitez des coachés depuis la page utilisateurs pour commencer les affectations."

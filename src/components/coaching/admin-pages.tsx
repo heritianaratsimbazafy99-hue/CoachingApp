@@ -432,132 +432,128 @@ export function AdminCohortsPage({
           </div>
         </Card>
 
-        <section className="space-y-4">
-          {cohorts.length ? (
-            cohorts.map((cohort) => {
-              const memberIds = new Set(
-                cohort.members.map((member) => member.id),
-              );
-              const availableCoachees = coachees.filter(
-                (coachee) => !memberIds.has(coachee.id),
-              );
+        {cohorts.length ? (
+          <ListPanel
+            className="min-w-0"
+            countLabel={`${cohorts.length} cohorte(s)`}
+            description="Vue opérationnelle des responsables, membres, dates et actions."
+            icon={Layers3}
+            title="Cohortes existantes"
+          >
+            <ListPanelBody>
+              {cohorts.map((cohort) => {
+                const memberIds = new Set(
+                  cohort.members.map((member) => member.id),
+                );
+                const availableCoachees = coachees.filter(
+                  (coachee) => !memberIds.has(coachee.id),
+                );
 
-              return (
-                <article
-                  className="rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
-                  key={cohort.id}
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <p className="break-words text-lg font-semibold">
-                        {cohort.name}
-                      </p>
-                      <p className="mt-2 break-words text-sm leading-6 text-slate-600">
-                        {cohort.description}
-                      </p>
+                return (
+                  <ListPanelRow
+                    className="block p-5 hover:bg-sky-50/25 [contain-intrinsic-size:380px]"
+                    key={cohort.id}
+                  >
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <p className="break-words text-lg font-semibold">
+                          {cohort.name}
+                        </p>
+                        <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                          {cohort.description}
+                        </p>
+                      </div>
+                      <AdminCohortDeleteForm cohort={cohort} />
                     </div>
-                    <AdminCohortDeleteForm cohort={cohort} />
-                  </div>
 
-                  <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                      <p className="font-medium text-slate-500">Coach</p>
-                      <span className="mt-1 block font-semibold text-slate-900">
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      <ListMetaTile label="Coach">
                         {cohort.coachName}
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                      <p className="font-medium text-slate-500">Membres</p>
-                      <span className="mt-1 block font-semibold text-slate-900">
+                      </ListMetaTile>
+                      <ListMetaTile label="Membres">
                         {cohort.memberCount}
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                      <p className="font-medium text-slate-500">Assignations</p>
-                      <span className="mt-1 block font-semibold text-slate-900">
+                      </ListMetaTile>
+                      <ListMetaTile label="Assignations">
                         {cohort.assignmentCount}
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                      <p className="font-medium text-slate-500">Dates</p>
-                      <span className="mt-1 block font-semibold text-slate-900">
+                      </ListMetaTile>
+                      <ListMetaTile label="Dates">
                         {formatCohortDate(cohort.startDate)} →{" "}
                         {formatCohortDate(cohort.endDate)}
-                      </span>
+                      </ListMetaTile>
                     </div>
-                  </div>
 
-                  <div className="mt-5">
-                    <div className="mb-2 flex justify-between text-xs text-slate-500">
-                      <span>Progression</span>
-                      <span>{cohort.progress}%</span>
-                    </div>
-                    <ProgressBar value={cohort.progress} />
-                  </div>
-
-                  <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                    <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
-                      <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                        Modifier la cohorte
-                      </summary>
-                      <div className="mt-4">
-                        <AdminCohortEditForm
-                          coaches={coaches}
-                          cohort={cohort}
-                        />
+                    <div className="mt-5">
+                      <div className="mb-2 flex justify-between text-xs text-slate-500">
+                        <span>Progression</span>
+                        <span>{cohort.progress}%</span>
                       </div>
-                    </details>
+                      <ProgressBar value={cohort.progress} />
+                    </div>
 
-                    <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
-                      <summary className="cursor-pointer text-sm font-semibold text-slate-800">
-                        Gérer les coachés
-                      </summary>
-                      <div className="mt-4 space-y-4">
-                        <AdminCohortMemberForm
-                          cohortId={cohort.id}
-                          options={availableCoachees}
-                        />
-                        <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white ring-1 ring-white">
-                          {cohort.members.length ? (
-                            cohort.members.map((member) => (
-                              <div
-                                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3"
-                                key={member.id}
-                              >
-                                <div>
-                                  <p className="text-sm font-medium text-slate-800">
-                                    {member.fullName}
-                                  </p>
-                                  <p className="mt-1 break-all text-xs text-slate-500">
-                                    {member.email}
-                                  </p>
-                                </div>
-                                <AdminCohortMemberRemoveForm
-                                  cohortId={cohort.id}
-                                  memberId={member.id}
-                                />
-                              </div>
-                            ))
-                          ) : (
-                            <p className="p-3 text-sm text-slate-500">
-                              Aucun coaché dans cette cohorte.
-                            </p>
-                          )}
+                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                      <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
+                        <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                          Modifier la cohorte
+                        </summary>
+                        <div className="mt-4">
+                          <AdminCohortEditForm
+                            coaches={coaches}
+                            cohort={cohort}
+                          />
                         </div>
-                      </div>
-                    </details>
-                  </div>
-                </article>
-              );
-            })
-          ) : (
-            <EmptyState
-              description="Créez une première cohorte avec un coach responsable et ajoutez les coachés concernés."
-              icon={Layers3}
-              title="Aucune cohorte"
-            />
-          )}
-        </section>
+                      </details>
+
+                      <details className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white transition open:border-sky-200 open:bg-white">
+                        <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                          Gérer les coachés
+                        </summary>
+                        <div className="mt-4 space-y-4">
+                          <AdminCohortMemberForm
+                            cohortId={cohort.id}
+                            options={availableCoachees}
+                          />
+                          <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white ring-1 ring-white">
+                            {cohort.members.length ? (
+                              cohort.members.map((member) => (
+                                <div
+                                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3"
+                                  key={member.id}
+                                >
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-800">
+                                      {member.fullName}
+                                    </p>
+                                    <p className="mt-1 break-all text-xs text-slate-500">
+                                      {member.email}
+                                    </p>
+                                  </div>
+                                  <AdminCohortMemberRemoveForm
+                                    cohortId={cohort.id}
+                                    memberId={member.id}
+                                  />
+                                </div>
+                              ))
+                            ) : (
+                              <p className="p-3 text-sm text-slate-500">
+                                Aucun coaché dans cette cohorte.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </details>
+                    </div>
+                  </ListPanelRow>
+                );
+              })}
+            </ListPanelBody>
+          </ListPanel>
+        ) : (
+          <EmptyState
+            description="Créez une première cohorte avec un coach responsable et ajoutez les coachés concernés."
+            icon={Layers3}
+            title="Aucune cohorte"
+          />
+        )}
       </div>
     </>
   );
@@ -616,32 +612,40 @@ export function AdminStatsPage({ metrics }: { metrics: AdminMetrics }) {
             value={String(metrics.assignmentsCount)}
           />
         </section>
-        <section className="grid gap-6 lg:grid-cols-3">
+        <section className="grid gap-4 lg:grid-cols-3">
           {panels.map((panel) => {
             const visualValue = Math.min(100, Math.max(8, panel.value));
 
             return (
               <Card className="overflow-hidden" key={panel.label}>
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-3">
-                    <CardTitle>{panel.label}</CardTitle>
-                    <span className="text-sm font-semibold text-slate-500">
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-950">
+                        {panel.label}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-slate-500">
+                        Indicateur agrégé sur les données Supabase disponibles.
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
                       {formatPercent(panel.value)}
                     </span>
                   </div>
-                </CardHeader>
-                <div className="p-5">
-                  <div className="h-48 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
-                    <div className="flex h-full items-end rounded-xl bg-white px-4 pb-4 ring-1 ring-slate-200">
+                  <div className="mt-5 h-32 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
+                    <div className="flex h-full items-end rounded-xl bg-white px-4 pb-4 ring-1 ring-slate-200/80">
                       <div
-                        className="w-full rounded-t-xl bg-gradient-to-t from-sky-700 to-sky-500 transition-all"
+                        className="w-full rounded-t-xl bg-gradient-to-t from-sky-700 via-blue-500 to-emerald-400 transition-all"
                         style={{ height: `${visualValue}%` }}
                       />
                     </div>
                   </div>
-                  <p className="mt-3 text-xs font-medium text-slate-500">
-                    Indicateur agrégé sur les données Supabase disponibles.
-                  </p>
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-sky-600 via-blue-500 to-emerald-400"
+                      style={{ width: `${Math.min(100, panel.value)}%` }}
+                    />
+                  </div>
                 </div>
               </Card>
             );
