@@ -16,6 +16,7 @@ import { CorrectionForm } from "@/components/coaching/correction-form";
 import { QuizEditorForm } from "@/components/coaching/quiz-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
+  ListMetaTile,
   ListPanel,
   ListPanelBody,
   ListPanelRow,
@@ -60,21 +61,6 @@ function ScoreMeter({ value }: { value: number }) {
           style={{ width: percentWidth(value) }}
         />
       </div>
-    </div>
-  );
-}
-
-function QuizMetaTile({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 ring-1 ring-white">
-      <dt className="text-xs font-semibold text-slate-400">{label}</dt>
-      <dd className="mt-1 text-sm font-semibold text-slate-800">{value}</dd>
     </div>
   );
 }
@@ -126,68 +112,81 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
         </section>
 
         {data.quizzes.length ? (
-          <section className="grid gap-4 xl:grid-cols-2">
-            {data.quizzes.map((quiz) => (
-              <article
-                className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:320px] [content-visibility:auto]"
-                key={quiz.id}
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
-                <div className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_170px]">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                        {quiz.questionCount} questions
-                      </span>
-                      <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                        {quiz.passingScore}% requis
-                      </span>
+          <ListPanel
+            countLabel={`${data.quizzes.length} quiz`}
+            description="Vue opérationnelle pour retrouver les quiz, leur score moyen et les corrections en attente."
+            icon={FileQuestion}
+            title="Catalogue quiz"
+          >
+            <ListPanelBody>
+              {data.quizzes.map((quiz) => (
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1.2fr)_190px_minmax(210px,0.8fr)_auto] lg:items-center"
+                  key={quiz.id}
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                      <FileQuestion className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                          {quiz.questionCount} questions
+                        </span>
+                        <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                          {quiz.passingScore}% requis
+                        </span>
+                      </div>
+                      <h2 className="mt-3 break-words text-base font-semibold text-slate-950">
+                        {quiz.title}
+                      </h2>
+                      <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-600">
+                        {quiz.description || "Aucune description renseignée."}
+                      </p>
+                      <p className="mt-2 max-w-full truncate text-xs font-medium text-slate-500">
+                        {quiz.contentTitle}
+                      </p>
                     </div>
-                    <h2 className="mt-4 break-words text-lg font-semibold text-slate-950 transition group-hover:text-sky-700">
-                      {quiz.title}
-                    </h2>
-                    <p className="mt-2 break-words text-sm leading-6 text-slate-600">
-                      {quiz.description || "Aucune description renseignée."}
-                    </p>
                   </div>
+
                   <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 ring-1 ring-white">
                     <ScoreMeter value={quiz.averageScore} />
                   </div>
-                </div>
 
-                <dl className="grid gap-3 border-y border-slate-100 bg-slate-50/60 p-4 text-sm sm:grid-cols-3">
-                  <QuizMetaTile label="Assigné" value={quiz.assignmentCount} />
-                  <QuizMetaTile
-                    label="À corriger"
-                    value={quiz.pendingCorrectionsCount}
-                  />
-                  <QuizMetaTile
-                    label="Mis à jour"
-                    value={formatDate(quiz.updatedAt)}
-                  />
-                </dl>
+                  <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+                    <ListMetaTile label="Assigné">
+                      {quiz.assignmentCount}
+                    </ListMetaTile>
+                    <ListMetaTile label="À corriger">
+                      {quiz.pendingCorrectionsCount}
+                    </ListMetaTile>
+                    <ListMetaTile label="Mis à jour">
+                      {formatDate(quiz.updatedAt)}
+                    </ListMetaTile>
+                  </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 p-5">
-                  <p className="max-w-full break-words rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-100">
-                    {quiz.contentTitle}
-                  </p>
-                  {quiz.isOwner ? (
-                    <Link
-                      className={buttonVariants({ variant: "secondary" })}
-                      href={`/coach/quizzes/${quiz.id}/edit`}
-                    >
-                      <Pencil className="h-4 w-4" />
-                      Modifier
-                    </Link>
-                  ) : (
-                    <span className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-500">
-                      Assigné à vos coachés
-                    </span>
-                  )}
-                </div>
-              </article>
-            ))}
-          </section>
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    {quiz.isOwner ? (
+                      <Link
+                        className={buttonVariants({
+                          size: "sm",
+                          variant: "secondary",
+                        })}
+                        href={`/coach/quizzes/${quiz.id}/edit`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Modifier
+                      </Link>
+                    ) : (
+                      <span className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-500">
+                        Assigné à vos coachés
+                      </span>
+                    )}
+                  </div>
+                </ListPanelRow>
+              ))}
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             action={

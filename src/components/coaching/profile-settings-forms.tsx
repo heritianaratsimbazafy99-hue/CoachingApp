@@ -31,6 +31,12 @@ import {
   labelClassName,
   textareaClassName,
 } from "@/components/ui/form-field";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import type {
   AccountProfile,
   ReminderTemplate,
@@ -403,41 +409,62 @@ export function ReminderTemplateList({
 }) {
   if (!templates.length) {
     return (
-      <EmptyState
-        description="Créez vos messages réutilisables pour les retards, quiz à corriger ou sessions à venir."
+      <ListPanel
+        countLabel="0 template"
+        description="Messages réutilisables pour relancer sans réécrire les mêmes contenus."
         icon={SendHorizonal}
-        title="Aucun template de relance"
-      />
+        title="Templates de relance"
+      >
+        <div className="p-5">
+          <EmptyState
+            description="Créez vos messages réutilisables pour les retards, quiz à corriger ou sessions à venir."
+            icon={SendHorizonal}
+            title="Aucun template de relance"
+          />
+        </div>
+      </ListPanel>
     );
   }
 
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      {templates.map((template) => (
-        <article
-          className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/30 hover:shadow-md hover:shadow-slate-950/[0.05] [contain-intrinsic-size:160px] [content-visibility:auto]"
-          key={template.id}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-slate-950">
-                  {template.title}
-                </h3>
-                <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                  {reminderTemplateUsageLabels[template.usage]}
+    <ListPanel
+      countLabel={`${templates.length} template(s)`}
+      description="Messages réutilisables pour relancer sans réécrire les mêmes contenus."
+      icon={SendHorizonal}
+      title="Templates de relance"
+    >
+      <ListPanelBody>
+        {templates.map((template) => (
+          <ListPanelRow
+            className="lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-center"
+            key={template.id}
+          >
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                  <SendHorizonal className="h-5 w-5" />
                 </span>
+                <div className="min-w-0">
+                  <h3 className="break-words font-semibold text-slate-950">
+                    {template.title}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">
+                    {template.body}
+                  </p>
+                </div>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">
-                {template.body}
-              </p>
             </div>
-            <form action={deleteReminderTemplateAction}>
+
+            <ListMetaTile label="Usage">
+              {reminderTemplateUsageLabels[template.usage]}
+            </ListMetaTile>
+
+            <form action={deleteReminderTemplateAction} className="lg:justify-self-end">
               <input name="templateId" type="hidden" value={template.id} />
               <button
                 className={cn(
                   buttonVariants({ size: "sm", variant: "danger" }),
-                  "h-9 w-9 px-0",
+                  "h-10 w-10 px-0",
                 )}
                 title="Supprimer"
                 type="submit"
@@ -445,9 +472,9 @@ export function ReminderTemplateList({
                 <Trash2 className="h-4 w-4" />
               </button>
             </form>
-          </div>
-        </article>
-      ))}
-    </div>
+          </ListPanelRow>
+        ))}
+      </ListPanelBody>
+    </ListPanel>
   );
 }

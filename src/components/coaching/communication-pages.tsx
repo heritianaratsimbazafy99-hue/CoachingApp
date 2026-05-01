@@ -751,9 +751,9 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
       />
 
       <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_430px]">
-        <Card className="p-5 sm:p-6">
-          <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
+        <Card className="overflow-hidden">
+          <div className="flex flex-col gap-5 border-b border-slate-100 bg-gradient-to-br from-sky-50/80 via-white to-indigo-50/50 p-5 sm:flex-row sm:items-center sm:p-6">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white bg-sky-100 text-xl font-semibold text-sky-700 shadow-sm shadow-sky-950/[0.06] ring-1 ring-sky-100">
               {data.profile.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -765,11 +765,11 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
                 data.profile.fullName.slice(0, 1)
               )}
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-sky-700">
+            <div className="min-w-0 flex-1">
+              <p className="w-fit rounded-full border border-sky-100 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
                 {roleLabel[data.profile.role]}
               </p>
-              <h2 className="truncate text-xl font-semibold text-slate-950">
+              <h2 className="mt-2 truncate text-xl font-semibold text-slate-950">
                 {data.profile.fullName}
               </h2>
               <p className="mt-1 truncate text-sm text-slate-500">
@@ -778,7 +778,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="p-5 sm:p-6">
             <ProfileForm profile={data.profile} />
           </div>
         </Card>
@@ -792,13 +792,13 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
               </div>
             </CardHeader>
             <div className="grid gap-3 p-5 text-sm">
-              <div className="rounded-xl bg-sky-50/70 p-4">
+              <div className="rounded-xl border border-sky-100 bg-sky-50/70 p-4 ring-1 ring-white">
                 <p className="font-medium text-slate-500">Rôle</p>
                 <p className="mt-1 font-semibold text-slate-950">
                   {roleLabel[data.profile.role]}
                 </p>
               </div>
-              <div className="rounded-xl bg-sky-50/70 p-4">
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
                 <p className="font-medium text-slate-500">Créé le</p>
                 <p className="mt-1 font-semibold text-slate-950">
                   {formatDate(data.profile.createdAt)}
@@ -825,22 +825,9 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
           </Card>
         </aside>
 
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <CardTitle>Templates de relance</CardTitle>
-                <CardDescription>
-                  {data.reminderTemplates.length} template(s) disponibles.
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-
-          <div className="p-5 sm:p-6">
-            <ReminderTemplateList templates={data.reminderTemplates} />
-          </div>
-        </Card>
+        <div className="xl:col-span-2">
+          <ReminderTemplateList templates={data.reminderTemplates} />
+        </div>
       </div>
     </>
   );
