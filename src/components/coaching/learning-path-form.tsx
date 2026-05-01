@@ -7,8 +7,10 @@ import {
   ArrowUp,
   BookOpenCheck,
   Check,
+  ListOrdered,
   Plus,
   Save,
+  Settings2,
   X,
 } from "lucide-react";
 import {
@@ -17,6 +19,7 @@ import {
   type LearningPathActionState,
 } from "@/app/coach/paths/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormSection } from "@/components/ui/form-section";
 import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
@@ -263,7 +266,11 @@ export function LearningPathForm({
   }
 
   return (
-    <form action={formAction} className="space-y-4" ref={formRef}>
+    <form
+      action={formAction}
+      className="grid gap-5"
+      ref={formRef}
+    >
       {mode === "edit" && defaultValues ? (
         <input name="pathId" type="hidden" value={defaultValues.id} />
       ) : null}
@@ -271,55 +278,62 @@ export function LearningPathForm({
         <input key={value} name="items" type="hidden" value={value} />
       ))}
 
-      <label className="block">
-        <span className={labelClassName}>Titre</span>
-        <input
-          className={inputClassName()}
-          defaultValue={defaultValues?.title}
-          disabled={!cohorts.length}
-          name="title"
-          placeholder="Ex : Parcours onboarding leadership"
-          required
-        />
-      </label>
-
-      <label className="block">
-        <span className={labelClassName}>Cohorte</span>
-        <select
-          className={inputClassName()}
-          defaultValue={defaultValues?.cohortId ?? ""}
-          disabled={!cohorts.length}
-          name="cohortId"
-          required
+      <div className="space-y-5">
+        <FormSection
+          className="bg-white"
+          description="Nom, cohorte cible et consignes globales du parcours."
+          icon={Settings2}
+          title="Cadre du parcours"
         >
-          <option value="">Choisir une cohorte</option>
-          {cohorts.map((cohort) => (
-            <option key={cohort.id} value={cohort.id}>
-              {cohort.name}
-            </option>
-          ))}
-        </select>
-      </label>
+          <label className="block">
+            <span className={labelClassName}>Titre</span>
+            <input
+              className={inputClassName()}
+              defaultValue={defaultValues?.title}
+              disabled={!cohorts.length}
+              name="title"
+              placeholder="Ex : Parcours onboarding leadership"
+              required
+            />
+          </label>
 
-      <label className="block">
-        <span className={labelClassName}>Description</span>
-        <textarea
-          className={textareaClassName("min-h-24")}
-          defaultValue={defaultValues?.description}
-          disabled={!cohorts.length}
-          name="description"
-          placeholder="Objectif du parcours, rythme, consignes..."
-        />
-      </label>
+          <label className="block">
+            <span className={labelClassName}>Cohorte</span>
+            <select
+              className={inputClassName()}
+              defaultValue={defaultValues?.cohortId ?? ""}
+              disabled={!cohorts.length}
+              name="cohortId"
+              required
+            >
+              <option value="">Choisir une cohorte</option>
+              {cohorts.map((cohort) => (
+                <option key={cohort.id} value={cohort.id}>
+                  {cohort.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex items-center gap-2">
-          <BookOpenCheck className="h-4 w-4 text-sky-700" />
-          <p className="text-sm font-semibold text-slate-900">
-            Bibliothèque disponible
-          </p>
-        </div>
-        <div className="mt-3 max-h-[360px] space-y-2 overflow-y-auto pr-1">
+          <label className="block">
+            <span className={labelClassName}>Description</span>
+            <textarea
+              className={textareaClassName("min-h-24")}
+              defaultValue={defaultValues?.description}
+              disabled={!cohorts.length}
+              name="description"
+              placeholder="Objectif du parcours, rythme, consignes..."
+            />
+          </label>
+        </FormSection>
+
+        <FormSection
+          bodyClassName="max-h-[430px] space-y-2 overflow-y-auto pr-2"
+          className="bg-slate-50/80"
+          description="Ajoutez les contenus et quiz dans l’ordre voulu."
+          icon={BookOpenCheck}
+          title="Bibliothèque disponible"
+        >
           {itemOptions.length ? (
             itemOptions.map((item) => (
               <OptionRow
@@ -335,42 +349,48 @@ export function LearningPathForm({
               Créez au moins un contenu ou un quiz avant de composer un parcours.
             </p>
           )}
-        </div>
+        </FormSection>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-900">Ordre du parcours</p>
-          <span className="rounded-full border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-500">
-            {selectedItems.length} étape(s)
-          </span>
-        </div>
-        <div className="mt-3 space-y-2">
-          {selectedOptions.length ? (
-            selectedOptions.map((item, index) => (
-              <OrderedItemRow
-                canMoveDown={index < selectedOptions.length - 1}
-                canMoveUp={index > 0}
-                item={item}
-                key={item.value}
-                onMoveDown={() => moveItem(index, 1)}
-                onMoveUp={() => moveItem(index, -1)}
-                onRemove={() => removeItem(item.value)}
-                position={index + 1}
-              />
-            ))
-          ) : (
-            <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-500">
-              Ajoutez des contenus ou quiz depuis la bibliothèque pour composer
-              l&apos;ordre exact du parcours.
-            </p>
-          )}
-        </div>
-      </div>
+      <aside className="space-y-5">
+        <FormSection
+          actions={
+            <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-500">
+              {selectedItems.length} étape(s)
+            </span>
+          }
+          className="bg-white"
+          description="Réorganisez les étapes avant publication."
+          icon={ListOrdered}
+          title="Ordre du parcours"
+        >
+          <div className="space-y-2">
+            {selectedOptions.length ? (
+              selectedOptions.map((item, index) => (
+                <OrderedItemRow
+                  canMoveDown={index < selectedOptions.length - 1}
+                  canMoveUp={index > 0}
+                  item={item}
+                  key={item.value}
+                  onMoveDown={() => moveItem(index, 1)}
+                  onMoveUp={() => moveItem(index, -1)}
+                  onRemove={() => removeItem(item.value)}
+                  position={index + 1}
+                />
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-500">
+                Ajoutez des contenus ou quiz depuis la bibliothèque pour composer
+                l&apos;ordre exact du parcours.
+              </p>
+            )}
+          </div>
+        </FormSection>
 
-      <FormStatusMessage message={state.message} status={state.status} />
+        <FormStatusMessage message={state.message} status={state.status} />
 
-      <SubmitButton disabled={!canSave} mode={mode} />
+        <SubmitButton disabled={!canSave} mode={mode} />
+      </aside>
     </form>
   );
 }

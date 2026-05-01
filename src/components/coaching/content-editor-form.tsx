@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { UploadCloud } from "lucide-react";
+import { FileText, Settings2, Tags, UploadCloud } from "lucide-react";
 import type { FormEvent } from "react";
 import { useActionState, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -11,6 +11,7 @@ import {
 } from "@/app/coach/library/actions";
 import type { SaveContentState } from "@/app/coach/library/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormSection } from "@/components/ui/form-section";
 import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
@@ -167,154 +168,168 @@ export function ContentEditorForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white sm:p-6 lg:grid-cols-[1fr_320px]"
+      className="grid gap-5 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white sm:p-5 lg:grid-cols-[minmax(0,1fr)_340px]"
       onSubmit={handleSubmit}
     >
       <input name="contentId" type="hidden" value={content?.id ?? ""} />
       <input name="uploadedFileUrl" ref={uploadedFileUrlRef} type="hidden" />
       <div className="space-y-5">
-        <label className="block">
-          <span className={labelClassName}>Titre</span>
-          <input
-            className={inputClassName()}
-            defaultValue={content?.title}
-            name="title"
-            placeholder="Titre du contenu"
-            required
-          />
-        </label>
-        <label className="block">
-          <span className={labelClassName}>Description</span>
-          <textarea
-            className={textareaClassName("min-h-24")}
-            defaultValue={content?.description}
-            name="description"
-            placeholder="Résumé court visible dans la bibliothèque"
-          />
-        </label>
-        <label className="block">
-          <span className={labelClassName}>Corps du cours</span>
-          <textarea
-            className={textareaClassName("min-h-64")}
-            defaultValue={content?.body}
-            name="body"
-            placeholder="Texte, consignes, ressources et liens utiles."
-          />
-        </label>
-        <label className="block">
-          <span className={labelClassName}>
-            Tags, séparés par des virgules
-          </span>
-          <input
-            className={inputClassName()}
-            defaultValue={content?.tags.join(", ")}
-            name="tags"
-            placeholder="mindset, onboarding, carrière"
-          />
-        </label>
+        <FormSection
+          className="bg-white"
+          description="Titre, résumé et corps pédagogique visibles par les coachés."
+          icon={FileText}
+          title="Contenu principal"
+        >
+          <label className="block">
+            <span className={labelClassName}>Titre</span>
+            <input
+              className={inputClassName()}
+              defaultValue={content?.title}
+              name="title"
+              placeholder="Titre du contenu"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className={labelClassName}>Description</span>
+            <textarea
+              className={textareaClassName("min-h-24")}
+              defaultValue={content?.description}
+              name="description"
+              placeholder="Résumé court visible dans la bibliothèque"
+            />
+          </label>
+          <label className="block">
+            <span className={labelClassName}>Corps du cours</span>
+            <textarea
+              className={textareaClassName("min-h-64")}
+              defaultValue={content?.body}
+              name="body"
+              placeholder="Texte, consignes, ressources et liens utiles."
+            />
+          </label>
+        </FormSection>
+
+        <FormSection
+          className="bg-white"
+          description="Mots-clés utilisés pour retrouver et filtrer la ressource."
+          icon={Tags}
+          title="Repérage"
+        >
+          <label className="block">
+            <span className={labelClassName}>
+              Tags, séparés par des virgules
+            </span>
+            <input
+              className={inputClassName()}
+              defaultValue={content?.tags.join(", ")}
+              name="tags"
+              placeholder="mindset, onboarding, carrière"
+            />
+          </label>
+        </FormSection>
       </div>
 
-      <aside className="space-y-5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-5 ring-1 ring-white">
-        <label className="block">
-          <span className={labelClassName}>Type</span>
-          <select
-            className={inputClassName()}
-            defaultValue={content?.type ?? "text"}
-            name="type"
-          >
-            {contentTypes.map((type) => (
-              <option key={type} value={type}>
-                {contentTypeLabel[type]}
-              </option>
-            ))}
-          </select>
-        </label>
+      <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
+        <FormSection
+          description="Type, statut, classement et liens associés au contenu."
+          icon={Settings2}
+          title="Publication"
+        >
+          <label className="block">
+            <span className={labelClassName}>Type</span>
+            <select
+              className={inputClassName()}
+              defaultValue={content?.type ?? "text"}
+              name="type"
+            >
+              {contentTypes.map((type) => (
+                <option key={type} value={type}>
+                  {contentTypeLabel[type]}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Statut</span>
-          <select
-            className={inputClassName()}
-            defaultValue={content?.status ?? "draft"}
-            name="status"
-          >
-            {statusOptions.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Statut</span>
+            <select
+              className={inputClassName()}
+              defaultValue={content?.status ?? "draft"}
+              name="status"
+            >
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Thème</span>
-          <select
-            className={inputClassName()}
-            defaultValue={content?.themeId ?? ""}
-            name="themeId"
-          >
-            <option value="">Sans thème</option>
-            {themes.map((theme) => (
-              <option key={theme.id} value={theme.id}>
-                {theme.title}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Thème</span>
+            <select
+              className={inputClassName()}
+              defaultValue={content?.themeId ?? ""}
+              name="themeId"
+            >
+              <option value="">Sans thème</option>
+              {themes.map((theme) => (
+                <option key={theme.id} value={theme.id}>
+                  {theme.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Sous-thème</span>
-          <select
-            className={inputClassName()}
-            defaultValue={content?.subthemeId ?? ""}
-            name="subthemeId"
-          >
-            <option value="">Sans sous-thème</option>
-            {subthemes.map((subtheme) => (
-              <option key={subtheme.id} value={subtheme.id}>
-                {subtheme.title}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Sous-thème</span>
+            <select
+              className={inputClassName()}
+              defaultValue={content?.subthemeId ?? ""}
+              name="subthemeId"
+            >
+              <option value="">Sans sous-thème</option>
+              {subthemes.map((subtheme) => (
+                <option key={subtheme.id} value={subtheme.id}>
+                  {subtheme.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>URL vidéo</span>
-          <input
-            className={inputClassName()}
-            defaultValue={content?.videoUrl}
-            name="videoUrl"
-            placeholder="https://..."
-            type="url"
-          />
-        </label>
+          <label className="block">
+            <span className={labelClassName}>URL vidéo</span>
+            <input
+              className={inputClassName()}
+              defaultValue={content?.videoUrl}
+              name="videoUrl"
+              placeholder="https://..."
+              type="url"
+            />
+          </label>
 
-        <label className="block">
-          <span className={labelClassName}>Lien externe</span>
-          <input
-            className={inputClassName()}
-            defaultValue={content?.externalUrl}
-            name="externalUrl"
-            placeholder="https://..."
-            type="url"
-          />
-        </label>
+          <label className="block">
+            <span className={labelClassName}>Lien externe</span>
+            <input
+              className={inputClassName()}
+              defaultValue={content?.externalUrl}
+              name="externalUrl"
+              placeholder="https://..."
+              type="url"
+            />
+          </label>
+        </FormSection>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-sky-50 p-2 text-sky-700 ring-1 ring-sky-100">
-              <UploadCloud className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">Document</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                PDF, Word, PowerPoint, Excel, TXT ou RTF. Maximum{" "}
-                {Math.round(MAX_CONTENT_FILE_SIZE_BYTES / 1024 / 1024)} Mo.
-              </p>
-            </div>
-          </div>
-
+        <FormSection
+          description={`PDF, Word, PowerPoint, Excel, TXT ou RTF. Maximum ${Math.round(
+            MAX_CONTENT_FILE_SIZE_BYTES / 1024 / 1024,
+          )} Mo.`}
+          icon={UploadCloud}
+          title="Document"
+        >
           {content?.fileUrl ? (
-            <div className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
               <Link
                 className="font-semibold underline-offset-2 hover:underline"
                 href={contentFileDownloadHref(content.id)}
@@ -335,12 +350,12 @@ export function ContentEditorForm({
 
           <input
             accept={CONTENT_FILE_ACCEPT}
-            className="mt-3 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
             name="documentFile"
             ref={fileInputRef}
             type="file"
           />
-        </div>
+        </FormSection>
 
         <FormStatusMessage
           message={clientMessage || state.message}
