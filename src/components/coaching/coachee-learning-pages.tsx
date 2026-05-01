@@ -459,36 +459,34 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
 
         <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
           <Card className="overflow-hidden">
-            <div className="p-5 sm:p-6">
-              <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-sky-100 text-xl font-semibold text-sky-700">
-                  {data.profile.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      alt=""
-                      className="h-full w-full object-cover"
-                      src={data.profile.avatarUrl}
-                    />
-                  ) : (
-                    data.profile.fullName.slice(0, 1)
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-emerald-700">
-                    Coaché
-                  </p>
-                  <h2 className="truncate text-xl font-semibold text-slate-950">
-                    {data.profile.fullName}
-                  </h2>
-                  <p className="mt-1 truncate text-sm text-slate-500">
-                    {data.profile.email}
-                  </p>
-                </div>
+            <div className="flex flex-col gap-5 border-b border-slate-100 bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/50 p-5 sm:flex-row sm:items-center sm:p-6">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white bg-emerald-100 text-xl font-semibold text-emerald-700 shadow-sm shadow-emerald-950/[0.06] ring-1 ring-emerald-100">
+                {data.profile.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt=""
+                    className="h-full w-full object-cover"
+                    src={data.profile.avatarUrl}
+                  />
+                ) : (
+                  data.profile.fullName.slice(0, 1)
+                )}
               </div>
+              <div className="min-w-0 flex-1">
+                <p className="w-fit rounded-full border border-emerald-100 bg-white/80 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-white">
+                  Coaché
+                </p>
+                <h2 className="mt-2 truncate text-xl font-semibold text-slate-950">
+                  {data.profile.fullName}
+                </h2>
+                <p className="mt-1 truncate text-sm text-slate-500">
+                  {data.profile.email}
+                </p>
+              </div>
+            </div>
 
-              <div className="mt-6">
-                <ProfileForm profile={data.profile} />
-              </div>
+            <div className="p-5 sm:p-6">
+              <ProfileForm profile={data.profile} />
             </div>
           </Card>
 
@@ -501,9 +499,9 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                 </div>
               </CardHeader>
               <div className="space-y-3 p-5 text-sm">
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4 ring-1 ring-white">
                   <p className="font-medium text-slate-500">Email</p>
-                  <p className="mt-1 font-semibold text-slate-950">
+                  <p className="mt-1 break-words font-semibold text-slate-950">
                     {data.profile.email}
                   </p>
                 </div>
@@ -525,24 +523,25 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
           </aside>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-emerald-600" />
-              <CardTitle>Objectifs</CardTitle>
-            </div>
-          </CardHeader>
-
+        <ListPanel
+          countLabel={`${data.goals.length} objectif(s)`}
+          description="Objectifs suivis avec votre coach, statut et échéance quand elle existe."
+          icon={Target}
+          title="Objectifs"
+        >
           {data.goals.length ? (
-            <div className="grid gap-3 p-5 md:grid-cols-2">
+            <ListPanelBody>
               {data.goals.map((goal) => (
-                <article
-                  className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/35"
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_180px]"
                   key={goal.id}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-950">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 ring-1 ring-white">
+                      <Target className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="break-words font-semibold text-slate-950">
                         {goal.title}
                       </h3>
                       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -556,9 +555,13 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                       </div>
                     </div>
                   </div>
-                </article>
+
+                  <ListMetaTile label="État">
+                    {goalStatusLabel[goal.status] ?? goal.status}
+                  </ListMetaTile>
+                </ListPanelRow>
               ))}
-            </div>
+            </ListPanelBody>
           ) : (
             <div className="p-5">
               <EmptyState
@@ -568,7 +571,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
               />
             </div>
           )}
-        </Card>
+        </ListPanel>
       </div>
     </>
   );

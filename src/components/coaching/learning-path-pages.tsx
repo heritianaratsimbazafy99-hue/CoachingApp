@@ -517,14 +517,40 @@ function LearningPathCard({
   path: CoachLearningPath;
   variant: "coach" | "coachee";
 }) {
+  const isCoachee = variant === "coachee";
+
   return (
-    <Card className="overflow-hidden p-5">
-      <div className="-mx-5 -mt-5 mb-5 h-1 bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400 opacity-75" />
+    <Card
+      className={cn(
+        "overflow-hidden p-5",
+        isCoachee ? "border-emerald-100/80" : "",
+      )}
+    >
+      <div
+        className={cn(
+          "-mx-5 -mt-5 mb-5 h-1 opacity-75",
+          isCoachee
+            ? "bg-gradient-to-r from-emerald-400 via-sky-400 to-indigo-400"
+            : "bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400",
+        )}
+      />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase text-sky-700">
-            {path.cohortName}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p
+              className={cn(
+                "text-xs font-semibold uppercase",
+                isCoachee ? "text-emerald-700" : "text-sky-700",
+              )}
+            >
+              {path.cohortName}
+            </p>
+            {isCoachee && path.progress ? (
+              <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                {formatPercent(path.progress.percentage)}
+              </span>
+            ) : null}
+          </div>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
             {path.title}
           </h2>
@@ -578,8 +604,8 @@ function LearningPathCard({
         ) : null}
       </div>
 
-      {variant === "coachee" && path.progress ? (
-        <div className="mt-5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
+      {isCoachee && path.progress ? (
+        <div className="mt-5 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 ring-1 ring-white">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-800">
               {path.progress.completedCount}/{path.progress.totalCount} étapes
