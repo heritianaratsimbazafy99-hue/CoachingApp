@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { CheckCircle2, PlusCircle, Save } from "lucide-react";
+import { CheckCircle2, ClipboardList, PlusCircle, Save } from "lucide-react";
 import {
   addQuizQuestionAction,
   saveQuizAction,
@@ -85,9 +85,9 @@ function FormMessage({
   return (
     <p
       className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium",
+        "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
         status === "error"
-          ? "border-red-200 bg-red-50 text-red-700"
+          ? "border-rose-200 bg-rose-50 text-rose-700"
           : "border-emerald-200 bg-emerald-50 text-emerald-700",
       )}
     >
@@ -110,8 +110,22 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
   const isOpenQuestion = questionType === "open";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <Card>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+              <ClipboardList className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <CardTitle>Paramètres du quiz</CardTitle>
+              <CardDescription>
+                Cadrez le quiz, le contenu lié et le seuil attendu avant de
+                gérer les questions.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
         <form action={saveFormAction} className="p-5 sm:p-6">
           <input name="quizId" type="hidden" value={data.quiz?.id ?? ""} />
           <div className="grid gap-5 md:grid-cols-2">
@@ -176,17 +190,21 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
       </Card>
 
       {data.quiz ? (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden lg:sticky lg:top-24 lg:self-start">
           <form action={questionFormAction}>
             <input name="quizId" type="hidden" value={data.quiz.id} />
-            <CardHeader className="bg-sky-50/60">
-              <div className="flex items-center gap-2 text-sky-800">
-                <CheckCircle2 className="h-5 w-5" />
-                <CardTitle className="text-sm">Nouvelle question</CardTitle>
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                  <CheckCircle2 className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <CardTitle>Nouvelle question</CardTitle>
+                  <CardDescription>
+                    Ajoute une question sans quitter l&apos;éditeur du quiz.
+                  </CardDescription>
+                </div>
               </div>
-              <CardDescription>
-                Ajoute une question sans quitter l&apos;éditeur du quiz.
-              </CardDescription>
             </CardHeader>
 
             <div className="space-y-4 p-5">
@@ -271,8 +289,15 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           </form>
         </Card>
       ) : (
-        <Card className="border-dashed p-5 text-sm leading-6 text-slate-600">
-          Enregistre le quiz une première fois pour ajouter ses questions.
+        <Card className="border-dashed border-slate-200/80 bg-slate-50/70 p-5 text-sm leading-6 text-slate-600 lg:sticky lg:top-24 lg:self-start">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500">
+              <CheckCircle2 className="h-5 w-5" />
+            </span>
+            <p>
+              Enregistre le quiz une première fois pour ajouter ses questions.
+            </p>
+          </div>
         </Card>
       )}
     </div>

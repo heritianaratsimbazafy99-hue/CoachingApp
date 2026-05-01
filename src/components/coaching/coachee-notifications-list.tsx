@@ -172,11 +172,16 @@ export function CoacheeNotificationsList({
     <Card className="overflow-hidden">
       <CardHeader>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <CardTitle>Dernières notifications</CardTitle>
-            <CardDescription>
-              Messages, rendez-vous, parcours et résultats.
-            </CardDescription>
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+              <Bell className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <CardTitle>Dernières notifications</CardTitle>
+              <CardDescription>
+                Messages, rendez-vous, parcours et résultats.
+              </CardDescription>
+            </div>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
             <form action={readAction}>
@@ -189,7 +194,7 @@ export function CoacheeNotificationsList({
                 className={cn(
                   "text-xs font-medium",
                   readState.status === "error"
-                    ? "text-red-700"
+                    ? "text-rose-700"
                     : "text-emerald-700",
                 )}
               >
@@ -233,7 +238,7 @@ export function CoacheeNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-sky-50/35 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                className="group grid gap-4 p-4 transition hover:bg-sky-50/40 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -278,7 +283,7 @@ export function CoacheeNotificationsList({
                   </p>
                 </div>
 
-                <span className="inline-flex items-center gap-1 self-center rounded-lg border border-transparent px-2 py-1 text-sm font-semibold text-sky-700 transition group-hover:border-sky-100 group-hover:bg-sky-50 lg:justify-self-end">
+                <span className="inline-flex items-center gap-1 self-center rounded-xl border border-transparent px-2.5 py-1.5 text-sm font-semibold text-sky-700 transition group-hover:border-sky-100 group-hover:bg-white lg:justify-self-end">
                   Ouvrir
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </span>
@@ -287,7 +292,7 @@ export function CoacheeNotificationsList({
           })}
         </div>
       ) : (
-        <div className="p-5">
+        <div className="bg-slate-50/40 p-6">
           <EmptyState
             description="Aucune notification ne correspond au filtre sélectionné."
             icon={AlertTriangle}

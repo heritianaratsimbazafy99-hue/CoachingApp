@@ -73,8 +73,8 @@ export function MessageComposerForm({
       {state.message && state.status === "error" ? (
         <p
           className={cn(
-            "rounded-xl border px-3 py-2 text-sm font-medium",
-            "border-red-200 bg-red-50 text-red-700",
+            "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
+            "border-rose-200 bg-rose-50 text-rose-700",
           )}
         >
           {state.message}

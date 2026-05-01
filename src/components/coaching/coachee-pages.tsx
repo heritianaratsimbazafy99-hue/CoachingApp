@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   CalendarDays,
   CheckCircle2,
+  MessageCircle,
   NotebookPen,
   PauseCircle,
   Send,
@@ -190,6 +191,33 @@ function GoalStatusActions({
 }
 
 export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
+  const profileMetrics = [
+    {
+      icon: Target,
+      label: "Objectifs",
+      tone: "border-sky-100 bg-sky-50 text-sky-700",
+      value: data.goals.length,
+    },
+    {
+      icon: CheckCircle2,
+      label: "Suivis",
+      tone: "border-emerald-100 bg-emerald-50 text-emerald-700",
+      value: data.progress.length,
+    },
+    {
+      icon: NotebookPen,
+      label: "Notes",
+      tone: "border-indigo-100 bg-indigo-50 text-indigo-700",
+      value: data.notes.length,
+    },
+    {
+      icon: Send,
+      label: "Relances",
+      tone: "border-amber-100 bg-amber-50 text-amber-700",
+      value: data.reminders.length,
+    },
+  ];
+
   return (
     <>
       <PageHeader
@@ -207,14 +235,55 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
       />
       <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[1fr_360px]">
         <section className="space-y-6">
-          <Card className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 ring-1 ring-sky-100">
-                <UserRound className="h-6 w-6 text-sky-700" />
+          <Card className="overflow-hidden">
+            <div className="p-5 sm:p-6">
+              <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50 text-sm font-semibold text-sky-700 ring-1 ring-sky-100">
+                    {getInitials(data.profile.fullName) || (
+                      <UserRound className="h-6 w-6" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="break-words text-lg font-semibold text-slate-950">
+                      {data.profile.fullName}
+                    </p>
+                    <p className="mt-1 break-words text-sm text-slate-500">
+                      {data.profile.email}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  className={buttonVariants({ variant: "secondary" })}
+                  href={`/coach/messages?conversation=${data.profile.id}`}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Message
+                </Link>
               </div>
-              <div>
-                <p className="font-semibold">{data.profile.fullName}</p>
-                <p className="text-sm text-slate-500">{data.profile.email}</p>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {profileMetrics.map(({ icon: Icon, label, tone, value }) => (
+                  <div
+                    className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 ring-1 ring-white"
+                    key={label}
+                  >
+                    <div
+                      className={cn(
+                        "inline-flex h-8 w-8 items-center justify-center rounded-lg border",
+                        tone,
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <p className="mt-3 text-2xl font-semibold text-slate-950">
+                      {value}
+                    </p>
+                    <p className="text-xs font-semibold text-slate-500">
+                      {label}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </Card>
@@ -222,7 +291,9 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
           <Card className="overflow-hidden">
             <CardHeader className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-sky-600" />
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                  <Target className="h-4 w-4" />
+                </span>
                 <CardTitle>Objectifs de coaching</CardTitle>
               </div>
               <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
@@ -233,10 +304,10 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.goals.length ? (
                 data.goals.map((goal) => (
                   <article
-                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 lg:grid-cols-[minmax(0,1fr)_auto] [contain-intrinsic-size:130px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_auto] [contain-intrinsic-size:130px] [content-visibility:auto]"
                     key={goal.id}
                   >
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <GoalStatusBadge status={goal.status} />
                         {goal.dueDate ? (
@@ -246,7 +317,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-3 font-medium text-slate-950">
+                      <p className="mt-3 break-words font-medium text-slate-950">
                         {goal.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-400">
@@ -274,21 +345,30 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
 
           <Card className="overflow-hidden">
             <CardHeader>
-              <CardTitle>Progression individuelle</CardTitle>
-              <CardDescription>
-                Assignations, statuts et avancée opérationnelle.
-              </CardDescription>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 ring-1 ring-white">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+                <div>
+                  <CardTitle>Progression individuelle</CardTitle>
+                  <CardDescription>
+                    Assignations, statuts et avancée opérationnelle.
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.progress.length ? (
                 data.progress.map((item) => (
                   <div
-                    className="grid gap-3 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_140px] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px] [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={item.id}
                   >
-                    <div>
-                      <p className="font-medium">{item.assignmentTitle}</p>
-                      <p className="mt-1 text-sm text-slate-500">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium">
+                        {item.assignmentTitle}
+                      </p>
+                      <p className="mt-1 break-words text-sm text-slate-500">
                         {item.assignmentDescription}
                       </p>
                     </div>
@@ -309,16 +389,23 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
 
           <Card className="overflow-hidden">
             <CardHeader>
-              <CardTitle>Résultats quiz</CardTitle>
-              <CardDescription>
-                Dernières tentatives, score obtenu et statut.
-              </CardDescription>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                  <NotebookPen className="h-4 w-4" />
+                </span>
+                <div>
+                  <CardTitle>Résultats quiz</CardTitle>
+                  <CardDescription>
+                    Dernières tentatives, score obtenu et statut.
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <div className="divide-y divide-slate-100">
               {data.quizAttempts.length ? (
                 data.quizAttempts.map((attempt) => (
                   <div
-                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_160px_120px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_160px_120px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={attempt.id}
                   >
                     <p className="min-w-0 break-words font-medium">
@@ -349,34 +436,46 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
           </Card>
         </section>
 
-        <aside className="space-y-6">
-          <Card className="p-5">
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-sky-600" />
-              <h2 className="font-semibold">Nouvel objectif</h2>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              L&apos;objectif sera visible par le coaché dans son profil.
-            </p>
-            <div className="mt-5">
+        <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                  <Target className="h-4 w-4" />
+                </span>
+                <div>
+                  <CardTitle>Nouvel objectif</CardTitle>
+                  <CardDescription>
+                    Visible par le coaché dans son profil.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <div className="p-5">
               <CoacheeGoalForm coacheeId={data.profile.id} />
             </div>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center gap-2">
-              <NotebookPen className="h-5 w-5 text-sky-700" />
-              <h2 className="font-semibold">Entretiens individuels</h2>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Notes privées visibles uniquement par les coachs autorisés et les
-              admins.
-            </p>
-            <div className="mt-4 space-y-3">
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
+                  <NotebookPen className="h-4 w-4" />
+                </span>
+                <div>
+                  <CardTitle>Entretiens individuels</CardTitle>
+                  <CardDescription>
+                    Notes privées visibles uniquement par les coachs autorisés
+                    et les admins.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <div className="space-y-3 p-5">
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600 [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={note.id}
                   >
                     <p className="whitespace-pre-line break-words">
@@ -394,22 +493,31 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                   title="Aucune note"
                 />
               )}
-            </div>
-            <div className="mt-4">
-              <CoachNoteForm coacheeId={data.profile.id} />
+              <div className="pt-1">
+                <CoachNoteForm coacheeId={data.profile.id} />
+              </div>
             </div>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-indigo-600" />
-              <h2 className="font-semibold">Relances envoyées</h2>
-            </div>
-            <div className="mt-4 space-y-3">
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-700 ring-1 ring-white">
+                  <Send className="h-4 w-4" />
+                </span>
+                <div>
+                  <CardTitle>Relances envoyées</CardTitle>
+                  <CardDescription>
+                    Historique des rappels liés au suivi de parcours.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <div className="space-y-3 p-5">
               {data.reminders.length ? (
                 data.reminders.map((reminder) => (
                   <div
-                    className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 text-sm leading-6 text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 [contain-intrinsic-size:150px] [content-visibility:auto]"
+                    className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white transition hover:border-indigo-200 hover:bg-indigo-50 [contain-intrinsic-size:150px] [content-visibility:auto]"
                     key={reminder.id}
                   >
                     <div className="flex flex-wrap items-center gap-2">
@@ -424,16 +532,16 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
                         {formatDateTime(reminder.createdAt)}
                       </span>
                     </div>
-                    <p className="mt-3 font-medium text-slate-950">
+                    <p className="mt-3 break-words font-medium text-slate-950">
                       {reminder.title}
                     </p>
                     {reminder.reason ? (
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 break-words text-xs text-slate-500">
                         {reminder.reason}
                       </p>
                     ) : null}
                     <Link
-                      className="mt-3 inline-flex rounded-md px-2 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-white/80"
+                      className="mt-3 inline-flex rounded-lg border border-indigo-100 bg-white/80 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-white"
                       href={`/coach/messages?conversation=${data.profile.id}`}
                     >
                       Ouvrir la conversation

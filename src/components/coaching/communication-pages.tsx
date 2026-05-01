@@ -97,7 +97,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                         "flex min-w-0 items-center gap-3 border-l-2 px-4 py-3 transition",
                         isSelected
                           ? "border-sky-500 bg-white shadow-sm shadow-slate-950/[0.03]"
-                          : "border-transparent hover:bg-white",
+                          : "border-transparent hover:bg-sky-50/45",
                       )}
                       href={participant.href}
                       key={participant.userId}
@@ -368,10 +368,11 @@ function MetricCard({
   value: number;
 }) {
   return (
-    <Card className="p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
+    <Card className="group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-500">{label}</p>
-        <span className="rounded-lg border border-sky-100 bg-sky-50 p-2 text-sky-700">
+        <span className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 ring-1 ring-white transition group-hover:scale-105">
           <Icon className="h-4 w-4" />
         </span>
       </div>
@@ -384,7 +385,7 @@ function MetricCard({
 
 function CalendarFilters({ data }: { data: CalendarPageData }) {
   return (
-    <Card className="p-4">
+    <Card className="p-4 sm:p-5">
       <form className="grid min-w-0 gap-3 md:grid-cols-[1fr_1fr_1.4fr_auto]">
         <label className="block min-w-0">
           <span className={labelClassName}>Type</span>
@@ -486,7 +487,7 @@ function EventCard({
   event: CalendarAgendaEvent;
 }) {
   return (
-    <Card className="min-w-0 p-4">
+    <Card className="min-w-0 p-4 transition hover:border-sky-200 hover:bg-sky-50/30 hover:shadow-md hover:shadow-slate-950/[0.05]">
       <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -572,7 +573,12 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
               <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-7">
                 {weekDays.map((day) => (
                   <div
-                    className="min-h-28 min-w-0 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                    className={cn(
+                      "min-h-28 min-w-0 rounded-xl border p-3 ring-1 ring-white transition",
+                      day.count
+                        ? "border-sky-200 bg-sky-50/70"
+                        : "border-slate-200/80 bg-white/95",
+                    )}
                     key={day.key}
                   >
                     <p className="text-xs font-medium uppercase text-slate-400">
@@ -601,7 +607,10 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
             <div className="space-y-4">
               {agendaGroups.length ? (
                 agendaGroups.map((events) => (
-                  <section className="space-y-3" key={getDayKey(events[0].startTime)}>
+                  <section
+                    className="space-y-3"
+                    key={getDayKey(events[0].startTime)}
+                  >
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="h-px flex-1 bg-slate-200" />
                       <h2 className="min-w-0 break-words text-center text-sm font-semibold capitalize text-slate-600">
@@ -636,9 +645,9 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
             </div>
           </section>
 
-          <aside className="min-w-0 space-y-5">
+          <aside className="min-w-0 space-y-5 xl:sticky xl:top-24 xl:self-start">
             {isCoach ? (
-              <Card id="new-event">
+              <Card className="overflow-hidden" id="new-event">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5 text-sky-600" />
@@ -654,7 +663,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
               </Card>
             ) : null}
 
-            <Card>
+            <Card className="overflow-hidden">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <CalendarDays className="h-5 w-5 text-slate-500" />
@@ -663,7 +672,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
               </CardHeader>
               <div className="p-5">
                 {nextEvent ? (
-                  <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+                  <div className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
                     <TypeBadge type={nextEvent.type} />
                     <p className="mt-3 break-words font-semibold text-slate-950">
                       {nextEvent.title}
@@ -676,7 +685,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
                     </p>
                   </div>
                 ) : (
-                  <p className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-500">
+                  <p className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-6 text-slate-500 ring-1 ring-white">
                     Aucun événement planifié à venir.
                   </p>
                 )}
