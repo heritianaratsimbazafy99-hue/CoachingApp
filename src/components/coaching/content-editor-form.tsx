@@ -167,7 +167,7 @@ export function ContentEditorForm({
   return (
     <form
       action={formAction}
-      className="grid gap-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] sm:p-6 lg:grid-cols-[1fr_320px]"
+      className="grid gap-6 rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white sm:p-6 lg:grid-cols-[1fr_320px]"
       onSubmit={handleSubmit}
     >
       <input name="contentId" type="hidden" value={content?.id ?? ""} />
@@ -214,7 +214,7 @@ export function ContentEditorForm({
         </label>
       </div>
 
-      <aside className="space-y-5 rounded-xl border border-slate-200 bg-slate-50 p-5">
+      <aside className="space-y-5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-5 ring-1 ring-white">
         <label className="block">
           <span className={labelClassName}>Type</span>
           <select
@@ -347,7 +347,7 @@ export function ContentEditorForm({
             className={cn(
               "rounded-lg border px-3 py-2 text-sm font-medium",
               state.status === "error" || clientMessage
-                ? "border-red-200 bg-red-50 text-red-700"
+                ? "border-rose-200 bg-rose-50 text-rose-700"
                 : "border-emerald-200 bg-emerald-50 text-emerald-700",
             )}
           >

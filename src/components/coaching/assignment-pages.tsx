@@ -29,10 +29,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
     <>
       <PageHeader
         actions={
-          <Link
-            className={buttonVariants()}
-            href="/coach/assignments/new"
-          >
+          <Link className={buttonVariants()} href="/coach/assignments/new">
             <Plus className="h-4 w-4" />
             Créer une assignation
           </Link>
@@ -88,17 +85,17 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
                 <div
-                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_210px]"
+                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_230px] [contain-intrinsic-size:170px] [content-visibility:auto]"
                   key={assignment.id}
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-slate-950">
+                    <p className="break-words font-semibold text-slate-950">
                       {assignment.title}
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-500">
+                    <p className="mt-1 break-words text-sm leading-6 text-slate-500">
                       {assignment.instructions || assignment.description}
                     </p>
-                    <p className="mt-3 inline-flex max-w-full rounded-lg border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
+                    <p className="mt-3 inline-flex max-w-full break-words rounded-lg border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
                       {assignment.contentTitle}
                     </p>
                   </div>
@@ -112,12 +109,12 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     </p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-                    <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-3 lg:grid-cols-1">
+                    <div className="flex flex-wrap items-start gap-2">
                       <StatusBadge status={assignment.status} />
                       <PriorityBadge priority={assignment.priority} />
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200">
+                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200/80">
                       <CalendarClock className="h-4 w-4 text-sky-600" />
                       {formatDate(assignment.deadline)}
                     </div>

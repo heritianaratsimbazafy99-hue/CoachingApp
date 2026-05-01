@@ -56,7 +56,7 @@ function ScoreMeter({ value }: { value: number }) {
       </div>
       <div className="mt-3 h-2 rounded-full bg-white ring-1 ring-indigo-100">
         <div
-          className="h-full rounded-full bg-indigo-500"
+          className="h-full rounded-full bg-[linear-gradient(90deg,#0284c7,#6366f1)]"
           style={{ width: percentWidth(value) }}
         />
       </div>
@@ -72,7 +72,7 @@ function QuizMetaTile({
   value: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-3 py-2">
+    <div className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 ring-1 ring-white">
       <dt className="text-xs font-semibold text-slate-400">{label}</dt>
       <dd className="mt-1 text-sm font-semibold text-slate-800">{value}</dd>
     </div>
@@ -84,10 +84,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
     <>
       <PageHeader
         actions={
-          <Link
-            className={buttonVariants()}
-            href="/coach/quizzes/new"
-          >
+          <Link className={buttonVariants()} href="/coach/quizzes/new">
             <Plus className="h-4 w-4" />
             Nouveau quiz
           </Link>
@@ -132,9 +129,10 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
           <section className="grid gap-4 xl:grid-cols-2">
             {data.quizzes.map((quiz) => (
               <article
-                className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:320px] [content-visibility:auto]"
+                className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:320px] [content-visibility:auto]"
                 key={quiz.id}
               >
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
                 <div className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_170px]">
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
@@ -145,19 +143,19 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                         {quiz.passingScore}% requis
                       </span>
                     </div>
-                    <h2 className="mt-4 text-lg font-semibold text-slate-950 transition group-hover:text-sky-700">
+                    <h2 className="mt-4 break-words text-lg font-semibold text-slate-950 transition group-hover:text-sky-700">
                       {quiz.title}
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                       {quiz.description || "Aucune description renseignée."}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4">
+                  <div className="rounded-xl border border-indigo-100 bg-indigo-50/70 p-4 ring-1 ring-white">
                     <ScoreMeter value={quiz.averageScore} />
                   </div>
                 </div>
 
-                <dl className="grid gap-3 border-y border-slate-100 bg-slate-50/40 p-4 text-sm sm:grid-cols-3">
+                <dl className="grid gap-3 border-y border-slate-100 bg-slate-50/60 p-4 text-sm sm:grid-cols-3">
                   <QuizMetaTile label="Assigné" value={quiz.assignmentCount} />
                   <QuizMetaTile
                     label="À corriger"
@@ -170,7 +168,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                 </dl>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 p-5">
-                  <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600">
+                  <p className="max-w-full break-words rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-100">
                     {quiz.contentTitle}
                   </p>
                   {quiz.isOwner ? (
@@ -193,10 +191,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
         ) : (
           <EmptyState
             action={
-              <Link
-                className={buttonVariants()}
-                href="/coach/quizzes/new"
-              >
+              <Link className={buttonVariants()} href="/coach/quizzes/new">
                 <Plus className="h-4 w-4" />
                 Créer un quiz
               </Link>
@@ -345,14 +340,14 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
-                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_170px] [contain-intrinsic-size:160px] [content-visibility:auto]"
+                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_170px] [contain-intrinsic-size:160px] [content-visibility:auto]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-slate-950">
+                    <p className="break-words font-semibold text-slate-950">
                       {attempt.coacheeName}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 break-words text-sm text-slate-500">
                       {attempt.quizTitle} · {attempt.assignmentTitle}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">

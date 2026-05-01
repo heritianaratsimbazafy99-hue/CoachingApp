@@ -314,6 +314,15 @@ export function AppShell({
             }
           }}
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-0 top-28 flex h-24 w-4 items-center justify-start transition duration-300"
+            data-sidebar-cue
+          >
+            <span className="relative block h-16 w-2 rounded-r-full border-y border-r border-sky-200/70 bg-white/90 shadow-sm shadow-slate-950/10 ring-1 ring-white">
+              <span className="absolute left-1 top-1/2 h-7 w-px -translate-y-1/2 rounded-full bg-gradient-to-b from-sky-400 via-indigo-400 to-emerald-400" />
+            </span>
+          </div>
           <aside
             aria-label="Navigation principale"
             className="flex h-full w-[272px] text-slate-100 transition-[opacity,translate] duration-300 ease-out"

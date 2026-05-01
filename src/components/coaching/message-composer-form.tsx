@@ -54,10 +54,10 @@ export function MessageComposerForm({
   return (
     <form action={formAction} className="space-y-2" ref={formRef}>
       <input name="receiverId" type="hidden" value={receiverId ?? ""} />
-      <div className="flex gap-3">
+      <div className="flex gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-2 ring-1 ring-white">
         <textarea
           className={textareaClassName(
-            "mt-0 max-h-36 min-h-11 flex-1 resize-none rounded-xl bg-slate-50 py-3 leading-5 focus:bg-white disabled:bg-slate-100",
+            "mt-0 max-h-36 min-h-11 flex-1 resize-none rounded-xl border-transparent bg-white py-3 leading-5 ring-0 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100",
           )}
           disabled={!receiverId}
           name="body"

@@ -116,7 +116,7 @@ export function AssignmentComposerForm({
           </div>
         </div>
 
-        <aside className="space-y-5 border-t border-slate-100 bg-slate-50/80 p-5 sm:p-6 lg:border-l lg:border-t-0">
+        <aside className="space-y-5 border-t border-slate-100 bg-slate-50/80 p-5 ring-1 ring-white sm:p-6 lg:border-l lg:border-t-0">
           <label className="block">
             <span className={labelClassName}>Cible</span>
             <select
@@ -165,10 +165,10 @@ export function AssignmentComposerForm({
           {state.message ? (
             <p
               className={cn(
-                "rounded-xl border px-3 py-2 text-sm font-medium",
+                "rounded-xl border px-3 py-2 text-sm font-medium ring-1",
                 state.status === "error"
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-slate-200 bg-white text-slate-600",
+                  ? "border-rose-200 bg-rose-50 text-rose-700 ring-rose-100"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-100",
               )}
             >
               {state.message}

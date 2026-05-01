@@ -51,7 +51,9 @@ import { cn } from "@/utils/cn";
 
 export function MessagesPage({ data }: { data: MessagingData }) {
   const noConversationTitle =
-    data.variant === "coach" ? "Aucun coaché disponible" : "Aucun coach disponible";
+    data.variant === "coach"
+      ? "Aucun coaché disponible"
+      : "Aucun coach disponible";
   const noConversationDescription =
     data.variant === "coach"
       ? "Ajoutez un coaché à une de vos cohortes pour ouvrir une conversation sécurisée."
@@ -68,10 +70,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="min-w-0 p-4 sm:p-6">
-        <Card className="grid min-h-[680px] overflow-hidden lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="min-w-0 border-b border-slate-200 bg-slate-50/70 lg:border-b-0 lg:border-r">
+        <Card className="grid min-h-[680px] overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)]">
+          <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/90 to-white lg:border-b-0 lg:border-r">
             <div className="border-b border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 ring-1 ring-white">
                 <div className="flex min-w-0 items-center gap-2">
                   <MessageCircle className="h-4 w-4 text-sky-600" />
                   <span className="truncate text-sm font-semibold text-slate-700">
@@ -83,7 +85,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </span>
               </div>
             </div>
-            <div className="max-h-[320px] divide-y divide-slate-200 overflow-y-auto lg:max-h-[620px]">
+            <div className="max-h-[320px] divide-y divide-slate-100 overflow-y-auto lg:max-h-[620px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -92,17 +94,17 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   return (
                     <Link
                       className={cn(
-                        "flex min-w-0 items-center gap-3 px-4 py-3 transition",
+                        "flex min-w-0 items-center gap-3 border-l-2 px-4 py-3 transition",
                         isSelected
-                          ? "bg-white shadow-sm shadow-slate-950/[0.03]"
-                          : "hover:bg-white",
+                          ? "border-sky-500 bg-white shadow-sm shadow-slate-950/[0.03]"
+                          : "border-transparent hover:bg-white",
                       )}
                       href={participant.href}
                       key={participant.userId}
                     >
                       <div
                         className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold ring-1",
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ring-1",
                           isSelected
                             ? "bg-sky-600 text-white ring-sky-600"
                             : "bg-white text-slate-700 ring-slate-200",
@@ -145,20 +147,25 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             </div>
           </aside>
 
-          <section className="flex min-h-[620px] min-w-0 flex-col bg-slate-50">
+          <section className="flex min-h-[620px] min-w-0 flex-col bg-gradient-to-b from-slate-50 to-white">
             <div className="border-b border-slate-200 bg-white p-4">
               {data.selectedParticipant ? (
-                <>
-                  <p className="font-semibold text-slate-950">
-                    {data.selectedParticipant.fullName}
-                  </p>
-                  <p className="text-sm text-slate-500">
-                    Conversation{" "}
-                    {data.variant === "coach"
-                      ? "coach vers coaché"
-                      : "avec le coach"}
-                  </p>
-                </>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sm font-semibold text-sky-700 ring-1 ring-sky-100">
+                    {data.selectedParticipant.fullName.slice(0, 1)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-slate-950">
+                      {data.selectedParticipant.fullName}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Conversation{" "}
+                      {data.variant === "coach"
+                        ? "coach vers coaché"
+                        : "avec le coach"}
+                    </p>
+                  </div>
+                </div>
               ) : (
                 <>
                   <p className="font-semibold text-slate-950">
@@ -194,7 +201,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                         "max-w-[min(680px,88%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm",
                         message.isOwn
                           ? "rounded-br-md bg-sky-600 text-white shadow-sky-950/10"
-                          : "rounded-bl-md border border-slate-200 bg-white text-slate-800 shadow-slate-950/[0.04]",
+                          : "rounded-bl-md border border-slate-200 bg-white/95 text-slate-800 shadow-slate-950/[0.04]",
                       )}
                     >
                       <p className="whitespace-pre-wrap">{message.body}</p>
@@ -214,7 +221,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 ))
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <div className="max-w-sm rounded-xl border border-slate-200 bg-white p-5 text-center text-sm leading-6 text-slate-500 shadow-sm shadow-slate-950/[0.04]">
+                  <div className="max-w-sm rounded-xl border border-slate-200 bg-white/95 p-5 text-center text-sm leading-6 text-slate-500 shadow-sm shadow-slate-950/[0.04]">
                     Aucun message dans cette conversation. Envoyez un premier
                     message clair et court.
                   </div>
@@ -222,7 +229,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
               )}
             </div>
 
-            <div className="border-t border-slate-200 bg-white p-4">
+            <div className="border-t border-slate-200 bg-white/95 p-4">
               {data.selectedParticipant ? (
                 <MessageComposerForm
                   receiverId={data.selectedParticipant.userId}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, FileText, Layers3, Plus, Tags } from "lucide-react";
+import { BookOpen, FileText, FolderOpen, Layers3, Plus, Tags } from "lucide-react";
 import { ContentEditorForm } from "@/components/coaching/content-editor-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -22,10 +22,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
     <>
       <PageHeader
         actions={
-          <Link
-            className={buttonVariants()}
-            href="/coach/library/new"
-          >
+          <Link className={buttonVariants()} href="/coach/library/new">
             <Plus className="h-4 w-4" />
             Nouveau contenu
           </Link>
@@ -34,13 +31,20 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
         title="Bibliothèque de contenus"
       />
 
-      <div className="grid gap-6 p-4 sm:p-6 lg:grid-cols-[280px_1fr]">
-        <Card className="overflow-hidden">
+      <div className="grid items-start gap-6 p-4 sm:p-6 lg:grid-cols-[300px_1fr]">
+        <Card className="overflow-hidden lg:sticky lg:top-24">
           <CardHeader>
-            <CardTitle>Classement</CardTitle>
-            <CardDescription>
-              Thèmes et sous-thèmes disponibles pour structurer la bibliothèque.
-            </CardDescription>
+            <div className="flex items-start gap-3">
+              <span className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700">
+                <FolderOpen className="h-5 w-5" />
+              </span>
+              <div>
+                <CardTitle>Classement</CardTitle>
+                <CardDescription>
+                  Thèmes et sous-thèmes disponibles pour structurer la bibliothèque.
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <div className="space-y-5 p-4">
             <div>
@@ -49,7 +53,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                 {data.themes.length ? (
                   data.themes.map((theme) => (
                     <div
-                      className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/40"
+                      className="rounded-xl border border-slate-200/80 bg-white/95 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/35"
                       key={theme.id}
                     >
                       <p className="font-medium text-slate-900">
@@ -76,7 +80,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                 {data.subthemes.length ? (
                   data.subthemes.map((subtheme) => (
                     <p
-                      className="rounded-xl border border-slate-200/80 bg-slate-50/70 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white"
+                      className="rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-white transition hover:border-slate-300 hover:bg-white"
                       key={subtheme.id}
                     >
                       {subtheme.title}
@@ -127,30 +131,30 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
             <div className="grid gap-4 xl:grid-cols-2">
               {data.contents.map((content) => (
                 <article
-                  className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06]"
+                  className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:290px] [content-visibility:auto]"
                   key={content.id}
                 >
-                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400 opacity-75" />
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
                   <div className="flex items-start justify-between gap-3">
-                    <div className="rounded-xl bg-sky-50 p-2 text-sky-700 ring-1 ring-sky-100 transition group-hover:scale-105">
+                    <div className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 ring-1 ring-white transition group-hover:scale-105">
                       <FileText className="h-5 w-5" />
                     </div>
                     <StatusBadge status={content.status} />
                   </div>
-                  <h2 className="mt-5 text-lg font-semibold text-slate-950">
+                  <h2 className="mt-5 break-words text-lg font-semibold text-slate-950">
                     {content.title}
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                  <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                     {content.description}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-                    <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700 ring-1 ring-sky-100">
+                    <span className="max-w-full truncate rounded-full bg-sky-50 px-2.5 py-1 text-sky-700 ring-1 ring-sky-100">
                       {contentTypeLabel[content.type]}
                     </span>
-                    <span className="rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
+                    <span className="max-w-full truncate rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
                       {content.themeTitle}
                     </span>
-                    <span className="rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
+                    <span className="max-w-full truncate rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
                       {content.subthemeTitle}
                     </span>
                   </div>
