@@ -80,6 +80,26 @@ function invitationErrorMessage(message: string) {
   return message;
 }
 
+function roleUpdateErrorMessage(message: string) {
+  const lowerMessage = message.toLowerCase();
+
+  if (
+    lowerMessage.includes("admin_set_user_role") ||
+    lowerMessage.includes("could not find the function")
+  ) {
+    return "La fonction SQL admin_set_user_role est manquante. Exécutez supabase/fix-admin-role-updates.sql puis réessayez.";
+  }
+
+  if (
+    lowerMessage.includes("modification non autorisée") ||
+    lowerMessage.includes("protected profile")
+  ) {
+    return "Supabase bloque la mise à jour du rôle. Exécutez supabase/fix-admin-role-updates.sql puis réessayez.";
+  }
+
+  return message;
+}
+
 function normalizeBaseUrl(value: string | undefined) {
   if (!value) {
     return null;
@@ -139,6 +159,23 @@ async function syncUserProfile({
     },
     { onConflict: "user_id" },
   );
+
+  return error;
+}
+
+async function setAdminUserRole({
+  adminSupabase,
+  role,
+  userId,
+}: {
+  adminSupabase: AdminSupabaseClient;
+  role: UserRole;
+  userId: string;
+}) {
+  const { error } = await adminSupabase.rpc("admin_set_user_role", {
+    target_role: role,
+    target_user_id: userId,
+  });
 
   return error;
 }
@@ -219,27 +256,17 @@ export async function createAdminUserAction(
     };
   }
 
-  if (creationMode === "invite") {
-    const { error: roleError } = await adminSupabase.auth.admin.updateUserById(
-      data.user.id,
-      {
-        app_metadata: {
-          ...data.user.app_metadata,
-          role,
-        },
-        user_metadata: {
-          ...data.user.user_metadata,
-          ...userMetadata,
-        },
-      },
-    );
+  const roleError = await setAdminUserRole({
+    adminSupabase,
+    role,
+    userId: data.user.id,
+  });
 
-    if (roleError) {
-      return {
-        message: roleError.message,
-        status: "error",
-      };
-    }
+  if (roleError) {
+    return {
+      message: roleUpdateErrorMessage(roleError.message),
+      status: "error",
+    };
   }
 
   const profileError = await syncUserProfile(
@@ -253,7 +280,7 @@ export async function createAdminUserAction(
 
   if (profileError) {
     return {
-      message: profileError.message,
+      message: roleUpdateErrorMessage(profileError.message),
       status: "error",
     };
   }
@@ -494,31 +521,15 @@ export async function updateUserRoleAction(
     };
   }
 
-  const { error: authError } = await adminSupabase.auth.admin.updateUserById(
+  const roleError = await setAdminUserRole({
+    adminSupabase,
+    role,
     userId,
-    {
-      app_metadata: {
-        ...userResponse.user.app_metadata,
-        role,
-      },
-    },
-  );
+  });
 
-  if (authError) {
+  if (roleError) {
     return {
-      message: authError.message,
-      status: "error",
-    };
-  }
-
-  const { error: profileError } = await adminSupabase
-    .from("profiles")
-    .update({ role: role as UserRole })
-    .eq("user_id", userId);
-
-  if (profileError) {
-    return {
-      message: profileError.message,
+      message: roleUpdateErrorMessage(roleError.message),
       status: "error",
     };
   }
