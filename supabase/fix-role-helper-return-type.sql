@@ -1,6 +1,8 @@
--- Repair legacy role helpers that may still be declared with app_role and
--- throw "return type mismatch in function declared to return app_role".
--- Safe to run before/after the coach interview notes feature.
+-- Repair legacy role helpers that may still be declared with app_role while
+-- returning text, which breaks RLS checks with:
+-- "return type mismatch in function declared to return app_role".
+--
+-- Safe to run after the previous RLS hardening scripts.
 
 do $$
 declare
@@ -100,8 +102,9 @@ as $$
   select public.jwt_role()::text = 'coach';
 $$;
 
-create index if not exists coach_notes_coachee_created_idx
-on public.coach_notes(coachee_id, created_at desc);
-
-create index if not exists coach_notes_coach_created_idx
-on public.coach_notes(coach_id, created_at desc);
+select
+  pg_get_function_result('public.jwt_role()'::regprocedure) as jwt_role_return_type,
+  case
+    when to_regprocedure('public."current_role"()') is null then null
+    else pg_get_function_result('public."current_role"()'::regprocedure)
+  end as current_role_return_type;

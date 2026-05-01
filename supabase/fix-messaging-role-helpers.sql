@@ -20,7 +20,7 @@ begin
   select pg_get_function_result('public.jwt_role()'::regprocedure)
   into jwt_return_type;
 
-  if jwt_return_type in ('app_role', 'public.app_role') then
+  if lower(coalesce(jwt_return_type, '')) like '%app_role%' then
     execute $sql$
       create or replace function public.jwt_role()
       returns public.app_role
