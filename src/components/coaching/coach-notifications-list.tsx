@@ -57,11 +57,11 @@ const categoryLabels: Record<CoachNotificationCategory, string> = {
 };
 
 const categoryStyles: Record<CoachNotificationCategory, string> = {
-  activity: "border-slate-200 bg-slate-50 text-slate-700",
-  corrections: "border-indigo-100 bg-indigo-50 text-indigo-700",
-  late: "border-amber-100 bg-amber-50 text-amber-700",
-  messages: "border-sky-100 bg-sky-50 text-sky-700",
-  paths: "border-rose-100 bg-rose-50 text-rose-700",
+  activity: "border-slate-200 bg-slate-50 text-slate-700 ring-slate-100",
+  corrections: "border-indigo-100 bg-indigo-50 text-indigo-700 ring-indigo-100",
+  late: "border-amber-100 bg-amber-50 text-amber-700 ring-amber-100",
+  messages: "border-sky-100 bg-sky-50 text-sky-700 ring-sky-100",
+  paths: "border-rose-100 bg-rose-50 text-rose-700 ring-rose-100",
 };
 
 const availableNotificationCategories = coachNotificationPreferenceOptions.map(
@@ -236,7 +236,7 @@ export function CoachNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                className="group grid gap-4 p-4 transition hover:bg-sky-50/35 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -244,6 +244,7 @@ export function CoachNotificationsList({
                   <span
                     className={cn(
                       "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",
+                      "ring-1",
                       categoryStyles[notification.category],
                     )}
                   >

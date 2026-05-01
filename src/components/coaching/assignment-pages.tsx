@@ -12,7 +12,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
 import { StatCard } from "@/components/ui/stat-card";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type {
   CoachAssignmentComposerData,
   CoachAssignmentsData,
@@ -68,11 +73,22 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
         </section>
 
         <Card className="overflow-hidden">
+          <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <CardTitle>Liste des assignations</CardTitle>
+              <CardDescription>
+                Priorités, échéances et cible opérationnelle.
+              </CardDescription>
+            </div>
+            <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
+              {data.assignments.length} assignation(s)
+            </span>
+          </CardHeader>
           {data.assignments.length ? (
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
                 <div
-                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_210px]"
+                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_210px]"
                   key={assignment.id}
                 >
                   <div className="min-w-0">
@@ -87,7 +103,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+                  <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                     <p className="text-xs font-semibold text-slate-400">
                       Cible
                     </p>

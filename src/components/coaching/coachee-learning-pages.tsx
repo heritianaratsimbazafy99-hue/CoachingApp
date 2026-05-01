@@ -58,7 +58,7 @@ function ResultScoreMeter({
   value: number;
 }) {
   return (
-    <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
+    <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-3 ring-1 ring-white">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-2xl font-semibold tracking-normal text-indigo-700">
           {formatPercent(value)}
@@ -86,7 +86,7 @@ function TaskMetaBox({
   label: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
       <p className="text-xs font-semibold text-slate-400">{label}</p>
       <div className="mt-1 text-sm font-semibold text-slate-700">
         {children}
@@ -348,7 +348,7 @@ export function CoacheeResultsPage({ data }: { data: CoacheeResultsData }) {
             <div className="divide-y divide-slate-100">
               {data.results.map((attempt) => (
                 <div
-                  className="grid gap-4 p-5 transition hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_220px_150px]"
+                  className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_220px_150px]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
@@ -484,13 +484,13 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                 </div>
               </CardHeader>
               <div className="space-y-3 p-5 text-sm">
-                <div className="rounded-xl bg-slate-50 p-4">
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
                   <p className="font-medium text-slate-500">Email</p>
                   <p className="mt-1 font-semibold text-slate-950">
                     {data.profile.email}
                   </p>
                 </div>
-                <div className="rounded-xl bg-slate-50 p-4">
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
                   <p className="font-medium text-slate-500">Profil créé le</p>
                   <p className="mt-1 font-semibold text-slate-950">
                     {formatDate(data.profile.createdAt)}
@@ -520,7 +520,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
             <div className="grid gap-3 p-5 md:grid-cols-2">
               {data.goals.map((goal) => (
                 <article
-                  className="rounded-xl border border-slate-200 bg-white p-4"
+                  className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/35"
                   key={goal.id}
                 >
                   <div className="flex items-start justify-between gap-3">

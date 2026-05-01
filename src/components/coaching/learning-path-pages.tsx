@@ -199,7 +199,7 @@ function CoachPathSignals({
           {signals.recentEvents.length ? (
             signals.recentEvents.map((event) => (
               <Link
-                className="block rounded-xl border border-slate-200 bg-slate-50/70 p-3 transition hover:border-sky-200 hover:bg-white"
+                className="block rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/45"
                 href={event.href}
                 key={event.id}
               >
@@ -329,7 +329,7 @@ function CoachPathTracking({ path }: { path: CoachLearningPath }) {
   }
 
   return (
-    <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+    <div className="mt-5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 ring-1 ring-white">
       <div className="grid gap-3 md:grid-cols-4">
         <div>
           <p className="text-xs font-medium text-slate-500">Coachés</p>
@@ -365,7 +365,7 @@ function CoachPathTracking({ path }: { path: CoachLearningPath }) {
         {path.learnerProgress?.length ? (
           path.learnerProgress.slice(0, 6).map((learner) => (
             <div
-              className="grid gap-3 rounded-lg border border-white bg-white p-3 shadow-sm shadow-slate-950/[0.03] md:grid-cols-[minmax(0,1fr)_140px_120px] md:items-center"
+              className="grid gap-3 rounded-xl border border-white bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-100 hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px_120px] md:items-center"
               key={learner.userId}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -443,10 +443,10 @@ function LearningPathItemRow({
   const content = (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border bg-white p-3 transition sm:grid-cols-[44px_1fr_auto] sm:items-center",
+        "grid gap-3 rounded-xl border bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition sm:grid-cols-[44px_1fr_auto] sm:items-center",
         item.progress?.isCompleted
-          ? "border-emerald-100"
-          : "border-sky-100 hover:border-sky-200 hover:bg-sky-50/40",
+          ? "border-emerald-100 ring-1 ring-emerald-50"
+          : "border-sky-100 ring-1 ring-white hover:border-sky-200 hover:bg-sky-50/40",
       )}
     >
       <div
@@ -518,7 +518,8 @@ function LearningPathCard({
   variant: "coach" | "coachee";
 }) {
   return (
-    <Card className="p-5">
+    <Card className="overflow-hidden p-5">
+      <div className="-mx-5 -mt-5 mb-5 h-1 bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400 opacity-75" />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase text-sky-700">
@@ -578,7 +579,7 @@ function LearningPathCard({
       </div>
 
       {variant === "coachee" && path.progress ? (
-        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+        <div className="mt-5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-800">
               {path.progress.completedCount}/{path.progress.totalCount} étapes

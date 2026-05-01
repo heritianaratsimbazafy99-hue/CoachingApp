@@ -31,7 +31,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
         title={`Bonjour ${data.firstName}`}
       />
       <div className="space-y-6 p-4 sm:p-6">
-        <section className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-slate-950/[0.04]">
+        <section className="overflow-hidden rounded-xl border border-slate-200/75 bg-white/95 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white/70">
           <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-center">
             <div>
               <p className="text-sm font-semibold text-sky-700">
@@ -55,7 +55,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white">
               <div className="mb-3 flex items-end justify-between gap-3">
                 <p className="text-sm font-semibold text-slate-500">Avancement</p>
                 <p className="text-3xl font-semibold tracking-normal text-slate-950">
@@ -108,7 +108,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
               {data.tasks.length ? (
                 data.tasks.map((task) => (
                   <article
-                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_140px_150px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px_150px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
                     key={task.id}
                   >
                     <div className="min-w-0">
@@ -155,7 +155,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 {data.resources.length ? (
                   data.resources.map((resource) => (
                     <Link
-                      className="block rounded-xl border border-slate-200 bg-white p-4 transition hover:border-sky-200 hover:bg-sky-50 [contain-intrinsic-size:120px] [content-visibility:auto]"
+                      className="block rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/70 [contain-intrinsic-size:120px] [content-visibility:auto]"
                       href={resource.href}
                       key={resource.id}
                     >
@@ -181,7 +181,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 )}
               </div>
               {data.calendarEvents[0] ? (
-                <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+                <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-medium text-emerald-800 ring-1 ring-white">
                   Prochain rendez-vous :{" "}
                   {formatDateTime(data.calendarEvents[0].startTime)}
                 </div>
@@ -199,7 +199,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 {data.recentActivity.length ? (
                   data.recentActivity.map((activity) => (
                     <Link
-                      className="block rounded-xl border border-slate-200 bg-white p-3 transition hover:border-slate-300 hover:bg-slate-50 [contain-intrinsic-size:96px] [content-visibility:auto]"
+                      className="block rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/50 [contain-intrinsic-size:96px] [content-visibility:auto]"
                       href={activity.href}
                       key={activity.id}
                     >

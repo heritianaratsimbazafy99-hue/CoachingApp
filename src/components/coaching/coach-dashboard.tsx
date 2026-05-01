@@ -44,7 +44,7 @@ function AttentionItemCard({ item }: { item: CoachDashboardAttentionItem }) {
 
   return (
     <Link
-      className="group grid min-h-32 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
+      className="group grid min-h-32 gap-4 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06]"
       href={item.href}
     >
       <div className="flex items-start justify-between gap-3">
@@ -181,7 +181,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               <div className="divide-y divide-slate-100">
                 {data.coachees.map((coachee) => (
                   <div
-                    className="grid gap-4 p-5 md:grid-cols-[1fr_180px_150px]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[1fr_180px_150px]"
                     key={coachee.id}
                   >
                     <div>
@@ -233,7 +233,10 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
               <div className="mt-4 space-y-3">
                 {data.calendarEvents.length ? (
                   data.calendarEvents.map((event) => (
-                    <div className="rounded-lg bg-slate-50 p-4" key={event.id}>
+                    <div
+                      className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white"
+                      key={event.id}
+                    >
                       <p className="font-medium">{event.title}</p>
                       <p className="mt-1 text-sm text-slate-500">
                         {formatDateTime(event.startTime)}
@@ -259,7 +262,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
                 {data.activityLogs.length ? (
                   data.activityLogs.map((activity) => (
                     <div
-                      className="rounded-lg border border-slate-200 p-3"
+                      className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03]"
                       key={activity.id}
                     >
                       <p className="text-sm font-medium">{activity.action}</p>
@@ -287,7 +290,7 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
                 <div
-                  className="grid gap-3 p-5 md:grid-cols-[1fr_120px_130px_120px]"
+                  className="grid gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[1fr_120px_130px_120px]"
                   key={assignment.id}
                 >
                   <div>

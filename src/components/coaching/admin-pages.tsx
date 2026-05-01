@@ -38,6 +38,22 @@ const roleLabel: Record<AdminUser["role"], string> = {
   coachee: "Coaché",
 };
 
+const roleStyles: Record<AdminUser["role"], string> = {
+  admin: "border-indigo-100 bg-indigo-50 text-indigo-700 ring-indigo-100",
+  coach: "border-sky-100 bg-sky-50 text-sky-700 ring-sky-100",
+  coachee: "border-emerald-100 bg-emerald-50 text-emerald-700 ring-emerald-100",
+};
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
 function formatDate(value: string | null) {
   if (!value) {
     return "Jamais";
@@ -208,18 +224,27 @@ export function AdminUsersPage({
 
                 return (
                   <div
-                    className="grid gap-4 p-5 transition hover:bg-slate-50/70 md:grid-cols-[minmax(0,1fr)_120px_170px_280px] [contain-intrinsic-size:150px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_120px_170px_280px] [contain-intrinsic-size:150px] [content-visibility:auto]"
                     key={profile.id}
                   >
-                    <div>
-                      <p className="font-medium">{profile.fullName}</p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {profile.email}
-                      </p>
+                    <div className="flex min-w-0 gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-xs font-semibold text-white shadow-sm shadow-slate-950/10">
+                        {initials(profile.fullName)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="break-words font-medium text-slate-950">
+                          {profile.fullName}
+                        </p>
+                        <p className="mt-1 break-words text-sm text-slate-500">
+                          {profile.email}
+                        </p>
+                      </div>
                     </div>
-                    <p className="capitalize text-sm font-medium text-slate-600">
+                    <span
+                      className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
+                    >
                       {roleLabel[profile.role]}
-                    </p>
+                    </span>
                     <div className="space-y-3 text-sm text-slate-500">
                       <p>
                         Dernière connexion
@@ -287,11 +312,11 @@ export function AdminCoachesPage({
         {coaches.length ? (
           coaches.map((coach) => (
             <article
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:150px] [content-visibility:auto]"
+              className="group rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:150px] [content-visibility:auto]"
               key={coach.id}
             >
               <div className="flex items-start gap-3">
-                <div className="rounded-lg border border-sky-100 bg-sky-50 p-2 text-sky-700">
+                <div className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 transition group-hover:scale-105">
                   <GraduationCap className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
@@ -304,7 +329,7 @@ export function AdminCoachesPage({
                 </div>
               </div>
               <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                   <p className="font-medium text-slate-500">
                     Cohortes responsables
                   </p>
@@ -312,7 +337,7 @@ export function AdminCoachesPage({
                     {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
                   </p>
                 </div>
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                   <p className="font-medium text-slate-500">
                     Dernière connexion
                   </p>
@@ -408,7 +433,7 @@ export function AdminCohortsPage({
 
               return (
                 <article
-                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
+                  className="rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
                   key={cohort.id}
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -422,25 +447,25 @@ export function AdminCohortsPage({
                   </div>
 
                   <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                       <p className="font-medium text-slate-500">Coach</p>
                       <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.coachName}
                       </span>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                       <p className="font-medium text-slate-500">Membres</p>
                       <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.memberCount}
                       </span>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                       <p className="font-medium text-slate-500">Assignations</p>
                       <span className="mt-1 block font-semibold text-slate-900">
                         {cohort.assignmentCount}
                       </span>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
                       <p className="font-medium text-slate-500">Dates</p>
                       <span className="mt-1 block font-semibold text-slate-900">
                         {formatCohortDate(cohort.startDate)} →{" "}

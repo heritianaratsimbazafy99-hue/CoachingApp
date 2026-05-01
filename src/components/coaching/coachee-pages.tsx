@@ -36,6 +36,16 @@ import type {
 import { formatDate, formatDateTime, formatPercent } from "@/utils/format";
 import { cn } from "@/utils/cn";
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
 export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
   return (
     <>
@@ -48,29 +58,36 @@ export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
           <div className="grid gap-4">
             {data.coachees.map((coachee) => (
               <article
-                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/[0.04] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1.2fr)_220px_140px_250px] [contain-intrinsic-size:180px] [content-visibility:auto]"
+                className="group grid gap-5 rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1.25fr)_220px_140px_250px] [contain-intrinsic-size:180px] [content-visibility:auto]"
                 key={coachee.id}
               >
-                <div>
-                  <Link
-                    className="text-lg font-semibold hover:underline"
-                    href={`/coach/coachees/${coachee.id}`}
-                  >
-                    {coachee.fullName}
-                  </Link>
-                  <p className="mt-1 text-sm text-slate-500">{coachee.email}</p>
-                  <p className="mt-2 text-xs text-slate-500">
-                    Dernière connexion : {formatDateTime(coachee.lastActiveAt)}
-                  </p>
+                <div className="flex min-w-0 gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50 text-sm font-semibold text-sky-700 ring-1 ring-sky-100 transition group-hover:scale-105">
+                    {getInitials(coachee.fullName)}
+                  </div>
+                  <div className="min-w-0">
+                    <Link
+                      className="break-words text-lg font-semibold text-slate-950 hover:text-sky-700"
+                      href={`/coach/coachees/${coachee.id}`}
+                    >
+                      {coachee.fullName}
+                    </Link>
+                    <p className="mt-1 break-words text-sm text-slate-500">
+                      {coachee.email}
+                    </p>
+                    <p className="mt-2 text-xs font-medium text-slate-400">
+                      Dernière connexion : {formatDateTime(coachee.lastActiveAt)}
+                    </p>
+                  </div>
                 </div>
-                <div>
+                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
                   <div className="mb-2 flex justify-between text-xs text-slate-500">
                     <span>Progression</span>
                     <span>{coachee.progress}%</span>
                   </div>
                   <ProgressBar value={coachee.progress} />
                 </div>
-                <div>
+                <div className="rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white">
                   <p className="text-sm text-slate-500">Score moyen</p>
                   <p className="mt-1 text-2xl font-semibold">
                     {formatPercent(coachee.scoreAverage)}

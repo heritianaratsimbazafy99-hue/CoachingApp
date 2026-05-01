@@ -55,10 +55,10 @@ const categoryLabels: Record<CoacheeNotificationCategory, string> = {
 };
 
 const categoryStyles: Record<CoacheeNotificationCategory, string> = {
-  agenda: "border-emerald-100 bg-emerald-50 text-emerald-700",
-  messages: "border-sky-100 bg-sky-50 text-sky-700",
-  paths: "border-indigo-100 bg-indigo-50 text-indigo-700",
-  results: "border-amber-100 bg-amber-50 text-amber-700",
+  agenda: "border-emerald-100 bg-emerald-50 text-emerald-700 ring-emerald-100",
+  messages: "border-sky-100 bg-sky-50 text-sky-700 ring-sky-100",
+  paths: "border-indigo-100 bg-indigo-50 text-indigo-700 ring-indigo-100",
+  results: "border-amber-100 bg-amber-50 text-amber-700 ring-amber-100",
 };
 
 const availableNotificationCategories = coacheeNotificationPreferenceOptions.map(
@@ -233,7 +233,7 @@ export function CoacheeNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-slate-50 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                className="group grid gap-4 p-4 transition hover:bg-sky-50/35 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -241,6 +241,7 @@ export function CoacheeNotificationsList({
                   <span
                     className={cn(
                       "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",
+                      "ring-1",
                       categoryStyles[notification.category],
                     )}
                   >

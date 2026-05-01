@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/cn";
 
 export const buttonVariants = cva(
-  "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold tracking-normal transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-55",
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold tracking-normal transition active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-55",
   {
     defaultVariants: {
       size: "md",
@@ -21,11 +21,11 @@ export const buttonVariants = cva(
         ghost:
           "border border-transparent bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-sky-600",
         primary:
-          "border border-sky-600 bg-sky-600 text-white shadow-sm shadow-sky-950/15 hover:bg-sky-700 focus-visible:outline-sky-600",
+          "border border-sky-600 bg-sky-600 text-white shadow-sm shadow-sky-950/15 hover:border-sky-700 hover:bg-sky-700 hover:shadow-md hover:shadow-sky-950/20 focus-visible:outline-sky-600",
         secondary:
-          "border border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-950/5 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-sky-600",
+          "border border-slate-200/90 bg-white text-slate-700 shadow-sm shadow-slate-950/5 ring-1 ring-white hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 hover:shadow-md hover:shadow-slate-950/[0.06] focus-visible:outline-sky-600",
         soft:
-          "border border-sky-100 bg-sky-50 text-sky-800 shadow-sm shadow-sky-950/[0.03] hover:border-sky-200 hover:bg-sky-100 focus-visible:outline-sky-600",
+          "border border-sky-100 bg-sky-50 text-sky-800 shadow-sm shadow-sky-950/[0.03] hover:border-sky-200 hover:bg-sky-100 hover:text-sky-900 focus-visible:outline-sky-600",
       },
     },
   },
