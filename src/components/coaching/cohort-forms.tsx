@@ -9,6 +9,12 @@ import {
   removeCohortMemberAction,
 } from "@/app/coach/cohorts/actions";
 import type { CohortActionState } from "@/app/coach/cohorts/actions";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  inputClassName,
+  labelClassName,
+  textareaClassName,
+} from "@/components/ui/form-field";
 import type { CoachCoacheeSummary } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 
@@ -22,7 +28,7 @@ function CohortSubmitButton() {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "lg" })}
       disabled={pending}
       type="submit"
     >
@@ -37,7 +43,7 @@ function AddMemberSubmitButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-600 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-sky-900/10 transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+      className={buttonVariants({ size: "lg" })}
       disabled={disabled || pending}
       type="submit"
     >
@@ -53,7 +59,10 @@ function RemoveMemberSubmitButton() {
   return (
     <button
       aria-label="Retirer le membre"
-      className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(
+        buttonVariants({ size: "sm", variant: "danger" }),
+        "h-10 w-10 px-0",
+      )}
       disabled={pending}
       title="Retirer le membre"
       type="submit"
@@ -77,10 +86,10 @@ function ActionMessage({
   return (
     <p
       className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium",
+        "rounded-xl border px-3 py-2 text-sm font-medium ring-1",
         status === "error"
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700",
+          ? "border-rose-200 bg-rose-50 text-rose-700 ring-rose-100"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-100",
       )}
     >
       {message}
@@ -104,9 +113,9 @@ export function CreateCohortForm() {
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Nom</span>
+        <span className={labelClassName}>Nom</span>
         <input
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={inputClassName()}
           name="name"
           placeholder="Ex : Cohorte Leadership Q2"
           required
@@ -114,9 +123,9 @@ export function CreateCohortForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-semibold text-slate-800">Description</span>
+        <span className={labelClassName}>Description</span>
         <textarea
-          className="mt-2 min-h-28 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+          className={textareaClassName()}
           name="description"
           placeholder="Objectifs, audience, rythme de suivi..."
         />
@@ -124,21 +133,13 @@ export function CreateCohortForm() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Début</span>
-          <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-            name="startDate"
-            type="date"
-          />
+          <span className={labelClassName}>Début</span>
+          <input className={inputClassName()} name="startDate" type="date" />
         </label>
 
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">Fin</span>
-          <input
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-            name="endDate"
-            type="date"
-          />
+          <span className={labelClassName}>Fin</span>
+          <input className={inputClassName()} name="endDate" type="date" />
         </label>
       </div>
 
@@ -174,17 +175,15 @@ export function AddCohortMemberForm({
   return (
     <form
       action={formAction}
-      className="space-y-3 rounded-xl border border-sky-100 bg-sky-50/60 p-4"
+      className="space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 ring-1 ring-white"
       ref={formRef}
     >
       <input name="cohortId" type="hidden" value={cohortId} />
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <label className="block">
-          <span className="text-sm font-semibold text-slate-800">
-            Ajouter un coaché
-          </span>
+          <span className={labelClassName}>Ajouter un coaché</span>
           <select
-            className="mt-2 w-full rounded-xl border border-sky-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+            className={inputClassName()}
             disabled={!hasOptions}
             name="userId"
             required

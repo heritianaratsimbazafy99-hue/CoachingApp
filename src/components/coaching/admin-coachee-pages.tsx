@@ -4,6 +4,7 @@ import {
   ChangeCoacheeCoachForm,
   ToggleCoacheeStatusForm,
 } from "@/components/coaching/admin-coachee-assignment-forms";
+import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -12,6 +13,7 @@ import type {
   AdminCoacheeAssignmentsData,
 } from "@/services/admin-service";
 import { formatDate } from "@/utils/format";
+import { cn } from "@/utils/cn";
 
 function safeDate(value: string | null) {
   return value ? formatDate(value) : "Jamais";
@@ -20,7 +22,10 @@ function safeDate(value: string | null) {
 function StatusBadge({ children, tone }: { children: string; tone: string }) {
   return (
     <span
-      className={`inline-flex max-w-full rounded-full px-2 py-1 text-xs font-semibold ring-1 ${tone}`}
+      className={cn(
+        "inline-flex max-w-full rounded-full border px-2.5 py-1 text-xs font-semibold ring-1",
+        tone,
+      )}
     >
       {children}
     </span>
@@ -31,25 +36,25 @@ function CoacheeSignals({ coachee }: { coachee: AdminCoacheeAssignment }) {
   return (
     <div className="flex flex-wrap gap-2">
       {coachee.hasCohort ? (
-        <StatusBadge tone="bg-emerald-50 text-emerald-700 ring-emerald-100">
+        <StatusBadge tone="border-emerald-100 bg-emerald-50 text-emerald-700 ring-emerald-100">
           Cohorte OK
         </StatusBadge>
       ) : (
-        <StatusBadge tone="bg-amber-50 text-amber-700 ring-amber-100">
+        <StatusBadge tone="border-amber-100 bg-amber-50 text-amber-700 ring-amber-100">
           Sans cohorte
         </StatusBadge>
       )}
       {coachee.hasActiveCoach ? (
-        <StatusBadge tone="bg-sky-50 text-sky-700 ring-sky-100">
+        <StatusBadge tone="border-sky-100 bg-sky-50 text-sky-700 ring-sky-100">
           Coach actif
         </StatusBadge>
       ) : (
-        <StatusBadge tone="bg-red-50 text-red-700 ring-red-100">
+        <StatusBadge tone="border-rose-100 bg-rose-50 text-rose-700 ring-rose-100">
           Sans coach actif
         </StatusBadge>
       )}
       {coachee.isDisabled ? (
-        <StatusBadge tone="bg-slate-100 text-slate-700 ring-slate-200">
+        <StatusBadge tone="border-slate-200 bg-slate-100 text-slate-700 ring-slate-200">
           Désactivé
         </StatusBadge>
       ) : null}
@@ -67,13 +72,18 @@ function AttentionList({
   title: string;
 }) {
   return (
-    <section className="min-w-0 rounded-xl border border-sky-100 bg-white/95 p-5 shadow-sm shadow-sky-900/5">
-      <h2 className="font-semibold">{title}</h2>
+    <Card className="min-w-0 p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-semibold text-slate-950">{title}</h2>
+        <span className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-100">
+          {coachees.length}
+        </span>
+      </div>
       <div className="mt-4 space-y-3">
         {coachees.length ? (
           coachees.slice(0, 6).map((coachee) => (
             <div
-              className="min-w-0 rounded-lg border border-sky-100 bg-sky-50/40 px-3 py-2"
+              className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2.5 ring-1 ring-white"
               key={coachee.id}
             >
               <p className="break-words text-sm font-medium text-slate-800">
@@ -85,10 +95,12 @@ function AttentionList({
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-500">{emptyLabel}</p>
+          <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3 text-sm leading-6 text-slate-500">
+            {emptyLabel}
+          </p>
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -153,7 +165,7 @@ export function AdminCoacheeAssignmentsPage({
           <section className="space-y-4">
             {data.coachees.map((coachee) => (
               <article
-                className="min-w-0 overflow-hidden rounded-xl border border-sky-100 bg-white/95 p-4 shadow-sm shadow-sky-900/5 sm:p-5"
+                className="min-w-0 overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] sm:p-5 [contain-intrinsic-size:260px] [content-visibility:auto]"
                 key={coachee.id}
               >
                 <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
@@ -171,13 +183,13 @@ export function AdminCoacheeAssignmentsPage({
                     </div>
 
                     <div className="mt-4 grid min-w-0 gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                      <p className="min-w-0">
+                      <p className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
                         Dernière connexion
                         <span className="mt-1 block font-medium text-slate-900">
                           {safeDate(coachee.lastSignInAt)}
                         </span>
                       </p>
-                      <p className="min-w-0">
+                      <p className="min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3">
                         Cohortes
                         <span className="mt-1 block break-words font-medium text-slate-900">
                           {coachee.cohorts.length
@@ -190,7 +202,7 @@ export function AdminCoacheeAssignmentsPage({
                     </div>
                   </div>
 
-                  <div className="min-w-0 max-w-full space-y-4 overflow-hidden rounded-xl border border-sky-100 bg-sky-50/40 p-3 sm:p-4">
+                  <div className="min-w-0 max-w-full space-y-4 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white sm:p-4">
                     <AssignCoacheeToCohortForm
                       coachee={coachee}
                       cohorts={data.cohorts}

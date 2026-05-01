@@ -14,6 +14,8 @@ import type {
   AdminCohort,
   AdminUser,
 } from "@/services/admin-service";
+import { buttonVariants } from "@/components/ui/button";
+import { inputClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
 type AssignCoacheeFormProps = {
@@ -49,10 +51,10 @@ function ActionMessage({
   return (
     <p
       className={cn(
-        "break-words rounded-lg border px-3 py-2 text-xs font-medium",
+        "break-words rounded-xl border px-3 py-2 text-xs font-medium ring-1",
         status === "error"
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700",
+          ? "border-rose-200 bg-rose-50 text-rose-700 ring-rose-100"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-100",
       )}
     >
       {message}
@@ -80,12 +82,19 @@ function InlineSubmitButton({
   return (
     <button
       className={cn(
-        "inline-flex min-h-10 min-w-0 max-w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
-        tone === "danger"
-          ? "border border-red-100 bg-red-50 text-red-700 hover:bg-red-100"
-          : tone === "secondary"
-            ? "border border-emerald-100 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
-            : "border border-sky-600 bg-sky-600 text-white shadow-sm shadow-sky-900/10 hover:bg-sky-700",
+        buttonVariants({
+          size: "sm",
+          variant:
+            tone === "danger"
+              ? "danger"
+              : tone === "secondary"
+                ? "soft"
+                : "primary",
+        }),
+        "min-h-10 min-w-0 max-w-full px-3",
+        tone === "secondary"
+          ? "border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-200 hover:bg-emerald-100"
+          : "",
       )}
       disabled={disabled || pending}
       type="submit"
@@ -124,7 +133,9 @@ export function AssignCoacheeToCohortForm({
       <input name="userId" type="hidden" value={coachee.id} />
       <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <select
-          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName(
+            "mt-0 min-h-10 min-w-0 max-w-full px-3 py-2",
+          )}
           disabled={!hasOptions}
           name="cohortId"
           required
@@ -170,7 +181,9 @@ export function ChangeCoacheeCoachForm({
       <input name="userId" type="hidden" value={coachee.id} />
       <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
         <select
-          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName(
+            "mt-0 min-h-10 min-w-0 max-w-full px-3 py-2",
+          )}
           disabled={!hasCohorts}
           name="cohortId"
           required
@@ -189,7 +202,9 @@ export function ChangeCoacheeCoachForm({
           )}
         </select>
         <select
-          className="min-h-10 min-w-0 max-w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName(
+            "mt-0 min-h-10 min-w-0 max-w-full px-3 py-2",
+          )}
           disabled={!hasCoaches}
           name="coachId"
           required
