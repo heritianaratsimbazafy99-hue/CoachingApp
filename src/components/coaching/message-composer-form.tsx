@@ -9,6 +9,7 @@ import {
   type SendMessageState,
 } from "@/app/messages/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { textareaClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
@@ -70,15 +71,8 @@ export function MessageComposerForm({
         />
         <SubmitButton disabled={!receiverId} />
       </div>
-      {state.message && state.status === "error" ? (
-        <p
-          className={cn(
-            "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
-            "border-rose-200 bg-rose-50 text-rose-700",
-          )}
-        >
-          {state.message}
-        </p>
+      {state.status === "error" ? (
+        <FormStatusMessage message={state.message} status={state.status} />
       ) : null}
     </form>
   );

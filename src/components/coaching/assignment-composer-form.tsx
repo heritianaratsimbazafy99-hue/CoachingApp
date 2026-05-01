@@ -7,6 +7,7 @@ import { createAssignmentAction } from "@/app/coach/assignments/actions";
 import type { CreateAssignmentState } from "@/app/coach/assignments/actions";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -162,18 +163,7 @@ export function AssignmentComposerForm({
             </select>
           </label>
 
-          {state.message ? (
-            <p
-              className={cn(
-                "rounded-xl border px-3 py-2 text-sm font-medium ring-1",
-                state.status === "error"
-                  ? "border-rose-200 bg-rose-50 text-rose-700 ring-rose-100"
-                  : "border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-100",
-              )}
-            >
-              {state.message}
-            </p>
-          ) : null}
+          <FormStatusMessage message={state.message} status={state.status} />
 
           <SubmitButton />
         </aside>

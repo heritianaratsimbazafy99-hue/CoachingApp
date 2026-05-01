@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -222,11 +223,11 @@ export function QuizRunner({ data }: { data: CoacheeQuizData }) {
               </section>
             ))}
 
-            {state.message ? (
-              <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-                {state.message}
-              </p>
-            ) : null}
+            <FormStatusMessage
+              className="mt-6"
+              message={state.message}
+              status={state.status}
+            />
 
             <div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row">
               <button

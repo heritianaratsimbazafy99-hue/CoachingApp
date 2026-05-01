@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { saveCorrectionAction } from "@/app/coach/quizzes/actions";
 import type { FormState } from "@/app/coach/quizzes/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import type { CoachCorrectionItem } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
@@ -70,18 +71,7 @@ export function CorrectionForm({ item }: { item: CoachCorrectionItem }) {
         </div>
       </div>
 
-      {state.message ? (
-        <p
-          className={cn(
-            "rounded-xl border px-3 py-2 text-sm font-medium",
-            state.status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage message={state.message} status={state.status} />
     </form>
   );
 }

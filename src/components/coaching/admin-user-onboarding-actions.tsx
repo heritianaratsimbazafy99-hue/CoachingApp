@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/actions";
 import type { AdminAuthEmailState } from "@/app/admin/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { cn } from "@/utils/cn";
 
 type AdminUserOnboardingActionsProps = {
@@ -84,16 +85,11 @@ export function AdminUserOnboardingActions({
         </form>
       </div>
       {visibleState ? (
-        <p
-          className={cn(
-            "text-xs font-medium",
-            visibleState.status === "error"
-              ? "text-red-600"
-              : "text-emerald-700",
-          )}
-        >
-          {visibleState.message}
-        </p>
+        <FormStatusMessage
+          compact
+          message={visibleState.message}
+          status={visibleState.status}
+        />
       ) : null}
     </div>
   );

@@ -8,6 +8,9 @@ import {
   sendReminderTemplateAction,
   type CoachReminderActionState,
 } from "@/app/coach/coachees/actions";
+import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
+import { inputClassName } from "@/components/ui/form-field";
 import type { CoachReminderTemplate } from "@/services/coach-service";
 import { cn } from "@/utils/cn";
 
@@ -21,7 +24,7 @@ function ReminderSubmitButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-600 px-3 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className={cn(buttonVariants({ size: "sm" }), "w-full")}
       disabled={disabled || pending}
       type="submit"
     >
@@ -47,7 +50,7 @@ export function CoacheeQuickActions({
   return (
     <div className="space-y-2">
       <Link
-        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+        className={cn(buttonVariants({ variant: "soft" }), "w-full")}
         href={`/coach/messages?conversation=${coacheeId}`}
       >
         <MessageCircle className="h-4 w-4" />
@@ -57,7 +60,7 @@ export function CoacheeQuickActions({
       <form action={formAction} className="grid gap-2">
         <input name="coacheeId" type="hidden" value={coacheeId} />
         <select
-          className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-50 disabled:text-slate-400"
+          className={inputClassName("mt-0 min-h-10 px-3 py-2")}
           disabled={!hasTemplates}
           name="templateId"
           required
@@ -75,18 +78,7 @@ export function CoacheeQuickActions({
         <ReminderSubmitButton disabled={!hasTemplates} />
       </form>
 
-      {state.message ? (
-        <p
-          className={cn(
-            "rounded-lg border px-2.5 py-2 text-xs font-medium",
-            state.status === "error"
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage compact message={state.message} status={state.status} />
     </div>
   );
 }

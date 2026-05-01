@@ -26,6 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -68,31 +69,6 @@ const initialNotificationPreferenceState: NotificationPreferenceActionState = {
   message: "",
   status: "idle",
 };
-
-function StateMessage({
-  message,
-  status,
-}: {
-  message: string;
-  status: "error" | "idle" | "success";
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p
-      className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
-        status === "error"
-          ? "border-rose-200 bg-rose-50 text-rose-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700",
-      )}
-    >
-      {message}
-    </p>
-  );
-}
 
 function ProfileSubmitButton() {
   const { pending } = useFormStatus();
@@ -179,7 +155,7 @@ export function ProfileForm({ profile }: { profile: AccountProfile }) {
       </label>
 
       <div className="sm:col-span-2">
-        <StateMessage message={state.message} status={state.status} />
+        <FormStatusMessage message={state.message} status={state.status} />
       </div>
       <div className="sm:col-span-2">
         <ProfileSubmitButton />
@@ -339,7 +315,7 @@ export function NotificationPreferenceForm({
           })}
         </div>
         <div className="px-5 pb-5">
-          <StateMessage message={state.message} status={state.status} />
+          <FormStatusMessage message={state.message} status={state.status} />
         </div>
       </form>
     </Card>
@@ -396,7 +372,7 @@ export function ReminderTemplateForm() {
         />
       </label>
 
-      <StateMessage message={state.message} status={state.status} />
+      <FormStatusMessage message={state.message} status={state.status} />
       <TemplateSubmitButton />
     </form>
   );

@@ -8,6 +8,7 @@ import {
   type LearningPathReminderActionState,
 } from "@/app/coach/paths/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { cn } from "@/utils/cn";
 
 const initialReminderState: LearningPathReminderActionState = {
@@ -59,16 +60,12 @@ export function LearningPathReminderForm({
       <input name="reason" type="hidden" value={reason} />
       <input name="reminderType" type="hidden" value={reminderType} />
       <ReminderSubmitButton sent={sent} />
-      {state.message ? (
-        <p
-          className={cn(
-            "max-w-44 text-right text-xs font-medium leading-4",
-            state.status === "error" ? "text-red-700" : "text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage
+        compact
+        className="max-w-52"
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }

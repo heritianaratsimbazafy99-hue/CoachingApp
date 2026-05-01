@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -68,31 +69,6 @@ function SubmitButton({
       <Icon className="h-4 w-4" />
       {pending ? pendingLabel : label}
     </button>
-  );
-}
-
-function FormMessage({
-  message,
-  status,
-}: {
-  message: string;
-  status: "error" | "idle" | "success";
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p
-      className={cn(
-        "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
-        status === "error"
-          ? "border-rose-200 bg-rose-50 text-rose-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700",
-      )}
-    >
-      {message}
-    </p>
   );
 }
 
@@ -180,7 +156,10 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-[1fr_220px] md:items-center">
-            <FormMessage message={saveState.message} status={saveState.status} />
+            <FormStatusMessage
+              message={saveState.message}
+              status={saveState.status}
+            />
             <SubmitButton
               label="Enregistrer le quiz"
               pendingLabel="Enregistrement..."
@@ -276,7 +255,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
                 />
               </label>
 
-              <FormMessage
+              <FormStatusMessage
                 message={questionState.message}
                 status={questionState.status}
               />

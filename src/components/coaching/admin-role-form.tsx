@@ -5,9 +5,9 @@ import { useFormStatus } from "react-dom";
 import { updateUserRoleAction } from "@/app/admin/actions";
 import type { UpdateUserRoleState } from "@/app/admin/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { inputClassName } from "@/components/ui/form-field";
 import type { UserRole } from "@/types/coaching";
-import { cn } from "@/utils/cn";
 
 type AdminRoleFormProps = {
   currentRole: UserRole;
@@ -62,16 +62,7 @@ export function AdminRoleForm({ currentRole, userId }: AdminRoleFormProps) {
         </select>
         <SubmitButton />
       </div>
-      {state.message ? (
-        <p
-          className={cn(
-            "text-xs font-medium",
-            state.status === "error" ? "text-red-600" : "text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage compact message={state.message} status={state.status} />
     </form>
   );
 }

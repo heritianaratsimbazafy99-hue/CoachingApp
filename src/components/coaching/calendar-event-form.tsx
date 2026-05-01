@@ -8,6 +8,7 @@ import {
   type CreateCalendarEventState,
 } from "@/app/coach/calendar/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -153,18 +154,7 @@ export function CalendarEventForm({
         />
       </label>
 
-      {state.message ? (
-        <p
-          className={cn(
-            "rounded-xl border px-3 py-2 text-sm font-medium ring-1 ring-white",
-            state.status === "error"
-              ? "border-rose-200 bg-rose-50 text-rose-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage message={state.message} status={state.status} />
 
       <SubmitButton />
     </form>

@@ -11,6 +11,7 @@ import {
 } from "@/app/coach/library/actions";
 import type { SaveContentState } from "@/app/coach/library/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
   labelClassName,
@@ -23,7 +24,6 @@ import type {
   CoachTheme,
 } from "@/services/coach-service";
 import type { ContentStatus, ContentType } from "@/types/coaching";
-import { cn } from "@/utils/cn";
 import {
   CONTENT_FILE_ACCEPT,
   CONTENT_FILE_BUCKET,
@@ -342,18 +342,10 @@ export function ContentEditorForm({
           />
         </div>
 
-        {state.message || clientMessage ? (
-          <p
-            className={cn(
-              "rounded-lg border px-3 py-2 text-sm font-medium",
-              state.status === "error" || clientMessage
-                ? "border-rose-200 bg-rose-50 text-rose-700"
-                : "border-emerald-200 bg-emerald-50 text-emerald-700",
-            )}
-          >
-            {clientMessage || state.message}
-          </p>
-        ) : null}
+        <FormStatusMessage
+          message={clientMessage || state.message}
+          status={clientMessage ? "error" : state.status}
+        />
 
         <SubmitButton isUploading={isUploading} />
       </aside>

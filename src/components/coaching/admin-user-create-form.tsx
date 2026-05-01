@@ -7,6 +7,7 @@ import { MailPlus, UserPlus } from "lucide-react";
 import { createAdminUserAction } from "@/app/admin/actions";
 import type { CreateAdminUserState } from "@/app/admin/actions";
 import { buttonVariants } from "@/components/ui/button";
+import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { inputClassName, labelClassName } from "@/components/ui/form-field";
 import { cn } from "@/utils/cn";
 
@@ -158,16 +159,11 @@ export function AdminUserCreateForm() {
       <div className="flex items-end">
         <SubmitButton />
       </div>
-      {state.message ? (
-        <p
-          className={cn(
-            "md:col-span-2 xl:col-span-5 text-sm font-medium",
-            state.status === "error" ? "text-red-600" : "text-emerald-700",
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
+      <FormStatusMessage
+        className="md:col-span-2 xl:col-span-5"
+        message={state.message}
+        status={state.status}
+      />
     </form>
   );
 }
