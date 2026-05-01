@@ -115,7 +115,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </div>
               </div>
             </div>
-            <div className="max-h-[380px] space-y-2 overflow-y-auto p-3 lg:max-h-[640px]">
+            <div className="ui-scrollbar max-h-[380px] space-y-2 overflow-y-auto p-3 lg:max-h-[640px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -376,11 +376,11 @@ function TypeBadge({ type }: { type: CalendarEventType }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium",
+        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
         eventTypeStyles[type],
       )}
     >
-      {eventTypeLabel[type]}
+      <span className="min-w-0 truncate">{eventTypeLabel[type]}</span>
     </span>
   );
 }
@@ -389,11 +389,11 @@ function CalendarStatusBadge({ status }: { status: CalendarEventStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium",
+        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
         eventStatusStyles[status],
       )}
     >
-      {calendarStatusLabel[status]}
+      <span className="min-w-0 truncate">{calendarStatusLabel[status]}</span>
     </span>
   );
 }

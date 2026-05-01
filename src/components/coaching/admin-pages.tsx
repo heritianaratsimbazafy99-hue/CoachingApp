@@ -255,9 +255,11 @@ export function AdminUsersPage({
 
                     <ListMetaTile label="Rôle">
                       <span
-                        className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
+                        className={`inline-flex w-fit max-w-full shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1 ${roleStyles[profile.role]}`}
                       >
-                        {roleLabel[profile.role]}
+                        <span className="min-w-0 truncate">
+                          {roleLabel[profile.role]}
+                        </span>
                       </span>
                     </ListMetaTile>
 
@@ -268,9 +270,11 @@ export function AdminUsersPage({
                       {compact ? null : (
                         <ListMetaTile label="Onboarding">
                           <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
+                            className={`inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full px-2 py-1 text-xs font-semibold leading-none ring-1 ${onboardingStatus.className}`}
                           >
-                            {onboardingStatus.label}
+                            <span className="min-w-0 truncate">
+                              {onboardingStatus.label}
+                            </span>
                           </span>
                         </ListMetaTile>
                       )}

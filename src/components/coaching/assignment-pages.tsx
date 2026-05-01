@@ -86,11 +86,13 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     <p className="break-words font-semibold text-slate-950">
                       {assignment.title}
                     </p>
-                    <p className="mt-1 break-words text-sm leading-6 text-slate-500">
+                    <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-500">
                       {assignment.instructions || assignment.description}
                     </p>
-                    <p className="mt-3 inline-flex max-w-full break-words rounded-lg border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
-                      {assignment.contentTitle}
+                    <p className="mt-3 inline-flex w-fit max-w-full overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
+                      <span className="min-w-0 truncate">
+                        {assignment.contentTitle}
+                      </span>
                     </p>
                   </div>
 
@@ -98,7 +100,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     {assignment.targetLabel}
                   </ListMetaTile>
 
-                  <div className="grid gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-3 lg:grid-cols-1">
+                  <div className="grid gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-[auto_minmax(0,1fr)] lg:grid-cols-1">
                     <div className="flex flex-wrap items-start gap-2">
                       <StatusBadge status={assignment.status} />
                       <PriorityBadge priority={assignment.priority} />

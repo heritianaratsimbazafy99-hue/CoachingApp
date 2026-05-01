@@ -129,10 +129,10 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                     </span>
                     <div className="min-w-0">
                       <div className="flex flex-wrap gap-2">
-                        <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        <span className="inline-flex w-fit max-w-full shrink-0 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
                           {quiz.questionCount} questions
                         </span>
-                        <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                        <span className="inline-flex w-fit max-w-full shrink-0 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                           {quiz.passingScore}% requis
                         </span>
                       </div>
@@ -177,7 +177,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                         Modifier
                       </Link>
                     ) : (
-                      <span className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-500">
+                      <span className="inline-flex w-fit max-w-full items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-medium text-slate-500">
                         Assigné à vos coachés
                       </span>
                     )}
@@ -233,13 +233,13 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600">
+                        <span className="inline-flex w-fit max-w-full rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600">
                           Question {question.position}
                         </span>
-                        <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-700">
+                        <span className="inline-flex w-fit max-w-full rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-700">
                           {question.points} pts
                         </span>
-                        <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-indigo-700">
+                        <span className="inline-flex w-fit max-w-full rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-indigo-700">
                           {questionTypeLabel[question.questionType]}
                         </span>
                       </div>

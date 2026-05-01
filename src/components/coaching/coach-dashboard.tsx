@@ -304,20 +304,20 @@ export function CoachDashboard({ data }: { data: CoachDashboardData }) {
             <div className="divide-y divide-slate-100">
               {data.assignments.map((assignment) => (
                 <div
-                  className="grid gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[1fr_120px_130px_120px]"
+                  className="grid min-w-0 gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_auto_minmax(8rem,auto)_minmax(9rem,0.45fr)] md:items-start"
                   key={assignment.id}
                 >
-                  <div>
-                    <p className="font-medium">{assignment.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">
+                  <div className="min-w-0">
+                    <p className="break-words font-medium">{assignment.title}</p>
+                    <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-500">
                       {assignment.description}
                     </p>
                   </div>
                   <StatusBadge status={assignment.status} />
-                  <p className="text-sm text-slate-600">
+                  <p className="break-words text-sm text-slate-600">
                     Deadline {formatDate(assignment.deadline)}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="min-w-0 break-words text-sm text-slate-500">
                     {assignment.contentTitle}
                   </p>
                 </div>

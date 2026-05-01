@@ -413,13 +413,13 @@ function GoalStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex w-fit max-w-full shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
         isCompleted
           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
           : "border-sky-200 bg-sky-50 text-sky-700",
       )}
     >
-      {goalStatusLabel[status] ?? status}
+      <span className="min-w-0 truncate">{goalStatusLabel[status] ?? status}</span>
     </span>
   );
 }

@@ -285,6 +285,33 @@ textarea {
   color: var(--app-selection-text);
 }
 
+.ui-scrollbar {
+  scrollbar-color: rgb(148 163 184 / 0.45) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.ui-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.ui-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ui-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.32);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.ui-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 0.48);
+  background-clip: padding-box;
+}
+
 button,
 [role="button"] {
   cursor: pointer;

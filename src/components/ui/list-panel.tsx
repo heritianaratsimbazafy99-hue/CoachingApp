@@ -75,7 +75,7 @@ export function ListPanelRow({
   return (
     <div
       className={cn(
-        "grid min-w-0 gap-4 p-4 transition hover:bg-sky-50/35 sm:p-5 [contain-intrinsic-size:150px] [content-visibility:auto]",
+        "grid min-w-0 items-start gap-4 overflow-hidden p-4 transition hover:bg-sky-50/35 sm:p-5",
         className,
       )}
       {...props}

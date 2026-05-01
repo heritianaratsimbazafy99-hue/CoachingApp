@@ -29,11 +29,11 @@ function StatusBadge({ children, tone }: { children: string; tone: string }) {
   return (
     <span
       className={cn(
-        "inline-flex max-w-full rounded-full border px-2.5 py-1 text-xs font-semibold ring-1",
+        "inline-flex w-fit max-w-full shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
         tone,
       )}
     >
-      {children}
+      <span className="min-w-0 truncate">{children}</span>
     </span>
   );
 }

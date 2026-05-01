@@ -55,17 +55,17 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
           <div className="space-y-5 p-4">
             <div>
               <h2 className="text-sm font-semibold text-slate-600">Thèmes</h2>
-              <div className="mt-3 space-y-2">
+              <div className="ui-scrollbar mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
                 {data.themes.length ? (
                   data.themes.map((theme) => (
                     <div
                       className="rounded-xl border border-slate-200/80 bg-white/95 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white transition hover:border-sky-200 hover:bg-sky-50/35"
                       key={theme.id}
                     >
-                      <p className="font-medium text-slate-900">
+                      <p className="break-words font-medium text-slate-900">
                         {theme.title}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                      <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-slate-500">
                         {theme.description || "Aucune description"}
                       </p>
                     </div>
@@ -82,11 +82,11 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
               <h2 className="text-sm font-semibold text-slate-600">
                 Sous-thèmes
               </h2>
-              <div className="mt-3 space-y-2">
+              <div className="ui-scrollbar mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
                 {data.subthemes.length ? (
                   data.subthemes.map((subtheme) => (
                     <p
-                      className="rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-white transition hover:border-slate-300 hover:bg-white"
+                      className="truncate rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 text-sm font-medium text-slate-600 ring-1 ring-white transition hover:border-slate-300 hover:bg-white"
                       key={subtheme.id}
                     >
                       {subtheme.title}

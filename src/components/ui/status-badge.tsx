@@ -40,11 +40,11 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ring-1",
+        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
         statusStyles[status],
       )}
     >
-      {label}
+      <span className="min-w-0 truncate">{label}</span>
     </span>
   );
 }
@@ -53,13 +53,13 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ring-1",
+        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
         priority === "high"
           ? "border-orange-100 bg-orange-50 text-orange-700 ring-orange-100"
           : "border-slate-200 bg-slate-50 text-slate-600 ring-slate-100",
       )}
     >
-      {priorityLabel[priority]}
+      <span className="min-w-0 truncate">{priorityLabel[priority]}</span>
     </span>
   );
 }
