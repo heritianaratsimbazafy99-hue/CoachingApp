@@ -50,6 +50,9 @@ import {
 import { cn } from "@/utils/cn";
 
 export function MessagesPage({ data }: { data: MessagingData }) {
+  const unreadConversationCount = data.participants.filter(
+    (participant) => participant.unreadCount > 0,
+  ).length;
   const noConversationTitle =
     data.variant === "coach"
       ? "Aucun coaché disponible"
@@ -70,22 +73,49 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="min-w-0 p-4 sm:p-6">
-        <Card className="grid min-h-[680px] overflow-hidden lg:grid-cols-[340px_minmax(0,1fr)]">
-          <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/90 to-white lg:border-b-0 lg:border-r">
-            <div className="border-b border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2 ring-1 ring-white">
-                <div className="flex min-w-0 items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-sky-600" />
-                  <span className="truncate text-sm font-semibold text-slate-700">
-                    Conversations
+        <Card className="grid min-h-[680px] overflow-hidden border-slate-200/80 bg-white/95 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/95 via-white to-white lg:border-b-0 lg:border-r">
+            <div className="border-b border-slate-200 bg-white/95 p-4">
+              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700">
+                      <MessageCircle className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-900">
+                        Conversations
+                      </p>
+                      <p className="truncate text-xs text-slate-500">
+                        Autorisées par les cohortes
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                    {data.participants.length}
                   </span>
                 </div>
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">
-                  {data.participants.length}
-                </span>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl border border-white bg-white/85 px-3 py-2 ring-1 ring-slate-100">
+                    <p className="text-[11px] font-semibold uppercase text-slate-400">
+                      Total
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-900">
+                      {data.participants.length}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-sky-100 bg-sky-50/80 px-3 py-2 ring-1 ring-white">
+                    <p className="text-[11px] font-semibold uppercase text-sky-500">
+                      Non lus
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-sky-800">
+                      {unreadConversationCount}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="max-h-[320px] divide-y divide-slate-100 overflow-y-auto lg:max-h-[620px]">
+            <div className="max-h-[340px] space-y-2 overflow-y-auto p-3 lg:max-h-[620px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -94,10 +124,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   return (
                     <Link
                       className={cn(
-                        "flex min-w-0 items-center gap-3 border-l-2 px-4 py-3 transition",
+                        "group flex min-w-0 items-center gap-3 rounded-2xl border p-3 transition",
                         isSelected
-                          ? "border-sky-500 bg-white shadow-sm shadow-slate-950/[0.03]"
-                          : "border-transparent hover:bg-sky-50/45",
+                          ? "border-sky-200 bg-white shadow-sm shadow-sky-950/[0.04] ring-1 ring-sky-100"
+                          : "border-transparent bg-white/55 hover:border-sky-100 hover:bg-white hover:shadow-sm hover:shadow-slate-950/[0.03]",
                       )}
                       href={participant.href}
                       key={participant.userId}
@@ -107,7 +137,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                           "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ring-1",
                           isSelected
                             ? "bg-sky-600 text-white ring-sky-600"
-                            : "bg-white text-slate-700 ring-slate-200",
+                            : "bg-slate-50 text-slate-700 ring-slate-200 group-hover:bg-sky-50 group-hover:text-sky-700",
                         )}
                       >
                         {participant.fullName.slice(0, 1)}
@@ -147,24 +177,29 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             </div>
           </aside>
 
-          <section className="flex min-h-[620px] min-w-0 flex-col bg-gradient-to-b from-slate-50 to-white">
-            <div className="border-b border-slate-200 bg-white p-4">
+          <section className="flex min-h-[620px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_46%,#f8fafc_100%)]">
+            <div className="border-b border-slate-200 bg-white/95 p-4">
               {data.selectedParticipant ? (
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sm font-semibold text-sky-700 ring-1 ring-sky-100">
-                    {data.selectedParticipant.fullName.slice(0, 1)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-slate-950">
-                      {data.selectedParticipant.fullName}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      Conversation{" "}
-                      {data.variant === "coach"
-                        ? "coach vers coaché"
-                        : "avec le coach"}
-                    </p>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sm font-semibold text-sky-700 ring-1 ring-sky-100">
+                      {data.selectedParticipant.fullName.slice(0, 1)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-slate-950">
+                        {data.selectedParticipant.fullName}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        Conversation{" "}
+                        {data.variant === "coach"
+                          ? "coach vers coaché"
+                          : "avec le coach"}
+                      </p>
+                    </div>
                   </div>
+                  <span className="w-fit rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                    {data.messages.length} message(s)
+                  </span>
                 </div>
               ) : (
                 <>
@@ -221,7 +256,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 ))
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  <div className="max-w-sm rounded-xl border border-slate-200 bg-white/95 p-5 text-center text-sm leading-6 text-slate-500 shadow-sm shadow-slate-950/[0.04]">
+                  <div className="max-w-sm rounded-2xl border border-dashed border-slate-200 bg-white/95 p-5 text-center text-sm leading-6 text-slate-500 shadow-sm shadow-slate-950/[0.04]">
+                    <span className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+                      <MessageCircle className="h-5 w-5" />
+                    </span>
                     Aucun message dans cette conversation. Envoyez un premier
                     message clair et court.
                   </div>
@@ -229,7 +267,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
               )}
             </div>
 
-            <div className="border-t border-slate-200 bg-white/95 p-4">
+            <div className="sticky bottom-0 border-t border-slate-200 bg-white/95 p-4 shadow-[0_-14px_30px_rgba(15,23,42,0.04)] backdrop-blur">
               {data.selectedParticipant ? (
                 <MessageComposerForm
                   receiverId={data.selectedParticipant.userId}

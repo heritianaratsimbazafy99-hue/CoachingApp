@@ -11,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import type {
   CoachContentEditorData,
   CoachLibraryData,
@@ -127,55 +133,69 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
             </div>
           </Card>
 
-          {data.contents.length ? (
-            <div className="grid gap-4 xl:grid-cols-2">
-              {data.contents.map((content) => (
-                <article
-                  className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:290px] [content-visibility:auto]"
-                  key={content.id}
-                >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 ring-1 ring-white transition group-hover:scale-105">
-                      <FileText className="h-5 w-5" />
+          <ListPanel
+            countLabel={`${data.contents.length} ressource(s)`}
+            description="Liste dense pour retrouver, classer et modifier rapidement les ressources pédagogiques."
+            icon={BookOpen}
+            title="Catalogue"
+          >
+            {data.contents.length ? (
+              <ListPanelBody>
+                {data.contents.map((content) => (
+                  <ListPanelRow
+                    className="lg:grid-cols-[minmax(0,1.35fr)_minmax(140px,0.55fr)_minmax(180px,0.75fr)_auto] lg:items-center"
+                    key={content.id}
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                        <FileText className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <h2 className="break-words text-base font-semibold text-slate-950">
+                          {content.title}
+                        </h2>
+                        <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-600">
+                          {content.description}
+                        </p>
+                      </div>
                     </div>
-                    <StatusBadge status={content.status} />
-                  </div>
-                  <h2 className="mt-5 break-words text-lg font-semibold text-slate-950">
-                    {content.title}
-                  </h2>
-                  <p className="mt-2 break-words text-sm leading-6 text-slate-600">
-                    {content.description}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-                    <span className="max-w-full truncate rounded-full bg-sky-50 px-2.5 py-1 text-sky-700 ring-1 ring-sky-100">
+
+                    <ListMetaTile label="Type">
                       {contentTypeLabel[content.type]}
-                    </span>
-                    <span className="max-w-full truncate rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
-                      {content.themeTitle}
-                    </span>
-                    <span className="max-w-full truncate rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-slate-100">
-                      {content.subthemeTitle}
-                    </span>
-                  </div>
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <Link
-                      className={buttonVariants({ variant: "secondary" })}
-                      href={`/coach/library/${content.id}/edit`}
-                    >
-                      Modifier
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              description="Créez votre premier cours, vidéo ou quiz pour alimenter la bibliothèque."
-              icon={BookOpen}
-              title="Aucun contenu"
-            />
-          )}
+                    </ListMetaTile>
+
+                    <ListMetaTile label="Classement">
+                      <span className="block truncate">{content.themeTitle}</span>
+                      <span className="mt-0.5 block truncate text-xs font-medium text-slate-500">
+                        {content.subthemeTitle}
+                      </span>
+                    </ListMetaTile>
+
+                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                      <StatusBadge status={content.status} />
+                      <Link
+                        className={buttonVariants({
+                          size: "sm",
+                          variant: "secondary",
+                        })}
+                        href={`/coach/library/${content.id}/edit`}
+                      >
+                        Modifier
+                      </Link>
+                    </div>
+                  </ListPanelRow>
+                ))}
+              </ListPanelBody>
+            ) : (
+              <div className="p-5">
+                <EmptyState
+                  description="Créez votre premier cours, vidéo ou quiz pour alimenter la bibliothèque."
+                  icon={BookOpen}
+                  title="Aucun contenu"
+                />
+              </div>
+            )}
+          </ListPanel>
         </section>
       </div>
     </>
