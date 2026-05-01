@@ -25,7 +25,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import type {
   CoachCorrectionsData,
   CoachQuizEditorData,
@@ -216,30 +215,35 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
         <QuizEditorForm data={data} />
 
         {data.quiz ? (
-          <section className="space-y-4">
+          <ListPanel
+            countLabel={`${data.quiz.questions.length} question(s)`}
+            description="Ordre, points, type de correction et bonnes réponses visibles au même endroit."
+            icon={FileQuestion}
+            title="Questions du quiz"
+          >
             {data.quiz.questions.length ? (
-              data.quiz.questions.map((question) => (
-                <Card
-                  className="p-5 [contain-intrinsic-size:220px] [content-visibility:auto]"
-                  key={question.id}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 rounded-xl bg-sky-50 p-2 text-sky-700">
+              <ListPanelBody>
+                {data.quiz.questions.map((question) => (
+                  <ListPanelRow
+                    className="lg:grid-cols-[44px_minmax(0,1fr)] lg:items-start"
+                    key={question.id}
+                  >
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
                       <GripVertical className="h-5 w-5" />
                     </div>
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600">
                           Question {question.position}
                         </span>
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
+                        <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-700">
                           {question.points} pts
                         </span>
-                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">
+                        <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-indigo-700">
                           {questionTypeLabel[question.questionType]}
                         </span>
                       </div>
-                      <h2 className="mt-3 font-semibold text-slate-950">
+                      <h2 className="mt-3 break-words font-semibold text-slate-950">
                         {question.questionText}
                       </h2>
 
@@ -272,17 +276,19 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
                         </p>
                       ) : null}
                     </div>
-                  </div>
-                </Card>
-              ))
+                  </ListPanelRow>
+                ))}
+              </ListPanelBody>
             ) : (
-              <EmptyState
-                description="Ajoutez au moins une question pour rendre ce quiz assignable et exploitable."
-                icon={FileQuestion}
-                title="Aucune question"
-              />
+              <div className="p-6">
+                <EmptyState
+                  description="Ajoutez au moins une question pour rendre ce quiz assignable et exploitable."
+                  icon={FileQuestion}
+                  title="Aucune question"
+                />
+              </div>
             )}
-          </section>
+          </ListPanel>
         ) : null}
       </div>
     </>

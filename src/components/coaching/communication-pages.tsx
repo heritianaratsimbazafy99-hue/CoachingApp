@@ -73,10 +73,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="min-w-0 p-4 sm:p-6">
-        <Card className="grid min-h-[680px] overflow-hidden border-slate-200/80 bg-white/95 lg:grid-cols-[360px_minmax(0,1fr)]">
+        <Card className="grid min-h-[680px] overflow-hidden border-slate-200/80 bg-white/95 lg:grid-cols-[380px_minmax(0,1fr)]">
           <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/95 via-white to-white lg:border-b-0 lg:border-r">
             <div className="border-b border-slate-200 bg-white/95 p-4">
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white">
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700">
@@ -115,7 +115,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </div>
               </div>
             </div>
-            <div className="max-h-[340px] space-y-2 overflow-y-auto p-3 lg:max-h-[620px]">
+            <div className="max-h-[380px] space-y-2 overflow-y-auto p-3 lg:max-h-[640px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -124,9 +124,9 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   return (
                     <Link
                       className={cn(
-                        "group flex min-w-0 items-center gap-3 rounded-2xl border p-3 transition",
+                        "group relative flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-3 transition [contain-intrinsic-size:72px] [content-visibility:auto]",
                         isSelected
-                          ? "border-sky-200 bg-white shadow-sm shadow-sky-950/[0.04] ring-1 ring-sky-100"
+                          ? "border-sky-200 bg-white pl-4 shadow-sm shadow-sky-950/[0.04] ring-1 ring-sky-100 before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-r-full before:bg-sky-500 before:content-['']"
                           : "border-transparent bg-white/55 hover:border-sky-100 hover:bg-white hover:shadow-sm hover:shadow-slate-950/[0.03]",
                       )}
                       href={participant.href}
@@ -153,7 +153,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-1 truncate text-xs text-slate-500">
+                        <p className="mt-1 truncate text-xs leading-5 text-slate-500">
                           {participant.lastMessagePreview}
                         </p>
                       </div>
@@ -177,7 +177,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             </div>
           </aside>
 
-          <section className="flex min-h-[620px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_46%,#f8fafc_100%)]">
+          <section className="flex min-h-[620px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_44%,#f8fafc_100%)]">
             <div className="border-b border-slate-200 bg-white/95 p-4">
               {data.selectedParticipant ? (
                 <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -239,7 +239,9 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                           : "rounded-bl-md border border-slate-200 bg-white/95 text-slate-800 shadow-slate-950/[0.04]",
                       )}
                     >
-                      <p className="whitespace-pre-wrap">{message.body}</p>
+                      <p className="whitespace-pre-wrap break-words">
+                        {message.body}
+                      </p>
                       <div
                         className={cn(
                           "mt-2 flex justify-end gap-1 text-[11px]",

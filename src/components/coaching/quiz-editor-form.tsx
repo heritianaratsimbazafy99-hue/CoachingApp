@@ -9,12 +9,7 @@ import {
 } from "@/app/coach/quizzes/actions";
 import type { FormState } from "@/app/coach/quizzes/actions";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { FormSection } from "@/components/ui/form-section";
 import { FormStatusMessage } from "@/components/ui/form-status-message";
 import {
   inputClassName,
@@ -86,23 +81,17 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
   const isOpenQuestion = questionType === "open";
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <Card className="overflow-hidden">
-        <CardHeader>
-          <div className="flex items-start gap-3">
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
-              <ClipboardList className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <CardTitle>Paramètres du quiz</CardTitle>
-              <CardDescription>
-                Cadrez le quiz, le contenu lié et le seuil attendu avant de
-                gérer les questions.
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <form action={saveFormAction} className="p-5 sm:p-6">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <form
+        action={saveFormAction}
+        className="space-y-5 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white sm:p-5"
+      >
+        <FormSection
+          className="bg-white"
+          description="Cadrez le quiz, le contenu lié et le seuil attendu avant de gérer les questions."
+          icon={ClipboardList}
+          title="Paramètres du quiz"
+        >
           <input name="quizId" type="hidden" value={data.quiz?.id ?? ""} />
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block md:col-span-2">
@@ -154,121 +143,114 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
               />
             </label>
           </div>
+        </FormSection>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-[1fr_220px] md:items-center">
-            <FormStatusMessage
-              message={saveState.message}
-              status={saveState.status}
-            />
-            <SubmitButton
-              label="Enregistrer le quiz"
-              pendingLabel="Enregistrement..."
-            />
-          </div>
-        </form>
-      </Card>
+        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-center">
+          <FormStatusMessage
+            message={saveState.message}
+            status={saveState.status}
+          />
+          <SubmitButton
+            label="Enregistrer le quiz"
+            pendingLabel="Enregistrement..."
+          />
+        </div>
+      </form>
 
       {data.quiz ? (
-        <Card className="overflow-hidden lg:sticky lg:top-24 lg:self-start">
-          <form action={questionFormAction}>
+        <form
+          action={questionFormAction}
+          className="space-y-5 rounded-xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white sm:p-5 lg:sticky lg:top-24 lg:self-start"
+        >
+          <FormSection
+            className="bg-white"
+            description="Ajoute une question sans quitter l'éditeur du quiz."
+            icon={CheckCircle2}
+            title="Nouvelle question"
+          >
             <input name="quizId" type="hidden" value={data.quiz.id} />
-            <CardHeader>
-              <div className="flex items-start gap-3">
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 ring-1 ring-white">
-                  <CheckCircle2 className="h-5 w-5" />
-                </span>
-                <div className="min-w-0">
-                  <CardTitle>Nouvelle question</CardTitle>
-                  <CardDescription>
-                    Ajoute une question sans quitter l&apos;éditeur du quiz.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
 
-            <div className="space-y-4 p-5">
-              <label className="block">
-                <span className={labelClassName}>Type</span>
-                <select
-                  className={inputClassName()}
-                  name="questionType"
-                  onChange={(event) =>
-                    setQuestionType(event.target.value as QuestionType)
-                  }
-                  value={questionType}
-                >
-                  {Object.entries(questionTypeLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            <label className="block">
+              <span className={labelClassName}>Type</span>
+              <select
+                className={inputClassName()}
+                name="questionType"
+                onChange={(event) =>
+                  setQuestionType(event.target.value as QuestionType)
+                }
+                value={questionType}
+              >
+                {Object.entries(questionTypeLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-              <label className="block">
-                <span className={labelClassName}>Question</span>
-                <textarea
-                  className={textareaClassName("min-h-24")}
-                  name="questionText"
-                  placeholder="Que doit maîtriser le coaché ?"
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClassName}>Points</span>
-                <input
-                  className={inputClassName()}
-                  defaultValue={1}
-                  min={0}
-                  name="points"
-                  type="number"
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClassName}>Options</span>
-                <textarea
-                  className={textareaClassName()}
-                  disabled={isOpenQuestion}
-                  name="options"
-                  placeholder={"Option A\nOption B\nOption C"}
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClassName}>Bonnes réponses</span>
-                <input
-                  className={inputClassName()}
-                  disabled={isOpenQuestion}
-                  name="correctOptions"
-                  placeholder="1 ou 1,3"
-                />
-              </label>
-
-              <label className="block">
-                <span className={labelClassName}>Explication</span>
-                <textarea
-                  className={textareaClassName("min-h-20")}
-                  name="explanation"
-                  placeholder="Feedback affichable après correction"
-                />
-              </label>
-
-              <FormStatusMessage
-                message={questionState.message}
-                status={questionState.status}
+            <label className="block">
+              <span className={labelClassName}>Question</span>
+              <textarea
+                className={textareaClassName("min-h-24")}
+                name="questionText"
+                placeholder="Que doit maîtriser le coaché ?"
+                required
               />
-              <SubmitButton
-                label="Ajouter la question"
-                pendingLabel="Ajout..."
-                tone="emerald"
+            </label>
+
+            <label className="block">
+              <span className={labelClassName}>Points</span>
+              <input
+                className={inputClassName()}
+                defaultValue={1}
+                min={0}
+                name="points"
+                type="number"
               />
-            </div>
-          </form>
-        </Card>
+            </label>
+
+            <label className="block">
+              <span className={labelClassName}>Options</span>
+              <textarea
+                className={textareaClassName()}
+                disabled={isOpenQuestion}
+                name="options"
+                placeholder={"Option A\nOption B\nOption C"}
+              />
+            </label>
+
+            <label className="block">
+              <span className={labelClassName}>Bonnes réponses</span>
+              <input
+                className={inputClassName()}
+                disabled={isOpenQuestion}
+                name="correctOptions"
+                placeholder="1 ou 1,3"
+              />
+            </label>
+
+            <label className="block">
+              <span className={labelClassName}>Explication</span>
+              <textarea
+                className={textareaClassName("min-h-20")}
+                name="explanation"
+                placeholder="Feedback affichable après correction"
+              />
+            </label>
+          </FormSection>
+
+          <FormStatusMessage
+            message={questionState.message}
+            status={questionState.status}
+          />
+          <SubmitButton
+            label="Ajouter la question"
+            pendingLabel="Ajout..."
+            tone="emerald"
+          />
+        </form>
       ) : (
-        <Card className="border-dashed border-slate-200/80 bg-slate-50/70 p-5 text-sm leading-6 text-slate-600 lg:sticky lg:top-24 lg:self-start">
+        <div className="rounded-xl border border-dashed border-slate-200/80 bg-slate-50/70 p-5 text-sm leading-6 text-slate-600 ring-1 ring-white lg:sticky lg:top-24 lg:self-start">
           <div className="flex items-start gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500">
               <CheckCircle2 className="h-5 w-5" />
@@ -277,7 +259,7 @@ export function QuizEditorForm({ data }: { data: CoachQuizEditorData }) {
               Enregistre le quiz une première fois pour ajouter ses questions.
             </p>
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );
