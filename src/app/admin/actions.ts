@@ -64,7 +64,7 @@ function revalidateAdminUserPages() {
 
 function userCreationErrorMessage(message: string) {
   if (message.toLowerCase().includes("database error creating new user")) {
-    return "Supabase bloque la création du profil. Exécutez supabase/fix-auth-user-profile-trigger.sql puis réessayez.";
+    return "Supabase bloque la création du profil. Exécutez supabase/fix-admin-role-updates.sql puis réessayez.";
   }
 
   return message;

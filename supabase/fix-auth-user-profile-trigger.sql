@@ -204,6 +204,8 @@ declare
   safe_app_meta jsonb := coalesce(new.raw_app_meta_data, '{}'::jsonb);
   safe_user_meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
 begin
+  perform set_config('app.profile_role_update_bypass', 'on', true);
+
   insert into public.profiles (
     user_id,
     full_name,
