@@ -9,6 +9,7 @@ import {
 import { cn } from "@/utils/cn";
 
 type ListPanelProps = HTMLAttributes<HTMLDivElement> & {
+  actions?: ReactNode;
   countLabel?: string;
   description: string;
   icon?: LucideIcon;
@@ -16,6 +17,7 @@ type ListPanelProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export function ListPanel({
+  actions,
   children,
   className,
   countLabel,
@@ -38,10 +40,15 @@ export function ListPanel({
             <CardDescription>{description}</CardDescription>
           </div>
         </div>
-        {countLabel ? (
-          <span className="w-fit rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
-            {countLabel}
-          </span>
+        {countLabel || actions ? (
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            {countLabel ? (
+              <span className="w-fit rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
+                {countLabel}
+              </span>
+            ) : null}
+            {actions}
+          </div>
         ) : null}
       </CardHeader>
       {children}

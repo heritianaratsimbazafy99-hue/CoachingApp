@@ -19,6 +19,12 @@ import { AdminUserOnboardingActions } from "@/components/coaching/admin-user-onb
 import { AdminRoleForm } from "@/components/coaching/admin-role-form";
 import { AdminUserCreateForm } from "@/components/coaching/admin-user-create-form";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  ListMetaTile,
+  ListPanel,
+  ListPanelBody,
+  ListPanelRow,
+} from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatCard } from "@/components/ui/stat-card";
@@ -199,46 +205,41 @@ export function AdminUsersPage({
           </Card>
         )}
         {visibleUsers.length ? (
-          <Card className="overflow-hidden">
-            {compact ? (
-              <CardHeader className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Utilisateurs récents</CardTitle>
-                  <CardDescription>
-                    Comptes Supabase synchronisés avec les profils.
-                  </CardDescription>
-                </div>
+          <ListPanel
+            actions={
+              compact ? (
                 <Link
                   className={buttonVariants({ size: "sm", variant: "secondary" })}
                   href="/admin/users"
                 >
                   Tout voir
                 </Link>
-              </CardHeader>
-            ) : (
-              <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
-                <div>
-                  <CardTitle>Comptes utilisateurs</CardTitle>
-                  <CardDescription>
-                    Rôle, onboarding et dernière activité.
-                  </CardDescription>
-                </div>
-                <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
-                  {visibleUsers.length} compte(s)
-                </span>
-              </CardHeader>
-            )}
-            <div className="divide-y divide-slate-100">
+              ) : null
+            }
+            countLabel={`${visibleUsers.length} compte(s)`}
+            description={
+              compact
+                ? "Comptes Supabase synchronisés avec les profils."
+                : "Rôle, onboarding et dernière activité."
+            }
+            icon={UsersRound}
+            title={compact ? "Utilisateurs récents" : "Comptes utilisateurs"}
+          >
+            <ListPanelBody>
               {visibleUsers.map((profile) => {
                 const onboardingStatus = getOnboardingStatus(profile);
 
                 return (
-                  <div
-                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_120px_170px_280px] [contain-intrinsic-size:150px] [content-visibility:auto]"
+                  <ListPanelRow
+                    className={
+                      compact
+                        ? "lg:grid-cols-[minmax(0,1fr)_130px_180px]"
+                        : "lg:grid-cols-[minmax(0,1fr)_130px_190px_minmax(220px,280px)] lg:items-start"
+                    }
                     key={profile.id}
                   >
-                    <div className="flex min-w-0 gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-xs font-semibold text-white shadow-sm shadow-slate-950/10">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-950 text-xs font-semibold text-white shadow-sm shadow-slate-950/10">
                         {initials(profile.fullName)}
                       </div>
                       <div className="min-w-0">
@@ -250,33 +251,34 @@ export function AdminUsersPage({
                         </p>
                       </div>
                     </div>
-                    <span
-                      className={`inline-flex w-fit self-start rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
-                    >
-                      {roleLabel[profile.role]}
-                    </span>
-                    <div className="space-y-3 text-sm text-slate-500">
-                      <p>
-                        Dernière connexion
-                        <span className="mt-1 block font-medium text-slate-700">
-                          {formatDate(profile.lastSignInAt)}
-                        </span>
-                      </p>
+
+                    <ListMetaTile label="Rôle">
+                      <span
+                        className={`inline-flex w-fit rounded-full border px-2.5 py-1 text-xs font-semibold ring-1 ${roleStyles[profile.role]}`}
+                      >
+                        {roleLabel[profile.role]}
+                      </span>
+                    </ListMetaTile>
+
+                    <div className="grid gap-2">
+                      <ListMetaTile label="Dernière connexion">
+                        {formatDate(profile.lastSignInAt)}
+                      </ListMetaTile>
                       {compact ? null : (
-                        <p>
-                          Onboarding
+                        <ListMetaTile label="Onboarding">
                           <span
-                            className={`mt-1 inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
+                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ring-1 ${onboardingStatus.className}`}
                           >
                             {onboardingStatus.label}
                           </span>
-                        </p>
+                        </ListMetaTile>
                       )}
                     </div>
+
                     {compact ? (
-                      <span className="text-sm text-slate-500">
-                        Créé le {formatDate(profile.createdAt)}
-                      </span>
+                      <ListMetaTile label="Créé le">
+                        {formatDate(profile.createdAt)}
+                      </ListMetaTile>
                     ) : (
                       <div className="space-y-3">
                         <AdminRoleForm
@@ -286,11 +288,11 @@ export function AdminUsersPage({
                         <AdminUserOnboardingActions userId={profile.id} />
                       </div>
                     )}
-                  </div>
+                  </ListPanelRow>
                 );
               })}
-            </div>
-          </Card>
+            </ListPanelBody>
+          </ListPanel>
         ) : (
           <EmptyState
             description="Aucun compte n'a encore été synchronisé dans Supabase Auth."
@@ -318,54 +320,49 @@ export function AdminCoachesPage({
         description="Liste des coachs et charge de cohortes."
         title="Coachs"
       />
-      <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-2">
+      <div className="p-4 sm:p-6">
         {coaches.length ? (
-          coaches.map((coach) => (
-            <article
-              className="group rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:150px] [content-visibility:auto]"
-              key={coach.id}
-            >
-              <div className="flex items-start gap-3">
-                <div className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 transition group-hover:scale-105">
-                  <GraduationCap className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="break-words text-lg font-semibold">
-                    {coach.fullName}
-                  </p>
-                  <p className="mt-1 break-words text-sm text-slate-500">
-                    {coach.email}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                  <p className="font-medium text-slate-500">
-                    Cohortes responsables
-                  </p>
-                  <p className="mt-1 text-xl font-semibold text-slate-950">
+          <ListPanel
+            countLabel={`${coaches.length} coach(s)`}
+            description="Charge de cohortes et dernière activité par coach."
+            icon={GraduationCap}
+            title="Liste des coachs"
+          >
+            <ListPanelBody>
+              {coaches.map((coach) => (
+                <ListPanelRow
+                  className="lg:grid-cols-[minmax(0,1fr)_180px_190px]"
+                  key={coach.id}
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 ring-1 ring-white">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="break-words text-base font-semibold text-slate-950">
+                        {coach.fullName}
+                      </p>
+                      <p className="mt-1 break-words text-sm text-slate-500">
+                        {coach.email}
+                      </p>
+                    </div>
+                  </div>
+                  <ListMetaTile label="Cohortes responsables">
                     {cohorts.filter((cohort) => cohort.coachId === coach.id).length}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white">
-                  <p className="font-medium text-slate-500">
-                    Dernière connexion
-                  </p>
-                  <p className="mt-1 font-semibold text-slate-950">
+                  </ListMetaTile>
+                  <ListMetaTile label="Dernière connexion">
                     {formatDate(coach.lastSignInAt)}
-                  </p>
-                </div>
-              </div>
-            </article>
-          ))
+                  </ListMetaTile>
+                </ListPanelRow>
+              ))}
+            </ListPanelBody>
+          </ListPanel>
         ) : (
-          <div className="lg:col-span-2">
-            <EmptyState
-              description="Aucun utilisateur n'a encore le rôle coach."
-              icon={GraduationCap}
-              title="Aucun coach"
-            />
-          </div>
+          <EmptyState
+            description="Aucun utilisateur n'a encore le rôle coach."
+            icon={GraduationCap}
+            title="Aucun coach"
+          />
         )}
       </div>
     </>
