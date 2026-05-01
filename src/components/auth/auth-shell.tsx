@@ -15,7 +15,7 @@ const benefits = [
 
 export function AuthShell({ children, description, title }: AuthShellProps) {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_12%,rgb(14_165_233_/_0.16),transparent_28rem),radial-gradient(circle_at_86%_18%,rgb(99_102_241_/_0.13),transparent_30rem),linear-gradient(180deg,#ffffff_0%,#f7f9fc_100%)] text-slate-800">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_12%,var(--app-body-radial-1),transparent_28rem),radial-gradient(circle_at_86%_18%,var(--app-body-radial-2),transparent_30rem),linear-gradient(180deg,var(--app-body-start)_0%,var(--app-body-mid)_100%)] text-slate-800">
       <div className="mx-auto grid min-h-screen w-full max-w-6xl px-4 py-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
         <section className="flex min-w-0 flex-col gap-10 lg:justify-between">
           <Link href="/" className="text-lg font-semibold tracking-normal">

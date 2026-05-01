@@ -1,35 +1,243 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f7f9fc;
-  --foreground: #0f172a;
+:root,
+:root[data-interface-theme="violet"] {
+  --background: #fbf7ff;
+  --foreground: #160f2c;
+  --app-body-radial-1: rgb(168 85 247 / 0.16);
+  --app-body-radial-2: rgb(253 186 116 / 0.12);
+  --app-body-start: #fffaff;
+  --app-body-mid: #fbf7ff;
+  --app-body-end: #f2eaff;
+  --app-shell-from: #fcf8ff;
+  --app-shell-via: #ffffff;
+  --app-shell-to: #f1eaff;
+  --app-focus: #9333ea;
+  --app-selection-bg: #f3e8ff;
+  --app-selection-text: #581c87;
+  --app-sidebar-bg: #756098;
+  --app-sidebar-border: rgb(255 255 255 / 0.18);
+  --app-sidebar-title: #ffffff;
+  --app-sidebar-text: #fbf7ff;
+  --app-sidebar-muted: #e2d5ef;
+  --app-sidebar-raised: rgb(255 255 255 / 0.12);
+  --app-sidebar-hover: rgb(255 255 255 / 0.16);
+  --app-sidebar-active-bg: #fff0b8;
+  --app-sidebar-active-border: rgb(255 255 255 / 0.62);
+  --app-sidebar-active-text: #33263f;
+  --app-sidebar-active-icon-bg: #fff8d8;
+  --app-sidebar-active-icon-text: #7c5b00;
+  --app-avatar-from: #f3e8ff;
+  --app-avatar-to: #fff0b8;
+  --app-avatar-text: #3b2457;
+  --theme-primary-50: #faf5ff;
+  --theme-primary-100: #f3e8ff;
+  --theme-primary-200: #e9d5ff;
+  --theme-primary-300: #d8b4fe;
+  --theme-primary-400: #c084fc;
+  --theme-primary-500: #a855f7;
+  --theme-primary-600: #9333ea;
+  --theme-primary-700: #7e22ce;
+  --theme-primary-800: #6b21a8;
+  --theme-primary-900: #581c87;
+  --theme-primary-950: #3b0764;
+  --theme-secondary-50: #fffbeb;
+  --theme-secondary-100: #fef3c7;
+  --theme-secondary-200: #fde68a;
+  --theme-secondary-300: #fcd34d;
+  --theme-secondary-400: #fbbf24;
+  --theme-secondary-500: #f59e0b;
+  --theme-secondary-600: #d97706;
+  --theme-secondary-700: #b45309;
+  --theme-secondary-800: #92400e;
+  --theme-secondary-900: #78350f;
+  --theme-secondary-950: #451a03;
+}
+
+:root[data-interface-theme="ocean"] {
+  --background: #f2fbff;
+  --foreground: #092435;
+  --app-body-radial-1: rgb(14 165 233 / 0.16);
+  --app-body-radial-2: rgb(45 212 191 / 0.13);
+  --app-body-start: #f8fdff;
+  --app-body-mid: #f2fbff;
+  --app-body-end: #e9f7fb;
+  --app-shell-from: #f5fcff;
+  --app-shell-via: #ffffff;
+  --app-shell-to: #e6f6f7;
+  --app-focus: #0284c7;
+  --app-selection-bg: #cffafe;
+  --app-selection-text: #155e75;
+  --app-sidebar-bg: #0f4e68;
+  --app-sidebar-border: rgb(255 255 255 / 0.16);
+  --app-sidebar-title: #f8fdff;
+  --app-sidebar-text: #eefcff;
+  --app-sidebar-muted: #bee4ed;
+  --app-sidebar-raised: rgb(255 255 255 / 0.1);
+  --app-sidebar-hover: rgb(255 255 255 / 0.14);
+  --app-sidebar-active-bg: #dff7f2;
+  --app-sidebar-active-border: rgb(255 255 255 / 0.55);
+  --app-sidebar-active-text: #073b4c;
+  --app-sidebar-active-icon-bg: #ecfeff;
+  --app-sidebar-active-icon-text: #0f766e;
+  --app-avatar-from: #e0f2fe;
+  --app-avatar-to: #ccfbf1;
+  --app-avatar-text: #083344;
+  --theme-primary-50: #f0f9ff;
+  --theme-primary-100: #e0f2fe;
+  --theme-primary-200: #bae6fd;
+  --theme-primary-300: #7dd3fc;
+  --theme-primary-400: #38bdf8;
+  --theme-primary-500: #0ea5e9;
+  --theme-primary-600: #0284c7;
+  --theme-primary-700: #0369a1;
+  --theme-primary-800: #075985;
+  --theme-primary-900: #0c4a6e;
+  --theme-primary-950: #082f49;
+  --theme-secondary-50: #f0fdfa;
+  --theme-secondary-100: #ccfbf1;
+  --theme-secondary-200: #99f6e4;
+  --theme-secondary-300: #5eead4;
+  --theme-secondary-400: #2dd4bf;
+  --theme-secondary-500: #14b8a6;
+  --theme-secondary-600: #0d9488;
+  --theme-secondary-700: #0f766e;
+  --theme-secondary-800: #115e59;
+  --theme-secondary-900: #134e4a;
+  --theme-secondary-950: #042f2e;
+}
+
+:root[data-interface-theme="sage"] {
+  --background: #f5fbf6;
+  --foreground: #10251f;
+  --app-body-radial-1: rgb(16 185 129 / 0.14);
+  --app-body-radial-2: rgb(251 146 60 / 0.12);
+  --app-body-start: #fbfffb;
+  --app-body-mid: #f5fbf6;
+  --app-body-end: #eaf5ee;
+  --app-shell-from: #f8fdf8;
+  --app-shell-via: #ffffff;
+  --app-shell-to: #edf7ef;
+  --app-focus: #059669;
+  --app-selection-bg: #dcfce7;
+  --app-selection-text: #166534;
+  --app-sidebar-bg: #28594f;
+  --app-sidebar-border: rgb(255 255 255 / 0.16);
+  --app-sidebar-title: #fbfffb;
+  --app-sidebar-text: #f4fff8;
+  --app-sidebar-muted: #c9e7d8;
+  --app-sidebar-raised: rgb(255 255 255 / 0.1);
+  --app-sidebar-hover: rgb(255 255 255 / 0.14);
+  --app-sidebar-active-bg: #ffe5c4;
+  --app-sidebar-active-border: rgb(255 255 255 / 0.55);
+  --app-sidebar-active-text: #31433a;
+  --app-sidebar-active-icon-bg: #fff7ed;
+  --app-sidebar-active-icon-text: #b45309;
+  --app-avatar-from: #dcfce7;
+  --app-avatar-to: #fed7aa;
+  --app-avatar-text: #14532d;
+  --theme-primary-50: #ecfdf5;
+  --theme-primary-100: #d1fae5;
+  --theme-primary-200: #a7f3d0;
+  --theme-primary-300: #6ee7b7;
+  --theme-primary-400: #34d399;
+  --theme-primary-500: #10b981;
+  --theme-primary-600: #059669;
+  --theme-primary-700: #047857;
+  --theme-primary-800: #065f46;
+  --theme-primary-900: #064e3b;
+  --theme-primary-950: #022c22;
+  --theme-secondary-50: #fff7ed;
+  --theme-secondary-100: #ffedd5;
+  --theme-secondary-200: #fed7aa;
+  --theme-secondary-300: #fdba74;
+  --theme-secondary-400: #fb923c;
+  --theme-secondary-500: #f97316;
+  --theme-secondary-600: #ea580c;
+  --theme-secondary-700: #c2410c;
+  --theme-secondary-800: #9a3412;
+  --theme-secondary-900: #7c2d12;
+  --theme-secondary-950: #431407;
+}
+
+:root[data-interface-theme="midnight"] {
+  --background: #f4f7fb;
+  --foreground: #101827;
+  --app-body-radial-1: rgb(79 70 229 / 0.14);
+  --app-body-radial-2: rgb(14 165 233 / 0.1);
+  --app-body-start: #f8fbff;
+  --app-body-mid: #f4f7fb;
+  --app-body-end: #e9eef7;
+  --app-shell-from: #f8fbff;
+  --app-shell-via: #ffffff;
+  --app-shell-to: #eef2ff;
+  --app-focus: #4f46e5;
+  --app-selection-bg: #e0e7ff;
+  --app-selection-text: #3730a3;
+  --app-sidebar-bg: #111827;
+  --app-sidebar-border: rgb(255 255 255 / 0.13);
+  --app-sidebar-title: #ffffff;
+  --app-sidebar-text: #f7f9ff;
+  --app-sidebar-muted: #cbd5e1;
+  --app-sidebar-raised: rgb(255 255 255 / 0.08);
+  --app-sidebar-hover: rgb(255 255 255 / 0.12);
+  --app-sidebar-active-bg: #e0e7ff;
+  --app-sidebar-active-border: rgb(255 255 255 / 0.5);
+  --app-sidebar-active-text: #1e1b4b;
+  --app-sidebar-active-icon-bg: #eef2ff;
+  --app-sidebar-active-icon-text: #4338ca;
+  --app-avatar-from: #e0e7ff;
+  --app-avatar-to: #bae6fd;
+  --app-avatar-text: #1e1b4b;
+  --theme-primary-50: #eef2ff;
+  --theme-primary-100: #e0e7ff;
+  --theme-primary-200: #c7d2fe;
+  --theme-primary-300: #a5b4fc;
+  --theme-primary-400: #818cf8;
+  --theme-primary-500: #6366f1;
+  --theme-primary-600: #4f46e5;
+  --theme-primary-700: #4338ca;
+  --theme-primary-800: #3730a3;
+  --theme-primary-900: #312e81;
+  --theme-primary-950: #1e1b4b;
+  --theme-secondary-50: #f0f9ff;
+  --theme-secondary-100: #e0f2fe;
+  --theme-secondary-200: #bae6fd;
+  --theme-secondary-300: #7dd3fc;
+  --theme-secondary-400: #38bdf8;
+  --theme-secondary-500: #0ea5e9;
+  --theme-secondary-600: #0284c7;
+  --theme-secondary-700: #0369a1;
+  --theme-secondary-800: #075985;
+  --theme-secondary-900: #0c4a6e;
+  --theme-secondary-950: #082f49;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-sky-50: #f0f9ff;
-  --color-sky-100: #e0f2fe;
-  --color-sky-200: #bae6fd;
-  --color-sky-300: #7dd3fc;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
-  --color-sky-600: #0284c7;
-  --color-sky-700: #0369a1;
-  --color-sky-800: #075985;
-  --color-sky-900: #0c4a6e;
-  --color-sky-950: #082f49;
-  --color-indigo-50: #eef2ff;
-  --color-indigo-100: #e0e7ff;
-  --color-indigo-200: #c7d2fe;
-  --color-indigo-300: #a5b4fc;
-  --color-indigo-400: #818cf8;
-  --color-indigo-500: #6366f1;
-  --color-indigo-600: #4f46e5;
-  --color-indigo-700: #4338ca;
-  --color-indigo-800: #3730a3;
-  --color-indigo-900: #312e81;
-  --color-indigo-950: #1e1b4b;
+  --color-sky-50: var(--theme-primary-50);
+  --color-sky-100: var(--theme-primary-100);
+  --color-sky-200: var(--theme-primary-200);
+  --color-sky-300: var(--theme-primary-300);
+  --color-sky-400: var(--theme-primary-400);
+  --color-sky-500: var(--theme-primary-500);
+  --color-sky-600: var(--theme-primary-600);
+  --color-sky-700: var(--theme-primary-700);
+  --color-sky-800: var(--theme-primary-800);
+  --color-sky-900: var(--theme-primary-900);
+  --color-sky-950: var(--theme-primary-950);
+  --color-indigo-50: var(--theme-secondary-50);
+  --color-indigo-100: var(--theme-secondary-100);
+  --color-indigo-200: var(--theme-secondary-200);
+  --color-indigo-300: var(--theme-secondary-300);
+  --color-indigo-400: var(--theme-secondary-400);
+  --color-indigo-500: var(--theme-secondary-500);
+  --color-indigo-600: var(--theme-secondary-600);
+  --color-indigo-700: var(--theme-secondary-700);
+  --color-indigo-800: var(--theme-secondary-800);
+  --color-indigo-900: var(--theme-secondary-900);
+  --color-indigo-950: var(--theme-secondary-950);
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
@@ -48,9 +256,9 @@ body {
 
 body {
   background:
-    radial-gradient(circle at top left, rgb(14 165 233 / 0.14), transparent 32rem),
-    radial-gradient(circle at top right, rgb(99 102 241 / 0.12), transparent 34rem),
-    linear-gradient(180deg, #ffffff 0%, #f7f9fc 40%, #eef4fb 100%),
+    radial-gradient(circle at top left, var(--app-body-radial-1), transparent 32rem),
+    radial-gradient(circle at top right, var(--app-body-radial-2), transparent 34rem),
+    linear-gradient(180deg, var(--app-body-start) 0%, var(--app-body-mid) 40%, var(--app-body-end) 100%),
     var(--background);
   color: var(--foreground);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -64,17 +272,17 @@ input,
 select,
 textarea {
   font: inherit;
-  outline-color: #0284c7;
+  outline-color: var(--app-focus);
 }
 
 :focus-visible {
-  outline: 2px solid #0284c7;
+  outline: 2px solid var(--app-focus);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: #dbeafe;
-  color: #075985;
+  background: var(--app-selection-bg);
+  color: var(--app-selection-text);
 }
 
 button,

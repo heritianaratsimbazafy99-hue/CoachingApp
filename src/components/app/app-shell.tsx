@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AppShellRealtimeBridge } from "@/components/app/app-shell-realtime-bridge";
+import { ThemeSelector } from "@/components/app/theme-selector";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import type {
   AppShellAlertTone,
@@ -77,36 +78,10 @@ const iconMap: Record<string, LucideIcon> = {
   users: UsersRound,
 };
 
-const roleAccent: Record<
-  UserRole,
-  {
-    active: string;
-    avatar: string;
-    dot: string;
-    shell: string;
-  }
-> = {
-  admin: {
-    active:
-      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
-    avatar: "from-indigo-100 to-sky-200 text-sky-950",
-    dot: "bg-indigo-500",
-    shell: "from-slate-50 via-white to-indigo-50",
-  },
-  coach: {
-    active:
-      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
-    avatar: "from-sky-200 to-indigo-100 text-sky-950",
-    dot: "bg-sky-500",
-    shell: "from-slate-50 via-white to-sky-50",
-  },
-  coachee: {
-    active:
-      "border-slate-950 bg-slate-950 text-white shadow-sm shadow-slate-950/15",
-    avatar: "from-sky-100 to-indigo-200 text-sky-950",
-    dot: "bg-emerald-500",
-    shell: "from-slate-50 via-white to-emerald-50",
-  },
+const roleDot: Record<UserRole, string> = {
+  admin: "bg-indigo-500",
+  coach: "bg-sky-500",
+  coachee: "bg-emerald-500",
 };
 
 const alertToneStyles: Record<AppShellAlertTone, string> = {
@@ -227,7 +202,6 @@ export function AppShell({
   const [isSidebarPreviewOpen, setIsSidebarPreviewOpen] = useState(false);
   const accountName = account?.fullName ?? roleLabel[role];
   const accountEmail = account?.email ?? "Session active";
-  const accent = roleAccent[role];
   const navBadges = signals.navBadges;
   const isDesktopSidebarOpen = isSidebarPinned || isSidebarPreviewOpen;
   const notificationHref =
@@ -280,12 +254,7 @@ export function AppShell({
   }, [isSidebarPinned, isSidebarPreviewOpen]);
 
   return (
-    <div
-      className={cn(
-        "min-h-screen bg-gradient-to-br text-slate-800",
-        accent.shell,
-      )}
-    >
+    <div className="min-h-screen bg-[linear-gradient(135deg,var(--app-shell-from),var(--app-shell-via),var(--app-shell-to))] text-slate-800">
       <AppShellRealtimeBridge role={role} userId={account?.userId} />
       <a
         className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
@@ -301,7 +270,7 @@ export function AppShell({
       >
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-40 hidden overflow-hidden text-slate-100 transition-[width] duration-300 ease-out lg:block",
+            "fixed inset-y-0 left-0 z-40 hidden overflow-hidden text-[var(--app-sidebar-text)] transition-[width] duration-300 ease-out lg:block",
             isDesktopSidebarOpen ? "w-[272px]" : "w-4",
           )}
           data-open={isDesktopSidebarOpen ? "true" : "false"}
@@ -319,31 +288,28 @@ export function AppShell({
             className="pointer-events-none absolute left-0 top-28 flex h-24 w-4 items-center justify-start transition duration-300"
             data-sidebar-cue
           >
-            <span className="relative block h-16 w-2 rounded-r-full border-y border-r border-sky-200/70 bg-white/90 shadow-sm shadow-slate-950/10 ring-1 ring-white">
-              <span className="absolute left-1 top-1/2 h-7 w-px -translate-y-1/2 rounded-full bg-gradient-to-b from-sky-400 via-indigo-400 to-emerald-400" />
+            <span className="relative block h-16 w-2 rounded-r-full border-y border-r border-[color:var(--theme-primary-200)] bg-white/90 shadow-sm shadow-slate-950/10 ring-1 ring-white">
+              <span className="absolute left-1 top-1/2 h-7 w-px -translate-y-1/2 rounded-full bg-[linear-gradient(180deg,var(--theme-primary-400),var(--theme-secondary-400),var(--theme-primary-600))]" />
             </span>
           </div>
           <aside
             aria-label="Navigation principale"
-            className="flex h-full w-[272px] text-slate-100 transition-[opacity,translate] duration-300 ease-out"
+            className="flex h-full w-[272px] text-[var(--app-sidebar-text)] transition-[opacity,translate] duration-300 ease-out"
             data-sidebar-panel
           >
-            <div className="flex h-full w-full flex-col overflow-hidden border-r border-white/10 bg-slate-950 shadow-xl shadow-slate-950/15">
-              <div className="border-b border-white/10 p-4">
+            <div className="flex h-full w-full flex-col overflow-hidden border-r border-[color:var(--app-sidebar-border)] bg-[var(--app-sidebar-bg)] shadow-xl shadow-slate-950/15">
+              <div className="border-b border-[color:var(--app-sidebar-border)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <Link
                     href="/"
                     className="flex min-w-0 items-center gap-3 text-lg font-semibold tracking-tight"
                   >
                     <span
-                      className={cn(
-                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold shadow-sm shadow-sky-950/20",
-                        accent.avatar,
-                      )}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--app-avatar-from),var(--app-avatar-to))] text-sm font-bold text-[var(--app-avatar-text)] shadow-sm shadow-sky-950/20"
                     >
                       CP
                     </span>
-                    <span className="min-w-0 truncate text-white">
+                    <span className="min-w-0 truncate text-[var(--app-sidebar-title)]">
                       Coaching Platform
                     </span>
                   </Link>
@@ -355,10 +321,10 @@ export function AppShell({
                     }
                     aria-pressed={isSidebarPinned}
                     className={cn(
-                      "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-slate-300 transition hover:bg-white/10 hover:text-white",
+                      "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition",
                       isSidebarPinned
-                        ? "border-sky-400/40 bg-sky-400/10 text-sky-100"
-                        : "border-white/10 bg-white/5",
+                        ? "border-[color:var(--app-sidebar-active-border)] bg-[var(--app-sidebar-active-bg)] text-[var(--app-sidebar-active-text)]"
+                        : "border-[color:var(--app-sidebar-border)] bg-[var(--app-sidebar-raised)] text-[var(--app-sidebar-muted)] hover:bg-[var(--app-sidebar-hover)] hover:text-[var(--app-sidebar-text)]",
                     )}
                     onClick={() => {
                       setIsSidebarPinned((current) => !current);
@@ -378,11 +344,11 @@ export function AppShell({
                     )}
                   </button>
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                  <p className="min-w-0 truncate text-xs font-semibold uppercase text-sky-200">
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[color:var(--app-sidebar-border)] bg-[var(--app-sidebar-raised)] px-3 py-2">
+                  <p className="min-w-0 truncate text-xs font-semibold uppercase text-[var(--app-sidebar-muted)]">
                     {subtitle}
                   </p>
-                  <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-slate-300">
+                  <span className="shrink-0 rounded-full bg-[var(--app-sidebar-hover)] px-2 py-0.5 text-[11px] font-semibold text-[var(--app-sidebar-text)]">
                     {isSidebarPinned ? "Fixe" : "Auto"}
                   </span>
                 </div>
@@ -399,8 +365,8 @@ export function AppShell({
                       className={cn(
                         "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition",
                         isActive
-                          ? "border-white/10 bg-white text-slate-950 shadow-lg shadow-slate-950/20"
-                          : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.08] hover:text-white",
+                          ? "border-[color:var(--app-sidebar-active-border)] bg-[var(--app-sidebar-active-bg)] text-[var(--app-sidebar-active-text)] shadow-lg shadow-slate-950/15"
+                          : "border-transparent text-[var(--app-sidebar-muted)] hover:border-[color:var(--app-sidebar-border)] hover:bg-[var(--app-sidebar-hover)] hover:text-[var(--app-sidebar-text)]",
                       )}
                       href={item.href}
                       key={item.href}
@@ -414,8 +380,8 @@ export function AppShell({
                         className={cn(
                           "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition",
                           isActive
-                            ? "bg-sky-50 text-sky-700"
-                            : "bg-white/[0.06] text-slate-300 group-hover:bg-white/10 group-hover:text-sky-100",
+                            ? "bg-[var(--app-sidebar-active-icon-bg)] text-[var(--app-sidebar-active-icon-text)]"
+                            : "bg-[var(--app-sidebar-raised)] text-[var(--app-sidebar-muted)] group-hover:bg-[var(--app-sidebar-hover)] group-hover:text-[var(--app-sidebar-text)]",
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -428,8 +394,8 @@ export function AppShell({
                           className={cn(
                             "rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1",
                             isActive
-                              ? "bg-slate-950 text-white ring-slate-950/10"
-                              : "bg-white/10 text-slate-100 ring-white/10",
+                              ? "bg-white/70 text-[var(--app-sidebar-active-text)] ring-white/40"
+                              : "bg-[var(--app-sidebar-raised)] text-[var(--app-sidebar-text)] ring-white/10",
                           )}
                         >
                           {badgeLabel(badge)}
@@ -440,20 +406,20 @@ export function AppShell({
                 })}
               </nav>
 
-              <div className="border-t border-white/10 p-3">
-                <div className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+              <div className="border-t border-[color:var(--app-sidebar-border)] p-3">
+                <div className="rounded-xl border border-[color:var(--app-sidebar-border)] bg-[var(--app-sidebar-raised)] p-4">
                   <div className="flex items-start gap-3">
                     <span
                       className={cn(
                         "mt-1 h-2.5 w-2.5 rounded-full",
-                        accent.dot,
+                        roleDot[role],
                       )}
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">
+                      <p className="truncate text-sm font-semibold text-[var(--app-sidebar-title)]">
                         {accountName}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-slate-400">
+                      <p className="mt-1 text-xs leading-5 text-[var(--app-sidebar-muted)]">
                         {roleLabel[role]} · {accountEmail}
                       </p>
                     </div>
@@ -480,6 +446,7 @@ export function AppShell({
               )}
             </button>
             <QuickNavigationSearch navBadges={navBadges} navItems={navItems} />
+            <ThemeSelector />
             <Link
               aria-label="Notifications"
               className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:text-sky-700"
@@ -530,7 +497,7 @@ export function AppShell({
                       className={cn(
                         "flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm font-medium transition",
                         isActive
-                          ? accent.active
+                          ? "border-[color:var(--app-sidebar-active-border)] bg-[var(--app-sidebar-active-bg)] text-[var(--app-sidebar-active-text)] shadow-sm shadow-slate-950/10"
                           : "text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950",
                       )}
                       href={item.href}
