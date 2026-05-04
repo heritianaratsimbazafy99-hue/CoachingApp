@@ -61,7 +61,7 @@ export function CohortsPage({ cohorts }: { cohorts: CoachCohortSummary[] }) {
           {cohorts.length ? (
             cohorts.map((cohort) => (
               <article
-                className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:260px] [content-visibility:auto]"
+                className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06]"
                 key={cohort.id}
               >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />

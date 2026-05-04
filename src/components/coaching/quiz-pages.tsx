@@ -233,14 +233,20 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                        <span className="inline-flex w-fit max-w-full rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600">
-                          Question {question.position}
+                        <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600">
+                          <span className="min-w-0 truncate">
+                            Question {question.position}
+                          </span>
                         </span>
-                        <span className="inline-flex w-fit max-w-full rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-700">
-                          {question.points} pts
+                        <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-700">
+                          <span className="min-w-0 truncate">
+                            {question.points} pts
+                          </span>
                         </span>
-                        <span className="inline-flex w-fit max-w-full rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-indigo-700">
-                          {questionTypeLabel[question.questionType]}
+                        <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-indigo-700">
+                          <span className="min-w-0 truncate">
+                            {questionTypeLabel[question.questionType]}
+                          </span>
                         </span>
                       </div>
                       <h2 className="mt-3 break-words font-semibold text-slate-950">
@@ -251,14 +257,18 @@ export function QuizBuilderPage({ data }: { data: CoachQuizEditorData }) {
                         {question.options.length ? (
                           question.options.map((option) => (
                             <div
-                              className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                              className="flex min-w-0 items-start justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-sm"
                               key={option.id}
                             >
-                              <span>{option.optionText}</span>
+                              <span className="min-w-0 break-words leading-6">
+                                {option.optionText}
+                              </span>
                               {option.isCorrect ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                <span className="inline-flex w-fit max-w-[12rem] shrink-0 items-center gap-1 overflow-hidden rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                                   <CheckCircle2 className="h-3.5 w-3.5" />
-                                  Bonne réponse
+                                  <span className="min-w-0 truncate">
+                                    Bonne réponse
+                                  </span>
                                 </span>
                               ) : null}
                             </div>
@@ -416,7 +426,7 @@ export function CorrectionsPage({ data }: { data: CoachCorrectionsData }) {
           <section className="space-y-4">
             {data.corrections.map((item) => (
               <article
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06] [contain-intrinsic-size:360px] [content-visibility:auto]"
+                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.04] transition hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]"
                 key={item.answerId}
               >
                 <div className="flex flex-col gap-3 border-b border-amber-100 bg-amber-50/40 p-5 sm:flex-row sm:items-start sm:justify-between">

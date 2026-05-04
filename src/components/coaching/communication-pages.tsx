@@ -124,7 +124,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   return (
                     <Link
                       className={cn(
-                        "group relative flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-3 transition [contain-intrinsic-size:72px] [content-visibility:auto]",
+                        "group relative flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-3 transition",
                         isSelected
                           ? "border-sky-200 bg-white pl-4 shadow-sm shadow-sky-950/[0.04] ring-1 ring-sky-100 before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-r-full before:bg-sky-500 before:content-['']"
                           : "border-transparent bg-white/55 hover:border-sky-100 hover:bg-white hover:shadow-sm hover:shadow-slate-950/[0.03]",
@@ -148,7 +148,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                             {participant.fullName}
                           </p>
                           {participant.lastMessageAt ? (
-                            <span className="shrink-0 text-[11px] font-medium text-slate-400">
+                            <span className="max-w-24 shrink-0 truncate text-[11px] font-medium text-slate-400">
                               {formatDateTime(participant.lastMessageAt)}
                             </span>
                           ) : null}
@@ -158,7 +158,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                         </p>
                       </div>
                       {participant.unreadCount ? (
-                        <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-2 text-xs font-semibold text-white">
+                        <span className="flex h-6 min-w-6 max-w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-rose-500 px-2 text-xs font-semibold text-white">
                           {participant.unreadCount}
                         </span>
                       ) : null}
@@ -197,8 +197,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       </p>
                     </div>
                   </div>
-                  <span className="w-fit rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                    {data.messages.length} message(s)
+                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                    <span className="min-w-0 truncate">
+                      {data.messages.length} message(s)
+                    </span>
                   </span>
                 </div>
               ) : (

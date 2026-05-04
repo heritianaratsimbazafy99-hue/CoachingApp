@@ -41,10 +41,10 @@ export function ListPanel({
           </div>
         </div>
         {countLabel || actions ? (
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
             {countLabel ? (
-              <span className="w-fit rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
-                {countLabel}
+              <span className="inline-flex w-fit max-w-full min-w-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
+                <span className="min-w-0 truncate">{countLabel}</span>
               </span>
             ) : null}
             {actions}

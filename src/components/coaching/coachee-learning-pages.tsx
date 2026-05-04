@@ -107,12 +107,14 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
                       <PriorityBadge priority={task.priority} />
-                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                        {task.assignmentType === "content_quiz"
-                          ? "Contenu + quiz"
-                          : task.quizId
-                            ? "Quiz"
-                            : "Contenu"}
+                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        <span className="min-w-0 truncate">
+                          {task.assignmentType === "content_quiz"
+                            ? "Contenu + quiz"
+                            : task.quizId
+                              ? "Quiz"
+                              : "Contenu"}
+                        </span>
                       </span>
                     </div>
                     <p className="mt-3 break-words font-semibold text-slate-950">
@@ -164,8 +166,10 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
         <Card className="min-w-0 overflow-hidden">
           <div className="p-5 sm:p-8">
             <div className="mb-6 flex flex-wrap gap-2">
-              <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                {contentTypeLabel[data.content.type]}
+              <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                <span className="min-w-0 truncate">
+                  {contentTypeLabel[data.content.type]}
+                </span>
               </span>
               {data.progressStatus ? (
                 <StatusBadge status={data.progressStatus} />

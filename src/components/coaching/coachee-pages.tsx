@@ -59,7 +59,7 @@ export function CoacheesPage({ data }: { data: CoachCoacheesData }) {
           <div className="grid gap-4">
             {data.coachees.map((coachee) => (
               <article
-                className="group grid gap-5 rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1.25fr)_220px_140px_250px] [contain-intrinsic-size:180px] [content-visibility:auto]"
+                className="group grid gap-5 rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md hover:shadow-slate-950/[0.06] lg:grid-cols-[minmax(0,1.25fr)_220px_140px_250px]"
                 key={coachee.id}
               >
                 <div className="flex min-w-0 gap-3">
@@ -304,16 +304,18 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.goals.length ? (
                 data.goals.map((goal) => (
                   <article
-                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_auto] [contain-intrinsic-size:130px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 lg:grid-cols-[minmax(0,1fr)_auto]"
                     key={goal.id}
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <GoalStatusBadge status={goal.status} />
                         {goal.dueDate ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
+                          <span className="inline-flex w-fit max-w-full shrink-0 items-center gap-1 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
                             <CalendarDays className="h-3 w-3" />
-                            {formatDate(goal.dueDate)}
+                            <span className="min-w-0 truncate">
+                              {formatDate(goal.dueDate)}
+                            </span>
                           </span>
                         ) : null}
                       </div>
@@ -361,7 +363,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.progress.length ? (
                 data.progress.map((item) => (
                   <div
-                    className="grid gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-3 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px]"
                     key={item.id}
                   >
                     <div className="min-w-0">
@@ -405,7 +407,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.quizAttempts.length ? (
                 data.quizAttempts.map((attempt) => (
                   <div
-                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_160px_120px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_160px_120px] md:items-center"
                     key={attempt.id}
                   >
                     <p className="min-w-0 break-words font-medium">
@@ -475,7 +477,7 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.notes.length ? (
                 data.notes.map((note) => (
                   <div
-                    className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white"
                     key={note.id}
                   >
                     <p className="whitespace-pre-line break-words">
@@ -517,16 +519,18 @@ export function CoacheeProfilePage({ data }: { data: CoachCoacheeDetail }) {
               {data.reminders.length ? (
                 data.reminders.map((reminder) => (
                   <div
-                    className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white transition hover:border-indigo-200 hover:bg-indigo-50 [contain-intrinsic-size:150px] [content-visibility:auto]"
+                    className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-sm leading-6 text-slate-600 ring-1 ring-white transition hover:border-indigo-200 hover:bg-indigo-50"
                     key={reminder.id}
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-indigo-100 bg-white px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                        {reminder.type === "correction"
-                          ? "Correction"
-                          : reminder.type === "blocked"
-                            ? "Blocage"
-                            : "Template"}
+                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-white px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                        <span className="min-w-0 truncate">
+                          {reminder.type === "correction"
+                            ? "Correction"
+                            : reminder.type === "blocked"
+                              ? "Blocage"
+                              : "Template"}
+                        </span>
                       </span>
                       <span className="text-xs font-medium text-slate-400">
                         {formatDateTime(reminder.createdAt)}

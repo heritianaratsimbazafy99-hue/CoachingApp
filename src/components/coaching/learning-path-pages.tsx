@@ -56,15 +56,17 @@ import { cn } from "@/utils/cn";
 function ItemBadge({ item }: { item: LearningPathItem }) {
   if (item.kind === "quiz") {
     return (
-      <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-        Quiz
+      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+        <span className="min-w-0 truncate">Quiz</span>
       </span>
     );
   }
 
   return (
-    <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-      {item.type ? contentTypeLabel[item.type] : "Contenu"}
+    <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+      <span className="min-w-0 truncate">
+        {item.type ? contentTypeLabel[item.type] : "Contenu"}
+      </span>
     </span>
   );
 }
@@ -89,11 +91,11 @@ function ProgressBadge({
   return (
     <span
       className={cn(
-        "rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold",
         progressStyles[progress.status],
       )}
     >
-      {progress.label}
+      <span className="min-w-0 truncate">{progress.label}</span>
     </span>
   );
 }
@@ -172,11 +174,11 @@ function LearnerStatusBadge({
   return (
     <span
       className={cn(
-        "rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold",
         learnerStatusStyles[status],
       )}
     >
-      {learnerStatusLabel[status]}
+      <span className="min-w-0 truncate">{learnerStatusLabel[status]}</span>
     </span>
   );
 }
@@ -406,13 +408,17 @@ function CoachPathTracking({ path }: { path: CoachLearningPath }) {
               <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end">
                 <LearnerStatusBadge status={learner.status} />
                 {learner.pendingCorrectionCount ? (
-                  <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                    {learner.pendingCorrectionCount} correction
+                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                    <span className="min-w-0 truncate">
+                      {learner.pendingCorrectionCount} correction
+                    </span>
                   </span>
                 ) : null}
                 {learner.failedQuizCount ? (
-                  <span className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
-                    {learner.failedQuizCount} reprise
+                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                    <span className="min-w-0 truncate">
+                      {learner.failedQuizCount} reprise
+                    </span>
                   </span>
                 ) : null}
               </div>
@@ -443,7 +449,7 @@ function LearningPathItemRow({
   const content = (
     <div
       className={cn(
-        "grid gap-3 rounded-xl border bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition sm:grid-cols-[44px_1fr_auto] sm:items-center",
+        "grid gap-3 rounded-xl border bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition sm:grid-cols-[44px_minmax(0,1fr)_auto] sm:items-center",
         item.progress?.isCompleted
           ? "border-emerald-100 ring-1 ring-emerald-50"
           : "border-sky-100 ring-1 ring-white hover:border-sky-200 hover:bg-sky-50/40",
@@ -463,16 +469,18 @@ function LearningPathItemRow({
       </div>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-slate-950">{item.label}</p>
+          <p className="min-w-0 break-words font-medium text-slate-950">
+            {item.label}
+          </p>
           <ItemBadge item={item} />
           <ProgressBadge progress={item.progress} />
           {item.status === "draft" ? (
-            <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
-              Brouillon
+            <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
+              <span className="min-w-0 truncate">Brouillon</span>
             </span>
           ) : null}
         </div>
-        <p className="mt-1 text-sm leading-6 text-slate-500">
+        <p className="mt-1 line-clamp-3 break-words text-sm leading-6 text-slate-500">
           {item.description}
         </p>
         {item.progress?.percentage !== null &&
@@ -546,8 +554,10 @@ function LearningPathCard({
               {path.cohortName}
             </p>
             {isCoachee && path.progress ? (
-              <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                {formatPercent(path.progress.percentage)}
+              <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                <span className="min-w-0 truncate">
+                  {formatPercent(path.progress.percentage)}
+                </span>
               </span>
             ) : null}
           </div>

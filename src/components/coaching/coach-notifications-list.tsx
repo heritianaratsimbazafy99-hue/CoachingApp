@@ -241,7 +241,7 @@ export function CoachNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-sky-50/40 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto] [contain-intrinsic-size:120px] [content-visibility:auto]"
+                className="group grid gap-4 p-4 transition hover:bg-sky-50/40 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -267,21 +267,21 @@ export function CoachNotificationsList({
 
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-slate-950">
+                    <h3 className="min-w-0 break-words font-semibold text-slate-950">
                       {notification.title}
                     </h3>
                     {notification.priority === "high" ? (
-                      <span className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
-                        Priorité
+                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                        <span className="min-w-0 truncate">Priorité</span>
                       </span>
                     ) : null}
                     {notification.isUnread ? (
-                      <span className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                        Non lu
+                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        <span className="min-w-0 truncate">Non lu</span>
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                  <p className="mt-1 line-clamp-3 break-words text-sm leading-6 text-slate-500">
                     {notification.description}
                   </p>
                 </div>
