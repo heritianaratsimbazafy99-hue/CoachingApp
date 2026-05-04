@@ -234,7 +234,7 @@ export function AdminUsersPage({
                   <ListPanelRow
                     className={
                       compact
-                        ? "lg:grid-cols-[minmax(0,1fr)_130px_180px]"
+                        ? "lg:grid-cols-[minmax(0,1fr)_130px_180px_180px] lg:items-start"
                         : "lg:grid-cols-[minmax(0,1fr)_130px_190px_minmax(220px,280px)] lg:items-start"
                     }
                     key={profile.id}

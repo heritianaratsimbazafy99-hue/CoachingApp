@@ -24,6 +24,10 @@ import { contentTypeLabel, formatDate, formatDateTime } from "@/utils/format";
 import { cn } from "@/utils/cn";
 
 export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
+  const visibleRecentActivity = data.recentActivity.filter(
+    (activity) => activity.action.trim() || activity.detail.trim(),
+  );
+
   return (
     <>
       <PageHeader
@@ -91,7 +95,7 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
           />
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
+        <section className="grid items-start gap-6 xl:grid-cols-[1fr_360px]">
           <Card className="overflow-hidden">
             <CardHeader className="flex items-start justify-between gap-3 sm:flex-row sm:items-center">
               <div>
@@ -108,11 +112,13 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
               {data.tasks.length ? (
                 data.tasks.map((task) => (
                   <article
-                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px_150px] md:items-center [contain-intrinsic-size:120px] [content-visibility:auto]"
+                    className="grid gap-4 p-5 transition hover:bg-sky-50/35 md:grid-cols-[minmax(0,1fr)_140px_150px] md:items-center"
                     key={task.id}
                   >
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-950">{task.title}</p>
+                      <p className="break-words font-semibold text-slate-950">
+                        {task.title}
+                      </p>
                       <p className="mt-1 text-sm text-slate-500">
                         Deadline {formatDate(task.deadline)}
                       </p>
@@ -162,19 +168,19 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                 {data.resources.length ? (
                   data.resources.map((resource) => (
                     <Link
-                      className="block rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/70 [contain-intrinsic-size:120px] [content-visibility:auto]"
+                      className="block rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/70"
                       href={resource.href}
                       key={resource.id}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold text-slate-950">
+                        <p className="min-w-0 break-words font-semibold text-slate-950">
                           {resource.title}
                         </p>
-                        <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                        <span className="inline-flex w-fit max-w-full shrink-0 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
                           {contentTypeLabel[resource.type]}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                      <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-slate-500">
                         {resource.description || "Ressource de votre parcours."}
                       </p>
                     </Link>
@@ -209,20 +215,22 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                   </div>
                 </div>
               </CardHeader>
-              <div className="space-y-3 p-5">
-                {data.recentActivity.length ? (
-                  data.recentActivity.map((activity) => (
+              <div className="ui-scrollbar max-h-[430px] space-y-3 overflow-y-auto p-5 pr-4">
+                {visibleRecentActivity.length ? (
+                  visibleRecentActivity.map((activity) => (
                     <Link
-                      className="block rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/50 [contain-intrinsic-size:96px] [content-visibility:auto]"
+                      className="block rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm shadow-slate-950/[0.03] transition hover:border-sky-200 hover:bg-sky-50/50"
                       href={activity.href}
                       key={activity.id}
                     >
-                      <p className="text-sm font-semibold text-slate-950">
-                        {activity.action}
+                      <p className="break-words text-sm font-semibold text-slate-950">
+                        {activity.action || "Activité enregistrée"}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {activity.detail}
-                      </p>
+                      {activity.detail ? (
+                        <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-slate-500">
+                          {activity.detail}
+                        </p>
+                      ) : null}
                       <p className="mt-1 text-xs font-medium text-slate-400">
                         {formatDateTime(activity.createdAt)}
                       </p>
