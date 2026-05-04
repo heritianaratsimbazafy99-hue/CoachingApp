@@ -120,7 +120,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
             <ListPanelBody>
               {data.quizzes.map((quiz) => (
                 <ListPanelRow
-                  className="lg:grid-cols-[minmax(0,1.2fr)_190px_minmax(210px,0.8fr)_auto] lg:items-center"
+                  className="xl:grid-cols-[minmax(0,1.2fr)_190px_minmax(210px,0.8fr)_auto] xl:items-center"
                   key={quiz.id}
                 >
                   <div className="flex min-w-0 items-start gap-3">
@@ -164,7 +164,7 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                     </ListMetaTile>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
                     {quiz.isOwner ? (
                       <Link
                         className={buttonVariants({
@@ -354,7 +354,7 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
             <ListPanelBody>
               {data.results.map((attempt) => (
                 <ListPanelRow
-                  className="lg:grid-cols-[minmax(0,1fr)_220px_170px]"
+                  className="xl:grid-cols-[minmax(0,1fr)_220px_170px]"
                   key={attempt.id}
                 >
                   <div className="min-w-0">
@@ -374,7 +374,7 @@ export function QuizResultsPage({ data }: { data: CoachQuizResultsData }) {
                       {attempt.scoreObtained}/{attempt.scoreMax} points
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 lg:flex-col lg:items-start lg:justify-center">
+                  <div className="flex min-w-0 flex-wrap items-center gap-3 xl:flex-col xl:items-start xl:justify-center">
                     <StatusBadge status={attempt.status} />
                     <p className="inline-flex items-center gap-2 text-xs text-slate-500">
                       <CalendarDays className="h-3.5 w-3.5" />

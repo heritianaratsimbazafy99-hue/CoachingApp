@@ -73,7 +73,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="min-w-0 p-4 sm:p-6">
-        <Card className="grid min-h-[680px] overflow-hidden border-slate-200/80 bg-white/95 lg:grid-cols-[380px_minmax(0,1fr)]">
+        <Card className="grid overflow-hidden border-slate-200/80 bg-white/95 lg:min-h-[680px] lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
           <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/95 via-white to-white lg:border-b-0 lg:border-r">
             <div className="border-b border-slate-200 bg-white/95 p-4">
               <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white">
@@ -115,7 +115,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </div>
               </div>
             </div>
-            <div className="ui-scrollbar max-h-[380px] space-y-2 overflow-y-auto p-3 lg:max-h-[640px]">
+            <div className="ui-scrollbar max-h-[340px] space-y-2 overflow-y-auto p-3 sm:max-h-[380px] lg:max-h-[640px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -177,7 +177,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             </div>
           </aside>
 
-          <section className="flex min-h-[620px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_44%,#f8fafc_100%)]">
+          <section className="flex min-h-[520px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_44%,#f8fafc_100%)] lg:min-h-[620px]">
             <div className="border-b border-slate-200 bg-white/95 p-4">
               {data.selectedParticipant ? (
                 <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -235,7 +235,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   >
                     <div
                       className={cn(
-                        "max-w-[min(680px,88%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm",
+                        "max-w-[min(680px,92%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[min(680px,88%)]",
                         message.isOwn
                           ? "rounded-br-md bg-sky-600 text-white shadow-sky-950/10"
                           : "rounded-bl-md border border-slate-200 bg-white/95 text-slate-800 shadow-slate-950/[0.04]",

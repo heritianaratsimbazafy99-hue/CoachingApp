@@ -143,7 +143,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
               <ListPanelBody>
                 {data.contents.map((content) => (
                   <ListPanelRow
-                    className="lg:grid-cols-[minmax(0,1.35fr)_minmax(140px,0.55fr)_minmax(180px,0.75fr)_auto] lg:items-center"
+                    className="xl:grid-cols-[minmax(0,1.35fr)_minmax(120px,0.5fr)_minmax(170px,0.75fr)_auto] xl:items-center"
                     key={content.id}
                   >
                     <div className="flex min-w-0 items-start gap-3">
@@ -171,7 +171,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                       </span>
                     </ListMetaTile>
 
-                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
                       <StatusBadge status={content.status} />
                       <Link
                         className={buttonVariants({

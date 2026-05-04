@@ -412,7 +412,7 @@ export function ReminderTemplateList({
       <ListPanelBody>
         {templates.map((template) => (
           <ListPanelRow
-            className="lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-center"
+            className="xl:grid-cols-[minmax(0,1fr)_220px_auto] xl:items-center"
             key={template.id}
           >
             <div className="min-w-0">
@@ -435,7 +435,10 @@ export function ReminderTemplateList({
               {reminderTemplateUsageLabels[template.usage]}
             </ListMetaTile>
 
-            <form action={deleteReminderTemplateAction} className="lg:justify-self-end">
+            <form
+              action={deleteReminderTemplateAction}
+              className="xl:justify-self-end"
+            >
               <input name="templateId" type="hidden" value={template.id} />
               <button
                 className={cn(

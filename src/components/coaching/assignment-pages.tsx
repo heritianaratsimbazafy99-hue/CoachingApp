@@ -79,7 +79,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
             <ListPanelBody>
               {data.assignments.map((assignment) => (
                 <ListPanelRow
-                  className="lg:grid-cols-[minmax(0,1fr)_220px_230px]"
+                  className="xl:grid-cols-[minmax(0,1fr)_220px_230px]"
                   key={assignment.id}
                 >
                   <div className="min-w-0">
@@ -100,7 +100,7 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     {assignment.targetLabel}
                   </ListMetaTile>
 
-                  <div className="grid gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-[auto_minmax(0,1fr)] lg:grid-cols-1">
+                  <div className="grid min-w-0 gap-3 rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-white sm:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-1">
                     <div className="flex flex-wrap items-start gap-2">
                       <StatusBadge status={assignment.status} />
                       <PriorityBadge priority={assignment.priority} />

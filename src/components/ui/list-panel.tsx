@@ -41,9 +41,9 @@ export function ListPanel({
           </div>
         </div>
         {countLabel || actions ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
             {countLabel ? (
-              <span className="inline-flex w-fit max-w-full min-w-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
+              <span className="inline-flex w-fit max-w-full min-w-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 ring-1 ring-white sm:max-w-44">
                 <span className="min-w-0 truncate">{countLabel}</span>
               </span>
             ) : null}
@@ -94,11 +94,11 @@ export function ListMetaTile({
   return (
     <div
       className={cn(
-        "min-w-0 rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white",
+        "min-w-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 ring-1 ring-white",
         className,
       )}
     >
-      <p className="text-xs font-semibold text-slate-400">{label}</p>
+      <p className="truncate text-xs font-semibold text-slate-400">{label}</p>
       <div className="mt-1 min-w-0 break-words text-sm font-semibold text-slate-700">
         {children}
       </div>
