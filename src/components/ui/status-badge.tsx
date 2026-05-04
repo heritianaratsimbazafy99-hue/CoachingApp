@@ -40,7 +40,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
+        "inline-flex w-fit max-w-[11rem] shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1 sm:max-w-[13rem]",
         statusStyles[status],
       )}
     >
@@ -53,7 +53,7 @@ export function PriorityBadge({ priority }: { priority: Priority }) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
+        "inline-flex w-fit max-w-[10rem] shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1",
         priority === "high"
           ? "border-orange-100 bg-orange-50 text-orange-700 ring-orange-100"
           : "border-slate-200 bg-slate-50 text-slate-600 ring-slate-100",

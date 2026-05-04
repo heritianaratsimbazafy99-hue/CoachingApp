@@ -38,7 +38,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
       />
 
       <div className="grid items-start gap-6 p-4 sm:p-6 lg:grid-cols-[300px_1fr]">
-        <Card className="overflow-hidden lg:sticky lg:top-24">
+        <Card className="overflow-hidden lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)]">
           <CardHeader>
             <div className="flex items-start gap-3">
               <span className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700">
@@ -52,7 +52,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
               </div>
             </div>
           </CardHeader>
-          <div className="space-y-5 p-4">
+          <div className="ui-scrollbar space-y-5 overflow-y-auto p-4 lg:max-h-[calc(100vh-14rem)]">
             <div>
               <h2 className="text-sm font-semibold text-slate-600">Thèmes</h2>
               <div className="ui-scrollbar mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">

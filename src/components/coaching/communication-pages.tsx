@@ -91,8 +91,10 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       </p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
-                    {data.participants.length}
+                  <span className="inline-flex max-w-[5rem] overflow-hidden rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                    <span className="min-w-0 truncate">
+                      {data.participants.length}
+                    </span>
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -197,7 +199,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                  <span className="inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold leading-none text-slate-600">
                     <span className="min-w-0 truncate">
                       {data.messages.length} message(s)
                     </span>
@@ -378,7 +380,7 @@ function TypeBadge({ type }: { type: CalendarEventType }) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
+        "inline-flex w-fit max-w-[12rem] shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
         eventTypeStyles[type],
       )}
     >
@@ -391,7 +393,7 @@ function CalendarStatusBadge({ status }: { status: CalendarEventStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
+        "inline-flex w-fit max-w-[10rem] shrink-0 items-center justify-center self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-medium",
         eventStatusStyles[status],
       )}
     >
