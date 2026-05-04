@@ -78,7 +78,7 @@ function MarkMessagesReadButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className={buttonVariants({ size: "sm", variant: "soft" })}
+      className={cn(buttonVariants({ size: "sm", variant: "soft" }), "w-full sm:w-auto")}
       disabled={disabled || pending}
       type="submit"
     >
@@ -187,7 +187,7 @@ export function CoachNotificationsList({
             </div>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
-            <form action={readAction}>
+            <form action={readAction} className="w-full sm:w-auto">
               <MarkMessagesReadButton
                 disabled={data.metrics.unreadMessagesCount === 0}
               />
@@ -215,7 +215,7 @@ export function CoachNotificationsList({
                 aria-pressed={isActive}
                 className={cn(
                   buttonVariants({ size: "sm", variant: "secondary" }),
-                  "shrink-0",
+                  "max-w-[12rem] shrink-0",
                   isActive
                     ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-50"
                     : "text-slate-500 hover:border-sky-200 hover:text-sky-700",
@@ -224,9 +224,9 @@ export function CoachNotificationsList({
                 onClick={() => setActiveFilter(filter.id)}
                 type="button"
               >
-                {filter.label}
-                <span className="rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-500 ring-1 ring-slate-100">
-                  {filter.count}
+                <span className="min-w-0 truncate">{filter.label}</span>
+                <span className="inline-flex max-w-[3rem] shrink-0 overflow-hidden rounded-full bg-white px-2 py-0.5 text-[11px] text-slate-500 ring-1 ring-slate-100">
+                  <span className="min-w-0 truncate">{filter.count}</span>
                 </span>
               </button>
             );
@@ -241,7 +241,7 @@ export function CoachNotificationsList({
 
             return (
               <Link
-                className="group grid gap-4 p-4 transition hover:bg-sky-50/40 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)_auto]"
+                className="group grid gap-4 p-4 transition hover:bg-sky-50/40 sm:p-5 lg:grid-cols-[160px_minmax(0,1fr)_auto]"
                 href={notification.href}
                 key={notification.id}
               >
@@ -271,12 +271,12 @@ export function CoachNotificationsList({
                       {notification.title}
                     </h3>
                     {notification.priority === "high" ? (
-                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                      <span className="inline-flex w-fit max-w-[8rem] shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold leading-none text-rose-700">
                         <span className="min-w-0 truncate">Priorité</span>
                       </span>
                     ) : null}
                     {notification.isUnread ? (
-                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                      <span className="inline-flex w-fit max-w-[8rem] shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700">
                         <span className="min-w-0 truncate">Non lu</span>
                       </span>
                     ) : null}

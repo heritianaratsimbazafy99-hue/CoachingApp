@@ -255,7 +255,7 @@ export function AdminUsersPage({
 
                     <ListMetaTile label="Rôle">
                       <span
-                        className={`inline-flex w-fit max-w-full shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1 ${roleStyles[profile.role]}`}
+                        className={`inline-flex w-fit max-w-[9rem] shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none ring-1 ${roleStyles[profile.role]}`}
                       >
                         <span className="min-w-0 truncate">
                           {roleLabel[profile.role]}
@@ -270,7 +270,7 @@ export function AdminUsersPage({
                       {compact ? null : (
                         <ListMetaTile label="Onboarding">
                           <span
-                            className={`inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full px-2 py-1 text-xs font-semibold leading-none ring-1 ${onboardingStatus.className}`}
+                            className={`inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full px-2 py-1 text-xs font-semibold leading-none ring-1 ${onboardingStatus.className}`}
                           >
                             <span className="min-w-0 truncate">
                               {onboardingStatus.label}
@@ -416,7 +416,7 @@ export function AdminCohortsPage({
           </div>
         ) : null}
         <Card
-          className="overflow-hidden xl:sticky xl:top-24 xl:self-start"
+          className="overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:self-start"
           id="admin-new-cohort"
         >
           <CardHeader>
@@ -432,7 +432,7 @@ export function AdminCohortsPage({
               </div>
             </div>
           </CardHeader>
-          <div className="p-5">
+          <div className="ui-scrollbar overflow-y-auto p-5 xl:max-h-[calc(100vh-14rem)]">
             <AdminCohortCreateForm coaches={coaches} />
           </div>
         </Card>
@@ -488,9 +488,9 @@ export function AdminCohortsPage({
                     </div>
 
                     <div className="mt-5">
-                      <div className="mb-2 flex justify-between text-xs text-slate-500">
+                      <div className="mb-2 flex min-w-0 justify-between gap-3 text-xs text-slate-500">
                         <span>Progression</span>
-                        <span>{cohort.progress}%</span>
+                        <span className="shrink-0">{cohort.progress}%</span>
                       </div>
                       <ProgressBar value={cohort.progress} />
                     </div>

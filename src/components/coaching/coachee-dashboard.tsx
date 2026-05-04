@@ -27,6 +27,8 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
   const visibleRecentActivity = data.recentActivity.filter(
     (activity) => activity.action.trim() || activity.detail.trim(),
   );
+  const taskCountLabel =
+    data.tasks.length > 1 ? `${data.tasks.length} tâches` : `${data.tasks.length} tâche`;
 
   return (
     <>
@@ -104,8 +106,10 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                   Actions ouvertes et priorités de votre parcours.
                 </CardDescription>
               </div>
-              <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-sky-100">
-                {data.tasks.length} tâche(s)
+              <span className="inline-flex max-w-[10rem] overflow-hidden rounded-lg bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 ring-1 ring-sky-100">
+                <span className="min-w-0 truncate">
+                  {taskCountLabel}
+                </span>
               </span>
             </CardHeader>
             <div className="divide-y divide-slate-100">
@@ -176,8 +180,10 @@ export function CoacheeDashboard({ data }: { data: CoacheeDashboardData }) {
                         <p className="min-w-0 break-words font-semibold text-slate-950">
                           {resource.title}
                         </p>
-                        <span className="inline-flex w-fit max-w-full shrink-0 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
-                          {contentTypeLabel[resource.type]}
+                        <span className="inline-flex w-fit max-w-[8rem] shrink-0 overflow-hidden rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700">
+                          <span className="min-w-0 truncate">
+                            {contentTypeLabel[resource.type]}
+                          </span>
                         </span>
                       </div>
                       <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-slate-500">

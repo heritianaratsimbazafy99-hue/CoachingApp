@@ -24,16 +24,16 @@ export function StatCard({
   value,
 }: StatCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-slate-200/75 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
+    <div className="group relative min-h-[138px] overflow-hidden rounded-xl border border-slate-200/75 bg-white/95 p-5 shadow-sm shadow-slate-950/[0.04] ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-slate-500">{label}</p>
+          <p className="mt-2 break-words text-3xl font-semibold tracking-normal text-slate-950">
             {value}
           </p>
         </div>
-        <div className={`rounded-xl border p-2.5 transition group-hover:scale-105 ${toneStyles[tone]}`}>
+        <div className={`shrink-0 rounded-xl border p-2.5 transition group-hover:scale-105 ${toneStyles[tone]}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>
