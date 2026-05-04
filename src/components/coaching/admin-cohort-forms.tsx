@@ -71,6 +71,7 @@ function SubmitButton({
                 ? "secondary"
                 : "primary",
         }),
+        "w-full justify-center sm:w-auto",
       )}
       disabled={disabled || pending}
       type="submit"
@@ -110,7 +111,7 @@ function CoachSelect({
 
   return (
     <select
-      className={inputClassName("px-3 py-2")}
+      className={inputClassName("min-w-0 px-3 py-2")}
       defaultValue={currentCoachId ?? ""}
       disabled={!coaches.length}
       name="coachId"
@@ -145,7 +146,7 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
 
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
-      <label className="block">
+      <label className="block min-w-0">
         <span className={labelClassName}>Nom</span>
         <input
           className={inputClassName("px-3 py-2")}
@@ -155,12 +156,12 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
         />
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className={labelClassName}>Coach</span>
         <CoachSelect coaches={coaches} />
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className={labelClassName}>Description</span>
         <textarea
           className={textareaClassName("min-h-24 px-3 py-2")}
@@ -170,7 +171,7 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
       </label>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Début</span>
           <input
             className={inputClassName("px-3 py-2")}
@@ -178,7 +179,7 @@ export function AdminCohortCreateForm({ coaches }: AdminCohortFormProps) {
             type="date"
           />
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Fin</span>
           <input
             className={inputClassName("px-3 py-2")}
@@ -225,7 +226,7 @@ export function AdminCohortEditForm({
     <form action={formAction} className="space-y-4">
       <input name="cohortId" type="hidden" value={cohort.id} />
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Nom</span>
           <input
             className={inputClassName("px-3 py-2")}
@@ -234,13 +235,13 @@ export function AdminCohortEditForm({
             required
           />
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Coach</span>
           <CoachSelect coaches={coaches} currentCoachId={cohort.coachId} />
         </label>
       </div>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className={labelClassName}>Description</span>
         <textarea
           className={textareaClassName("min-h-20 px-3 py-2")}
@@ -250,7 +251,7 @@ export function AdminCohortEditForm({
       </label>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Début</span>
           <input
             className={inputClassName("px-3 py-2")}
@@ -259,7 +260,7 @@ export function AdminCohortEditForm({
             type="date"
           />
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className={labelClassName}>Fin</span>
           <input
             className={inputClassName("px-3 py-2")}
@@ -297,7 +298,7 @@ export function AdminCohortDeleteForm({ cohort }: { cohort: AdminCohort }) {
   return (
     <form
       action={formAction}
-      className="space-y-2"
+      className="space-y-2 sm:text-right"
       onSubmit={(event) => {
         if (
           !window.confirm(
@@ -344,9 +345,9 @@ export function AdminCohortMemberForm({
   return (
     <form action={formAction} className="space-y-3" ref={formRef}>
       <input name="cohortId" type="hidden" value={cohortId} />
-      <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+      <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <select
-          className={inputClassName("mt-0 min-h-10 px-3 py-2")}
+          className={inputClassName("mt-0 min-h-10 min-w-0 px-3 py-2")}
           disabled={!hasOptions}
           name="userId"
           required
@@ -365,7 +366,10 @@ export function AdminCohortMemberForm({
           )}
         </select>
         <button
-          className={buttonVariants({ size: "md" })}
+          className={cn(
+            buttonVariants({ size: "md" }),
+            "w-full justify-center sm:w-auto",
+          )}
           disabled={!hasOptions}
           type="submit"
         >

@@ -177,7 +177,7 @@ export function AdminCoacheeAssignmentsPage({
             <ListPanelBody>
               {data.coachees.map((coachee) => (
                 <ListPanelRow
-                  className="xl:grid-cols-[minmax(0,1fr)_minmax(240px,320px)_minmax(0,1.25fr)] xl:items-start [contain-intrinsic-size:290px]"
+                  className="xl:grid-cols-[minmax(0,1fr)_minmax(240px,320px)_minmax(0,1.25fr)] xl:items-start"
                   key={coachee.id}
                 >
                   <div className="min-w-0">

@@ -68,6 +68,7 @@ function InlineSubmitButton({
                 : "primary",
         }),
         "min-h-10 min-w-0 max-w-full px-3",
+        "w-full justify-center sm:w-auto",
         tone === "secondary"
           ? "border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-200 hover:bg-emerald-100"
           : "",
@@ -159,7 +160,7 @@ export function ChangeCoacheeCoachForm({
   return (
     <form action={formAction} className="min-w-0 space-y-2">
       <input name="userId" type="hidden" value={coachee.id} />
-      <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+      <div className="grid min-w-0 gap-2 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
         <select
           className={inputClassName(
             "mt-0 min-h-10 min-w-0 max-w-full px-3 py-2",

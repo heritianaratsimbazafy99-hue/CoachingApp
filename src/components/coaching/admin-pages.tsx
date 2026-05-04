@@ -456,7 +456,7 @@ export function AdminCohortsPage({
 
                 return (
                   <ListPanelRow
-                    className="block p-5 hover:bg-sky-50/25 [contain-intrinsic-size:380px]"
+                    className="block p-5 hover:bg-sky-50/25"
                     key={cohort.id}
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
