@@ -1,6 +1,15 @@
 # Coaching Platform
 
-Application SaaS de coaching V1 démo avec Next.js 16, React, TypeScript, Tailwind CSS v4 et Supabase.
+Application SaaS de coaching branchée à Supabase réel avec Next.js 16, React, TypeScript, Tailwind CSS v4, Vercel et Resend.
+
+## Checklist produit fini
+
+La checklist de livraison, QA production, variables Vercel, diagnostics, cron,
+emails et RLS est maintenue dans :
+
+```text
+docs/launch-checklist.md
+```
 
 ## Modules inclus
 
@@ -31,7 +40,11 @@ Contenu attendu :
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://VOTRE-PROJET.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=VOTRE_ANON_KEY
+NEXT_PUBLIC_SITE_URL=https://coaching-app-pi-olive.vercel.app
 SUPABASE_SERVICE_ROLE_KEY=VOTRE_SERVICE_ROLE_KEY
+RESEND_API_KEY=VOTRE_RESEND_KEY
+TRANSACTIONAL_EMAIL_FROM="CoachingApp <noreply@votre-domaine.tld>"
+CRON_SECRET=UN_SECRET_LONG_ET_UNIQUE
 ```
 
 ## Supabase Auth
@@ -169,7 +182,11 @@ Vérifier dans Vercel :
 ```bash
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SITE_URL
 SUPABASE_SERVICE_ROLE_KEY
+RESEND_API_KEY
+TRANSACTIONAL_EMAIL_FROM
+CRON_SECRET
 ```
 
 5. Aller dans `Deployments`.
@@ -200,18 +217,18 @@ src/utils
 supabase/schema.sql
 ```
 
-## Notes V1
+## Notes produit
 
-La V1 démo contient des données démo centralisées dans :
+Les anciennes données de départ restent centralisées dans :
 
 ```text
 src/lib/demo-data.ts
 ```
 
-Les services Supabase sont prêts dans :
+Les services Supabase réels sont dans :
 
 ```text
 src/services/coaching-service.ts
 ```
 
-Prochaine étape produit : remplacer progressivement les données démo par des requêtes Supabase réelles page par page.
+La checklist de lancement décrit les contrôles à rejouer avant livraison.
