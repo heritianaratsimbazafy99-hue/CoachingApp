@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ListMetaTile,
   ListPanel,
   ListPanelBody,
   ListPanelRow,
@@ -21,6 +20,7 @@ import type {
   CoachContentEditorData,
   CoachLibraryData,
 } from "@/services/coach-service";
+import { ReferencePill } from "@/components/ui/reference-pill";
 import { contentTypeLabel } from "@/utils/format";
 
 export function LibraryPage({ data }: { data: CoachLibraryData }) {
@@ -143,7 +143,7 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
               <ListPanelBody>
                 {data.contents.map((content) => (
                   <ListPanelRow
-                    className="xl:grid-cols-[minmax(0,1.35fr)_minmax(120px,0.5fr)_minmax(170px,0.75fr)_auto] xl:items-center"
+                    className="xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center"
                     key={content.id}
                   >
                     <div className="flex min-w-0 items-start gap-3">
@@ -157,19 +157,27 @@ export function LibraryPage({ data }: { data: CoachLibraryData }) {
                         <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-600">
                           {content.description}
                         </p>
+                        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2">
+                          <ReferencePill
+                            title={contentTypeLabel[content.type]}
+                            tone="slate"
+                          >
+                            {contentTypeLabel[content.type]}
+                          </ReferencePill>
+                          <ReferencePill title={content.themeTitle}>
+                            {content.themeTitle}
+                          </ReferencePill>
+                          {content.subthemeTitle ? (
+                            <ReferencePill
+                              title={content.subthemeTitle}
+                              tone="indigo"
+                            >
+                              {content.subthemeTitle}
+                            </ReferencePill>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
-
-                    <ListMetaTile label="Type">
-                      {contentTypeLabel[content.type]}
-                    </ListMetaTile>
-
-                    <ListMetaTile label="Classement">
-                      <span className="block truncate">{content.themeTitle}</span>
-                      <span className="mt-0.5 block truncate text-xs font-medium text-slate-500">
-                        {content.subthemeTitle}
-                      </span>
-                    </ListMetaTile>
 
                     <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
                       <StatusBadge status={content.status} />
