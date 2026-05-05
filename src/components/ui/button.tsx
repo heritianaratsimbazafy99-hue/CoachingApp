@@ -18,6 +18,8 @@ export const buttonVariants = cva(
       variant: {
         danger:
           "border border-rose-600 bg-rose-600 text-white shadow-sm shadow-rose-950/10 hover:bg-rose-700 focus-visible:outline-rose-600",
+        dangerSoft:
+          "border border-rose-100 bg-rose-50 text-rose-700 shadow-sm shadow-rose-950/[0.03] hover:border-rose-200 hover:bg-rose-100 hover:text-rose-800 focus-visible:outline-rose-500",
         ghost:
           "border border-transparent bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-sky-600",
         primary:

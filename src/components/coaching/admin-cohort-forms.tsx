@@ -50,12 +50,14 @@ function SubmitButton({
   loadingLabel,
   tone = "primary",
   type,
+  width = "responsive",
 }: {
   disabled?: boolean;
   label: string;
   loadingLabel: string;
-  tone?: "danger" | "primary" | "secondary";
+  tone?: "danger" | "dangerSoft" | "primary" | "secondary";
   type: "add" | "delete" | "save";
+  width?: "fit" | "responsive";
 }) {
   const { pending } = useFormStatus();
   const Icon = type === "delete" ? Trash2 : type === "save" ? Save : Plus;
@@ -67,11 +69,15 @@ function SubmitButton({
           variant:
             tone === "danger"
               ? "danger"
-              : tone === "secondary"
-                ? "secondary"
-                : "primary",
+              : tone === "dangerSoft"
+                ? "dangerSoft"
+                : tone === "secondary"
+                  ? "secondary"
+                  : "primary",
         }),
-        "w-full justify-center sm:w-auto",
+        width === "fit"
+          ? "w-fit justify-center"
+          : "w-full justify-center sm:w-auto",
       )}
       disabled={disabled || pending}
       type="submit"
@@ -88,7 +94,10 @@ function RemoveMemberSubmitButton() {
   return (
     <button
       aria-label="Retirer le coaché"
-      className={cn(buttonVariants({ size: "sm", variant: "danger" }), "h-9 w-9 px-0")}
+      className={cn(
+        buttonVariants({ size: "sm", variant: "dangerSoft" }),
+        "h-9 w-9 px-0",
+      )}
       disabled={pending}
       title="Retirer le coaché"
       type="submit"
@@ -298,7 +307,7 @@ export function AdminCohortDeleteForm({ cohort }: { cohort: AdminCohort }) {
   return (
     <form
       action={formAction}
-      className="space-y-2 sm:text-right"
+      className="space-y-2 sm:text-right lg:shrink-0"
       onSubmit={(event) => {
         if (
           !window.confirm(
@@ -313,8 +322,9 @@ export function AdminCohortDeleteForm({ cohort }: { cohort: AdminCohort }) {
       <SubmitButton
         label="Supprimer"
         loadingLabel="Suppression..."
-        tone="danger"
+        tone="dangerSoft"
         type="delete"
+        width="fit"
       />
       <FormStatusMessage
         compact
