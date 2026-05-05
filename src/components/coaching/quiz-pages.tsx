@@ -22,6 +22,7 @@ import {
   ListPanelRow,
 } from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
+import { ReferencePill } from "@/components/ui/reference-pill";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -134,9 +135,14 @@ export function QuizzesPage({ data }: { data: CoachQuizzesData }) {
                       <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-600">
                         {quiz.description || "Aucune description renseignée."}
                       </p>
-                      <p className="mt-2 max-w-full truncate text-xs font-medium text-slate-500">
-                        {quiz.contentTitle}
-                      </p>
+                      <div className="mt-2">
+                        <ReferencePill
+                          title={quiz.contentTitle}
+                          tone={quiz.contentTitle ? "slate" : "indigo"}
+                        >
+                          {quiz.contentTitle || "Sans contenu lié"}
+                        </ReferencePill>
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700">
                           <span className="min-w-0 truncate">

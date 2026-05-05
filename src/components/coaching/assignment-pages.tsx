@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/list-panel";
 import { PageHeader } from "@/components/ui/page-header";
 import { PriorityBadge, StatusBadge } from "@/components/ui/status-badge";
+import { ReferencePill } from "@/components/ui/reference-pill";
 import { StatCard } from "@/components/ui/stat-card";
 import { buttonVariants } from "@/components/ui/button";
 import type {
@@ -89,11 +90,12 @@ export function AssignmentsPage({ data }: { data: CoachAssignmentsData }) {
                     <p className="mt-1 line-clamp-2 break-words text-sm leading-6 text-slate-500">
                       {assignment.instructions || assignment.description}
                     </p>
-                    <p className="mt-3 inline-flex w-fit max-w-[20rem] overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700">
-                      <span className="min-w-0 truncate">
-                        {assignment.contentTitle}
-                      </span>
-                    </p>
+                    <ReferencePill
+                      className="mt-3"
+                      title={assignment.contentTitle}
+                    >
+                      {assignment.contentTitle}
+                    </ReferencePill>
                   </div>
 
                   <ListMetaTile label="Cible">
