@@ -50,11 +50,7 @@ export async function GET(request: Request, { params }: DownloadRouteContext) {
   const storageReference = parseContentStorageReference(content.file_url);
 
   if (!storageReference) {
-    try {
-      return NextResponse.redirect(new URL(content.file_url));
-    } catch {
-      return notFound();
-    }
+    return notFound();
   }
 
   if (storageReference.bucket !== CONTENT_FILE_BUCKET) {
