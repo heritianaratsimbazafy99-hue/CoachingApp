@@ -11,6 +11,12 @@ emails et RLS est maintenue dans :
 docs/launch-checklist.md
 ```
 
+La commande QA production et la dette technique priorisée sont maintenues dans :
+
+```text
+docs/release-readiness.md
+```
+
 ## Modules inclus
 
 - Auth Supabase : login, register, mot de passe oublié, redirection par rôle.
