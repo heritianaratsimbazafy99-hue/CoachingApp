@@ -206,7 +206,7 @@ export function CoachNotificationsList({
             ) : null}
           </div>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
+        <div className="mt-4 flex flex-wrap gap-2 pb-1">
           {visibleFilters.map((filter) => {
             const isActive = effectiveFilter === filter.id;
 
@@ -215,7 +215,7 @@ export function CoachNotificationsList({
                 aria-pressed={isActive}
                 className={cn(
                   buttonVariants({ size: "sm", variant: "secondary" }),
-                  "max-w-[12rem] shrink-0",
+                  "min-w-[7rem] max-w-full flex-1 sm:max-w-[12rem] sm:flex-none",
                   isActive
                     ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-50"
                     : "text-slate-500 hover:border-sky-200 hover:text-sky-700",
