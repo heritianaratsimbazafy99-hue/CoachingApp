@@ -235,7 +235,7 @@ export function AdminUsersPage({
                     className={
                       compact
                         ? "lg:grid-cols-[minmax(0,1fr)_130px_180px_180px] lg:items-start"
-                        : "lg:grid-cols-[minmax(0,1fr)_130px_190px_minmax(220px,280px)] lg:items-start"
+                        : "lg:grid-cols-[minmax(0,1fr)_130px_190px_minmax(270px,340px)] lg:items-start"
                     }
                     key={profile.id}
                   >
@@ -285,7 +285,7 @@ export function AdminUsersPage({
                         {formatDate(profile.createdAt)}
                       </ListMetaTile>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="min-w-0 space-y-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 ring-1 ring-white">
                         <AdminRoleForm
                           currentRole={profile.role}
                           userId={profile.id}

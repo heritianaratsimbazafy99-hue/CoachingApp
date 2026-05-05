@@ -26,7 +26,10 @@ function InvitationSubmitButton() {
 
   return (
     <button
-      className={buttonVariants({ size: "sm", variant: "secondary" })}
+      className={cn(
+        buttonVariants({ size: "sm", variant: "secondary" }),
+        "w-full justify-center sm:w-auto",
+      )}
       disabled={pending}
       type="submit"
     >
@@ -43,7 +46,7 @@ function ResetSubmitButton() {
     <button
       className={cn(
         buttonVariants({ size: "sm", variant: "soft" }),
-        "border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-200 hover:bg-emerald-100",
+        "w-full justify-center border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-200 hover:bg-emerald-100 sm:w-auto",
       )}
       disabled={pending}
       type="submit"
@@ -73,13 +76,13 @@ export function AdminUserOnboardingActions({
         : null;
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        <form action={inviteAction}>
+    <div className="min-w-0 space-y-2">
+      <div className="grid min-w-0 gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+        <form action={inviteAction} className="min-w-0">
           <input name="userId" type="hidden" value={userId} />
           <InvitationSubmitButton />
         </form>
-        <form action={resetAction}>
+        <form action={resetAction} className="min-w-0">
           <input name="userId" type="hidden" value={userId} />
           <ResetSubmitButton />
         </form>

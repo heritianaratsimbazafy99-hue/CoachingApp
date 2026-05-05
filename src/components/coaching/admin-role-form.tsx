@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { FormStatusMessage } from "@/components/ui/form-status-message";
 import { inputClassName } from "@/components/ui/form-field";
 import type { UserRole } from "@/types/coaching";
+import { cn } from "@/utils/cn";
 
 type AdminRoleFormProps = {
   currentRole: UserRole;
@@ -30,7 +31,10 @@ function SubmitButton() {
 
   return (
     <button
-      className={buttonVariants({ variant: "secondary" })}
+      className={cn(
+        buttonVariants({ variant: "secondary" }),
+        "w-full sm:w-auto",
+      )}
       disabled={pending}
       type="submit"
     >
@@ -46,9 +50,9 @@ export function AdminRoleForm({ currentRole, userId }: AdminRoleFormProps) {
   );
 
   return (
-    <form action={formAction} className="space-y-2">
+    <form action={formAction} className="min-w-0 space-y-2">
       <input name="userId" type="hidden" value={userId} />
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <select
           className={inputClassName("mt-0 min-h-10 py-2")}
           defaultValue={currentRole}
