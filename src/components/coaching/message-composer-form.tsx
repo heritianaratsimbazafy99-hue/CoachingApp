@@ -23,7 +23,10 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
   return (
     <button
-      className={cn(buttonVariants({ size: "lg" }), "h-11 w-11 rounded-xl px-0")}
+      className={cn(
+        buttonVariants({ size: "lg" }),
+        "h-10 w-10 rounded-xl px-0 sm:h-11 sm:w-11",
+      )}
       disabled={disabled || pending}
       type="submit"
     >
@@ -55,12 +58,14 @@ export function MessageComposerForm({
   return (
     <form action={formAction} className="space-y-2" ref={formRef}>
       <input name="receiverId" type="hidden" value={receiverId ?? ""} />
-      <div className="flex min-w-0 items-end gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-2 ring-1 ring-white">
+      <div className="flex min-w-0 items-end gap-2 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-1.5 ring-1 ring-white sm:gap-3 sm:p-2">
         <textarea
+          aria-label="Message"
           className={textareaClassName(
-            "mt-0 max-h-36 min-h-11 min-w-0 flex-1 resize-none rounded-xl border-transparent bg-white py-3 leading-5 ring-0 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100",
+            "mt-0 max-h-32 min-h-10 min-w-0 flex-1 resize-none rounded-xl border-transparent bg-white py-2.5 leading-5 ring-0 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100 sm:max-h-36 sm:min-h-11 sm:py-3",
           )}
           disabled={!receiverId}
+          maxLength={2000}
           name="body"
           placeholder={
             receiverId

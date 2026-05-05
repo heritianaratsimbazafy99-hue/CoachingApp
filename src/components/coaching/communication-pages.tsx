@@ -73,9 +73,9 @@ export function MessagesPage({ data }: { data: MessagingData }) {
         title="Messagerie"
       />
       <div className="min-w-0 p-4 sm:p-6">
-        <Card className="grid overflow-hidden border-slate-200/80 bg-white/95 lg:min-h-[680px] lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
-          <aside className="min-w-0 border-b border-slate-200 bg-gradient-to-b from-slate-50/95 via-white to-white lg:border-b-0 lg:border-r">
-            <div className="border-b border-slate-200 bg-white/95 p-4">
+        <Card className="grid overflow-hidden border-slate-200/80 bg-white/95 lg:h-[calc(100vh-13rem)] lg:max-h-[860px] lg:min-h-[640px] lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[380px_minmax(0,1fr)]">
+          <aside className="flex min-w-0 flex-col border-b border-slate-200 bg-gradient-to-b from-slate-50/95 via-white to-white lg:min-h-0 lg:border-b-0 lg:border-r">
+            <div className="shrink-0 border-b border-slate-200 bg-white/95 p-3 sm:p-4">
               <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 shadow-sm shadow-slate-950/[0.03] ring-1 ring-white">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2">
@@ -117,7 +117,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </div>
               </div>
             </div>
-            <div className="ui-scrollbar max-h-[340px] space-y-2 overflow-y-auto p-3 sm:max-h-[380px] lg:max-h-[calc(100vh-19rem)] lg:min-h-[420px]">
+            <div className="ui-scrollbar max-h-[280px] min-h-0 space-y-2 overflow-y-auto p-3 sm:max-h-[340px] lg:max-h-none lg:flex-1">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -179,8 +179,8 @@ export function MessagesPage({ data }: { data: MessagingData }) {
             </div>
           </aside>
 
-          <section className="flex min-h-[520px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_44%,#f8fafc_100%)] lg:min-h-[620px]">
-            <div className="border-b border-slate-200 bg-white/95 p-4">
+          <section className="flex h-[calc(100svh-7rem)] min-h-[560px] min-w-0 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_44%,#f8fafc_100%)] lg:h-full lg:min-h-0">
+            <div className="sticky top-0 z-10 shrink-0 border-b border-slate-200 bg-white/95 p-3 backdrop-blur sm:p-4">
               {data.selectedParticipant ? (
                 <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 items-center gap-3">
@@ -191,7 +191,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       <p className="truncate font-semibold text-slate-950">
                         {data.selectedParticipant.fullName}
                       </p>
-                      <p className="text-sm text-slate-500">
+                      <p className="text-xs leading-5 text-slate-500 sm:text-sm">
                         Conversation{" "}
                         {data.variant === "coach"
                           ? "coach vers coaché"
@@ -217,7 +217,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
               )}
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
+            <div className="ui-scrollbar min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3 pb-24 sm:space-y-3 sm:p-5 sm:pb-24">
               {!data.selectedParticipant ? (
                 <div className="flex h-full items-center justify-center">
                   <EmptyState
@@ -237,18 +237,18 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                   >
                     <div
                       className={cn(
-                        "max-w-[min(680px,92%)] rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[min(680px,88%)]",
+                        "max-w-[min(34rem,88%)] rounded-2xl px-3 py-2.5 text-sm leading-6 shadow-sm sm:max-w-[min(42rem,86%)] sm:px-4 sm:py-3",
                         message.isOwn
                           ? "rounded-br-md bg-sky-600 text-white shadow-sky-950/10"
                           : "rounded-bl-md border border-slate-200 bg-white/95 text-slate-800 shadow-slate-950/[0.04]",
                       )}
                     >
-                      <p className="whitespace-pre-wrap break-words">
+                      <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                         {message.body}
                       </p>
                       <div
                         className={cn(
-                          "mt-2 flex justify-end gap-1 text-[11px]",
+                          "mt-2 flex items-center justify-end gap-1 text-[11px]",
                           message.isOwn ? "text-sky-100" : "text-slate-500",
                         )}
                       >
@@ -273,7 +273,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
               )}
             </div>
 
-            <div className="sticky bottom-0 border-t border-slate-200 bg-white/95 p-4 shadow-[0_-14px_30px_rgba(15,23,42,0.04)] backdrop-blur">
+            <div className="shrink-0 border-t border-slate-200 bg-white/95 p-3 shadow-[0_-14px_30px_rgba(15,23,42,0.04)] backdrop-blur sm:p-4">
               {data.selectedParticipant ? (
                 <MessageComposerForm
                   receiverId={data.selectedParticipant.userId}
