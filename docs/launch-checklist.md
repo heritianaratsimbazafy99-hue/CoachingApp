@@ -84,9 +84,9 @@ Résultat attendu : `401` sans header `Authorization`.
 Comptes de test :
 
 ```text
-Admin   : admin@ecce.mg / Heritiana
-Coach   : coach@ecce.mg / Heritiana
-Coaché  : coachee@ecce.mg / Heritiana
+Admin   : admin@ecce.mg / mot de passe dans le gestionnaire de secrets
+Coach   : coach@ecce.mg / mot de passe dans le gestionnaire de secrets
+Coaché  : coachee@ecce.mg / mot de passe dans le gestionnaire de secrets
 ```
 
 Parcours minimum à rejouer après chaque gros changement :

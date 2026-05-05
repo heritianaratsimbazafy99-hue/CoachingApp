@@ -31,7 +31,7 @@ Variables optionnelles :
 
 ```bash
 QA_BASE_URL=https://coaching-app-pi-olive.vercel.app
-QA_PASSWORD=Heritiana
+QA_PASSWORD=<mot-de-passe-de-test-hors-repo>
 QA_ADMIN_EMAIL=admin@ecce.mg
 QA_COACH_EMAIL=coach@ecce.mg
 QA_COACHEE_EMAIL=coachee@ecce.mg
@@ -43,6 +43,9 @@ QA_KEEP_ARTIFACTS=1
 
 `QA_SKIP_BROWSER=1` ne lance que les sondes HTTP. À utiliser uniquement pour
 un contrôle rapide, pas pour une validation de sortie.
+
+Ne pas commiter `QA_PASSWORD` ni les mots de passe des comptes de test. Les
+transmettre via variable d'environnement locale ou gestionnaire de secrets.
 
 Par défaut, la commande nettoie les artefacts `.playwright-cli/` après la QA.
 `QA_KEEP_ARTIFACTS=1` permet de conserver les téléchargements et snapshots pour

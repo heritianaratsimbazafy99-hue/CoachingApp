@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 
 const baseUrl = process.env.QA_BASE_URL ?? "https://coaching-app-pi-olive.vercel.app";
-const password = process.env.QA_PASSWORD ?? "Heritiana";
+const password = process.env.QA_PASSWORD;
 const contentFileId =
   process.env.QA_CONTENT_FILE_ID ?? "47ec5791-dbb0-4e24-aa70-4f5db11fb269";
 const skipBrowser = process.env.QA_SKIP_BROWSER === "1";
@@ -99,6 +99,12 @@ async function main() {
   if (skipBrowser) {
     console.log("QA navigateur ignoree: QA_SKIP_BROWSER=1");
     return;
+  }
+
+  if (!password) {
+    throw new Error(
+      "QA_PASSWORD est requis pour la QA navigateur. Utiliser QA_SKIP_BROWSER=1 pour les sondes HTTP seules.",
+    );
   }
 
   if (!existsSync(pwcli)) {
