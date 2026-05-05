@@ -101,13 +101,13 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
             <ListPanelBody>
               {data.tasks.map((task) => (
                 <ListPanelRow
-                  className="lg:grid-cols-[minmax(0,1fr)_180px_190px_auto]"
+                  className="lg:grid-cols-[minmax(0,1fr)_minmax(150px,180px)_minmax(160px,190px)_auto]"
                   key={task.id}
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
                       <PriorityBadge priority={task.priority} />
-                      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                      <span className="inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 sm:max-w-[12rem]">
                         <span className="min-w-0 truncate">
                           {task.assignmentType === "content_quiz"
                             ? "Contenu + quiz"
@@ -133,9 +133,12 @@ export function CoacheeTasksPage({ data }: { data: CoacheeTasksData }) {
                   <ListMetaTile label="Ressource">
                     {task.quizTitle || task.contentTitle || "Parcours"}
                   </ListMetaTile>
-                  <div className="flex flex-col gap-3 lg:items-end">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-end">
                     <StatusBadge status={task.progressStatus} />
-                    <Link className={buttonVariants()} href={task.href}>
+                    <Link
+                      className={cn(buttonVariants(), "w-full sm:w-auto")}
+                      href={task.href}
+                    >
                       {task.ctaLabel}
                     </Link>
                   </div>
@@ -166,7 +169,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
         <Card className="min-w-0 overflow-hidden">
           <div className="p-5 sm:p-8">
             <div className="mb-6 flex flex-wrap gap-2">
-              <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+              <span className="inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 sm:max-w-[12rem]">
                 <span className="min-w-0 truncate">
                   {contentTypeLabel[data.content.type]}
                 </span>
@@ -273,7 +276,7 @@ export function ContentReaderPage({ data }: { data: CoacheeContentDetail }) {
           </div>
         </Card>
 
-        <Card className="overflow-hidden xl:sticky xl:top-24 xl:self-start">
+        <Card className="overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:self-start xl:overflow-y-auto">
           <CardHeader>
             <div className="flex items-start gap-3">
               <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 ring-1 ring-white">
@@ -417,7 +420,7 @@ function GoalStatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none",
+        "inline-flex w-fit max-w-[10rem] shrink-0 self-start justify-self-start overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none sm:max-w-[12rem]",
         isCompleted
           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
           : "border-sky-200 bg-sky-50 text-sky-700",
@@ -477,7 +480,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="w-fit rounded-full border border-emerald-100 bg-white/80 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-white">
+                <p className="w-fit max-w-[10rem] overflow-hidden rounded-full border border-emerald-100 bg-white/80 px-2.5 py-1 text-xs font-semibold leading-none text-emerald-700 ring-1 ring-white">
                   Coaché
                 </p>
                 <h2 className="mt-2 truncate text-xl font-semibold text-slate-950">
@@ -494,7 +497,7 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
             </div>
           </Card>
 
-          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+          <aside className="ui-scrollbar space-y-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:self-start xl:overflow-y-auto xl:pr-1">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -551,9 +554,11 @@ export function CoacheeProfilePage({ data }: { data: CoacheeProfileData }) {
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         <GoalStatusBadge status={goal.status} />
                         {goal.dueDate ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600">
+                          <span className="inline-flex max-w-[12rem] items-center gap-1 overflow-hidden rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium leading-none text-slate-600">
                             <CalendarDays className="h-3 w-3" />
-                            {formatDate(goal.dueDate)}
+                            <span className="min-w-0 truncate">
+                              {formatDate(goal.dueDate)}
+                            </span>
                           </span>
                         ) : null}
                       </div>

@@ -91,7 +91,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex max-w-[5rem] overflow-hidden rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                  <span className="inline-flex max-w-[5rem] overflow-hidden rounded-lg bg-white px-2.5 py-1 text-xs font-semibold leading-none text-slate-600 ring-1 ring-slate-200">
                     <span className="min-w-0 truncate">
                       {data.participants.length}
                     </span>
@@ -117,7 +117,7 @@ export function MessagesPage({ data }: { data: MessagingData }) {
                 </div>
               </div>
             </div>
-            <div className="ui-scrollbar max-h-[340px] space-y-2 overflow-y-auto p-3 sm:max-h-[380px] lg:max-h-[640px]">
+            <div className="ui-scrollbar max-h-[340px] space-y-2 overflow-y-auto p-3 sm:max-h-[380px] lg:max-h-[calc(100vh-19rem)] lg:min-h-[420px]">
               {data.participants.length ? (
                 data.participants.map((participant) => {
                   const isSelected =
@@ -412,10 +412,12 @@ function MetricCard({
   value: number;
 }) {
   return (
-    <Card className="group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
+    <Card className="group relative min-h-[138px] overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md hover:shadow-slate-950/[0.06]">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-sky-300/70 via-indigo-300/60 to-emerald-300/60" />
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-slate-500">{label}</p>
+        <p className="min-w-0 truncate text-sm font-semibold text-slate-500">
+          {label}
+        </p>
         <span className="rounded-xl border border-sky-100 bg-sky-50 p-2 text-sky-700 ring-1 ring-white transition group-hover:scale-105">
           <Icon className="h-4 w-4" />
         </span>
@@ -430,7 +432,7 @@ function MetricCard({
 function CalendarFilters({ data }: { data: CalendarPageData }) {
   return (
     <Card className="p-4 sm:p-5">
-      <form className="grid min-w-0 gap-3 md:grid-cols-[1fr_1fr_1.4fr_auto]">
+      <form className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)_auto]">
         <label className="block min-w-0">
           <span className={labelClassName}>Type</span>
           <select
@@ -481,13 +483,19 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
           </select>
         </label>
 
-        <div className="flex min-w-0 flex-wrap items-end gap-2">
-          <button className={buttonVariants()} type="submit">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end md:justify-end">
+          <button
+            className={cn(buttonVariants(), "w-full sm:w-auto")}
+            type="submit"
+          >
             <Filter className="h-4 w-4" />
             Filtrer
           </button>
           <Link
-            className={buttonVariants({ variant: "secondary" })}
+            className={cn(
+              buttonVariants({ variant: "secondary" }),
+              "w-full sm:w-auto",
+            )}
             href="/coach/calendar"
           >
             Réinitialiser
@@ -500,7 +508,7 @@ function CalendarFilters({ data }: { data: CalendarPageData }) {
 
 function CalendarStatusActions({ event }: { event: CalendarAgendaEvent }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid min-w-0 grid-cols-1 gap-2 sm:flex sm:flex-wrap lg:max-w-[22rem] lg:justify-end">
       {calendarEventStatuses.map((status) => (
         <form action={updateCalendarEventStatusAction} key={status}>
           <input name="eventId" type="hidden" value={event.id} />
@@ -508,6 +516,7 @@ function CalendarStatusActions({ event }: { event: CalendarAgendaEvent }) {
           <button
             className={cn(
               buttonVariants({ size: "sm", variant: "secondary" }),
+              "w-full sm:w-auto",
               event.status === status
                 ? "cursor-default bg-slate-100 text-slate-400 hover:bg-slate-100"
                 : "",
@@ -689,7 +698,7 @@ export function CalendarPage({ data }: { data: CalendarPageData }) {
             </div>
           </section>
 
-          <aside className="min-w-0 space-y-5 xl:sticky xl:top-24 xl:self-start">
+          <aside className="ui-scrollbar min-w-0 space-y-5 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:self-start xl:overflow-y-auto xl:pr-1">
             {isCoach ? (
               <Card className="overflow-hidden" id="new-event">
                 <CardHeader>
@@ -772,7 +781,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="w-fit rounded-full border border-sky-100 bg-white/80 px-2.5 py-1 text-xs font-semibold text-sky-700 ring-1 ring-white">
+              <p className="w-fit max-w-[10rem] overflow-hidden rounded-full border border-sky-100 bg-white/80 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 ring-1 ring-white">
                 {roleLabel[data.profile.role]}
               </p>
               <h2 className="mt-2 truncate text-xl font-semibold text-slate-950">
@@ -789,7 +798,7 @@ export function SettingsPage({ data }: { data: CoachSettingsData }) {
           </div>
         </Card>
 
-        <aside className="space-y-6">
+        <aside className="ui-scrollbar space-y-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto xl:pr-1">
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">

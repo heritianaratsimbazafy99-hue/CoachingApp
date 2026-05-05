@@ -56,14 +56,14 @@ import { cn } from "@/utils/cn";
 function ItemBadge({ item }: { item: LearningPathItem }) {
   if (item.kind === "quiz") {
     return (
-      <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+      <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold leading-none text-indigo-700 sm:max-w-[11rem]">
         <span className="min-w-0 truncate">Quiz</span>
       </span>
     );
   }
 
   return (
-    <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+    <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-semibold leading-none text-sky-700 sm:max-w-[11rem]">
       <span className="min-w-0 truncate">
         {item.type ? contentTypeLabel[item.type] : "Contenu"}
       </span>
@@ -91,7 +91,7 @@ function ProgressBadge({
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none sm:max-w-[12rem]",
         progressStyles[progress.status],
       )}
     >
@@ -174,7 +174,7 @@ function LearnerStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex w-fit max-w-[10rem] shrink-0 overflow-hidden rounded-full border px-2.5 py-1 text-xs font-semibold leading-none sm:max-w-[12rem]",
         learnerStatusStyles[status],
       )}
     >
@@ -197,7 +197,7 @@ function CoachPathSignals({
             <CardTitle>Derniers événements</CardTitle>
           </div>
         </CardHeader>
-        <div className="space-y-3 p-5">
+        <div className="ui-scrollbar max-h-[22rem] space-y-3 overflow-y-auto p-5">
           {signals.recentEvents.length ? (
             signals.recentEvents.map((event) => (
               <Link
@@ -231,27 +231,29 @@ function CoachPathSignals({
             <CardTitle>Coachés bloqués</CardTitle>
           </div>
         </CardHeader>
-        <div className="space-y-3 p-5">
+        <div className="ui-scrollbar max-h-[22rem] space-y-3 overflow-y-auto p-5">
           {signals.blockedLearners.length ? (
             signals.blockedLearners.map((item) => (
               <article
-                className="rounded-xl border border-rose-100 bg-rose-50/50 p-3"
+                className="min-w-0 rounded-xl border border-rose-100 bg-rose-50/50 p-3"
                 key={item.id}
               >
                 <div className="flex items-start justify-between gap-3">
                   <Link className="min-w-0 hover:underline" href={item.href}>
-                    <span className="block text-sm font-semibold text-slate-950">
+                    <span className="block break-words text-sm font-semibold text-slate-950">
                       {item.coacheeName}
                     </span>
-                    <span className="mt-1 block text-xs text-slate-500">
+                    <span className="mt-1 block break-words text-xs text-slate-500">
                       {item.pathTitle} · {item.reason}
                     </span>
                   </Link>
-                  <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-rose-100">
-                    {formatPercent(item.percentage)}
+                  <span className="inline-flex max-w-20 shrink-0 overflow-hidden rounded-full bg-white px-2.5 py-1 text-xs font-semibold leading-none text-rose-700 ring-1 ring-rose-100">
+                    <span className="min-w-0 truncate">
+                      {formatPercent(item.percentage)}
+                    </span>
                   </span>
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-xs font-medium text-rose-700">
                     Reprise conseillée
                   </span>
@@ -279,18 +281,18 @@ function CoachPathSignals({
             <CardTitle>Corrections parcours</CardTitle>
           </div>
         </CardHeader>
-        <div className="space-y-3 p-5">
+        <div className="ui-scrollbar max-h-[22rem] space-y-3 overflow-y-auto p-5">
           {signals.pendingCorrections.length ? (
             signals.pendingCorrections.map((item) => (
               <article
-                className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-3"
+                className="min-w-0 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3"
                 key={item.id}
               >
                 <Link className="block hover:underline" href={item.href}>
-                  <span className="block text-sm font-semibold text-slate-950">
+                  <span className="block break-words text-sm font-semibold text-slate-950">
                     {item.coacheeName}
                   </span>
-                  <span className="mt-1 block text-xs text-slate-500">
+                  <span className="mt-1 block break-words text-xs text-slate-500">
                     {item.pathTitle} · {item.reason}
                   </span>
                   {item.lastActivityAt ? (
@@ -299,7 +301,7 @@ function CoachPathSignals({
                     </span>
                   ) : null}
                 </Link>
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-xs font-medium text-indigo-700">
                     Message rassurant
                   </span>
@@ -408,14 +410,14 @@ function CoachPathTracking({ path }: { path: CoachLearningPath }) {
               <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end">
                 <LearnerStatusBadge status={learner.status} />
                 {learner.pendingCorrectionCount ? (
-                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                  <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold leading-none text-indigo-700">
                     <span className="min-w-0 truncate">
                       {learner.pendingCorrectionCount} correction
                     </span>
                   </span>
                 ) : null}
                 {learner.failedQuizCount ? (
-                  <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700">
+                  <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold leading-none text-rose-700">
                     <span className="min-w-0 truncate">
                       {learner.failedQuizCount} reprise
                     </span>
@@ -475,7 +477,7 @@ function LearningPathItemRow({
           <ItemBadge item={item} />
           <ProgressBadge progress={item.progress} />
           {item.status === "draft" ? (
-            <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
+            <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold leading-none text-slate-600">
               <span className="min-w-0 truncate">Brouillon</span>
             </span>
           ) : null}
@@ -498,8 +500,8 @@ function LearningPathItemRow({
           #{item.position}
         </span>
         {variant === "coachee" && !item.label.includes("indisponible") ? (
-          <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
-            {stepCtaLabel(item)}
+          <span className="inline-flex max-w-[10rem] items-center gap-1 overflow-hidden rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">
+            <span className="min-w-0 truncate">{stepCtaLabel(item)}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </span>
         ) : null}
@@ -543,7 +545,7 @@ function LearningPathCard({
         )}
       />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p
               className={cn(
@@ -554,7 +556,7 @@ function LearningPathCard({
               {path.cohortName}
             </p>
             {isCoachee && path.progress ? (
-              <span className="inline-flex w-fit max-w-full shrink-0 overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+              <span className="inline-flex w-fit max-w-[9rem] shrink-0 overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold leading-none text-emerald-700">
                 <span className="min-w-0 truncate">
                   {formatPercent(path.progress.percentage)}
                 </span>
@@ -573,7 +575,7 @@ function LearningPathCard({
         </div>
 
         {variant === "coach" ? (
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Link
               className={cn(
                 buttonVariants({ variant: "soft" }),
@@ -683,7 +685,10 @@ export function CoachLearningPathsPage({
       />
 
       <div className="grid gap-6 p-4 sm:p-6 xl:grid-cols-[420px_1fr]">
-        <Card id="new-path">
+        <Card
+          className="ui-scrollbar xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:self-start xl:overflow-y-auto"
+          id="new-path"
+        >
           <CardHeader>
             <CardTitle>Nouveau parcours</CardTitle>
             <CardDescription>

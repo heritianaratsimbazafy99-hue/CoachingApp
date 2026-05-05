@@ -23,6 +23,7 @@ function ReminderSubmitButton({ sent }: { sent: boolean }) {
     <button
       className={cn(
         buttonVariants({ size: "sm", variant: "secondary" }),
+        "w-full sm:w-auto",
         sent
           ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
           : "text-sky-700",
@@ -54,7 +55,10 @@ export function LearningPathReminderForm({
   const sent = state.status === "success";
 
   return (
-    <form action={formAction} className="flex flex-col items-end gap-1.5">
+    <form
+      action={formAction}
+      className="flex min-w-0 flex-col items-stretch gap-1.5 sm:items-end"
+    >
       <input name="coacheeId" type="hidden" value={coacheeId} />
       <input name="pathTitle" type="hidden" value={pathTitle} />
       <input name="reason" type="hidden" value={reason} />
@@ -62,7 +66,7 @@ export function LearningPathReminderForm({
       <ReminderSubmitButton sent={sent} />
       <FormStatusMessage
         compact
-        className="max-w-52"
+        className="max-w-full sm:max-w-52"
         message={state.message}
         status={state.status}
       />
