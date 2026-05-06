@@ -3,6 +3,12 @@
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 
 type CelebrationKind = "course-completed" | "quiz-completed" | "quiz-created";
+type CelebrationVariant =
+  | "aurora-ribbons"
+  | "confetti"
+  | "fireworks"
+  | "floating-shapes"
+  | "success-burst";
 
 type CelebrationConfig = {
   badge: string;
@@ -39,8 +45,38 @@ const confettiColors = [
   "#14b8a6",
 ];
 
+const celebrationVariants: CelebrationVariant[] = [
+  "confetti",
+  "fireworks",
+  "aurora-ribbons",
+  "success-burst",
+  "floating-shapes",
+];
+
+const fireworks = [
+  { x: 18, y: 22 },
+  { x: 76, y: 18 },
+  { x: 52, y: 28 },
+  { x: 25, y: 68 },
+  { x: 82, y: 64 },
+];
+
+const auroraRibbons = [
+  { color: "rgba(124, 58, 237, 0.38)", delay: 0, rotate: -18, y: 12 },
+  { color: "rgba(6, 182, 212, 0.34)", delay: 150, rotate: 14, y: 24 },
+  { color: "rgba(34, 197, 94, 0.3)", delay: 280, rotate: -8, y: 44 },
+  { color: "rgba(236, 72, 153, 0.3)", delay: 420, rotate: 20, y: 62 },
+  { color: "rgba(250, 204, 21, 0.28)", delay: 560, rotate: -24, y: 78 },
+];
+
+const successSparkShapes = ["", "celebration-success-star", "celebration-success-dot"];
+
 function isCelebrationKind(value: string | null): value is CelebrationKind {
   return value === "course-completed" || value === "quiz-completed" || value === "quiz-created";
+}
+
+function pickCelebrationVariant(): CelebrationVariant {
+  return celebrationVariants[Math.floor(Math.random() * celebrationVariants.length)] ?? "confetti";
 }
 
 function prefersReducedMotion() {
@@ -56,6 +92,7 @@ export function CelebrationConfetti() {
     id: number;
     kind: CelebrationKind;
     reducedMotion: boolean;
+    variant: CelebrationVariant;
   } | null>(null);
 
   useEffect(() => {
@@ -71,6 +108,7 @@ export function CelebrationConfetti() {
         id: Date.now(),
         kind: celebrationParam,
         reducedMotion: prefersReducedMotion(),
+        variant: pickCelebrationVariant(),
       });
 
       url.searchParams.delete("celebrate");
@@ -125,22 +163,88 @@ export function CelebrationConfetti() {
     });
   }, [activeCelebration]);
 
+  const fireworkSparks = useMemo(() => {
+    if (
+      !activeCelebration ||
+      activeCelebration.reducedMotion ||
+      activeCelebration.variant !== "fireworks"
+    ) {
+      return [];
+    }
+
+    return fireworks.flatMap((firework, fireworkIndex) =>
+      Array.from({ length: 18 }, (_, sparkIndex) => ({
+        angle: sparkIndex * 20,
+        color: confettiColors[(sparkIndex + fireworkIndex * 2) % confettiColors.length],
+        delay: fireworkIndex * 190 + (sparkIndex % 3) * 34,
+        distance: 54 + ((sparkIndex * 9) % 52),
+        key: `${activeCelebration.id}-firework-${fireworkIndex}-${sparkIndex}`,
+        size: 4 + ((sparkIndex + fireworkIndex) % 5),
+        x: firework.x,
+        y: firework.y,
+      })),
+    );
+  }, [activeCelebration]);
+
+  const successSparks = useMemo(() => {
+    if (
+      !activeCelebration ||
+      activeCelebration.reducedMotion ||
+      activeCelebration.variant !== "success-burst"
+    ) {
+      return [];
+    }
+
+    return Array.from({ length: 54 }, (_, index) => ({
+      angle: index * 17,
+      color: confettiColors[index % confettiColors.length],
+      delay: (index * 19) % 520,
+      distance: 22 + ((index * 11) % 54),
+      shape: successSparkShapes[index % successSparkShapes.length],
+      size: 5 + ((index * 3) % 9),
+    }));
+  }, [activeCelebration]);
+
+  const floatingShapes = useMemo(() => {
+    if (
+      !activeCelebration ||
+      activeCelebration.reducedMotion ||
+      activeCelebration.variant !== "floating-shapes"
+    ) {
+      return [];
+    }
+
+    return Array.from({ length: 46 }, (_, index) => ({
+      color: confettiColors[(index * 3) % confettiColors.length],
+      delay: (index * 61) % 980,
+      duration: 2600 + ((index * 89) % 1500),
+      radius: index % 4 === 0 ? 999 : 12,
+      rotate: ((index * 41) % 260) - 130,
+      size: 22 + ((index * 7) % 42),
+      x: 4 + ((index * 17) % 92),
+      y: 96 + ((index * 13) % 26),
+    }));
+  }, [activeCelebration]);
+
   if (!activeCelebration) {
     return null;
   }
 
   const copy = celebrationCopy[activeCelebration.kind];
+  const showConfetti =
+    !activeCelebration.reducedMotion && activeCelebration.variant === "confetti";
 
   return (
     <div
       aria-live="polite"
       className="pointer-events-none fixed inset-0 z-[90] overflow-hidden"
+      data-celebration-variant={activeCelebration.variant}
       role="status"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_24%,rgb(255_255_255_/_0.9),rgb(255_255_255_/_0.28)_28%,transparent_58%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_26%,rgb(125_92_255_/_0.22),transparent_28%),radial-gradient(circle_at_78%_18%,rgb(45_212_191_/_0.22),transparent_26%),radial-gradient(circle_at_52%_72%,rgb(250_204_21_/_0.2),transparent_30%)]" />
 
-      {!activeCelebration.reducedMotion &&
+      {showConfetti &&
         particles.map((particle, index) => (
           <span
             aria-hidden="true"
@@ -156,6 +260,89 @@ export function CelebrationConfetti() {
                 "--confetti-rotate": `${particle.rotate}deg`,
                 "--confetti-size": `${particle.size}px`,
                 "--confetti-x": `${particle.x}vw`,
+              } as CSSProperties
+            }
+          />
+        ))}
+
+      {!activeCelebration.reducedMotion &&
+        activeCelebration.variant === "fireworks" &&
+        fireworkSparks.map((spark) => (
+          <span
+            aria-hidden="true"
+            className="celebration-firework-spark"
+            key={spark.key}
+            style={
+              {
+                "--firework-angle": `${spark.angle}deg`,
+                "--firework-color": spark.color,
+                "--firework-delay": `${spark.delay}ms`,
+                "--firework-distance": `${spark.distance}px`,
+                "--firework-size": `${spark.size}px`,
+                "--firework-x": `${spark.x}vw`,
+                "--firework-y": `${spark.y}vh`,
+              } as CSSProperties
+            }
+          />
+        ))}
+
+      {!activeCelebration.reducedMotion &&
+        activeCelebration.variant === "aurora-ribbons" &&
+        auroraRibbons.map((ribbon, index) => (
+          <span
+            aria-hidden="true"
+            className="celebration-aurora-ribbon"
+            key={`${activeCelebration.id}-aurora-${index}`}
+            style={
+              {
+                "--aurora-color": ribbon.color,
+                "--aurora-delay": `${ribbon.delay}ms`,
+                "--aurora-rotate": `${ribbon.rotate}deg`,
+                "--aurora-y": `${ribbon.y}vh`,
+              } as CSSProperties
+            }
+          />
+        ))}
+
+      {!activeCelebration.reducedMotion && activeCelebration.variant === "success-burst" && (
+        <div aria-hidden="true" className="absolute inset-0">
+          <span className="celebration-success-ring celebration-success-ring-primary" />
+          <span className="celebration-success-ring celebration-success-ring-secondary" />
+          {successSparks.map((spark, index) => (
+            <span
+              className={`celebration-success-spark ${spark.shape}`}
+              key={`${activeCelebration.id}-success-${index}`}
+              style={
+                {
+                  "--success-angle": `${spark.angle}deg`,
+                  "--success-color": spark.color,
+                  "--success-delay": `${spark.delay}ms`,
+                  "--success-distance": `${spark.distance}vw`,
+                  "--success-size": `${spark.size}px`,
+                } as CSSProperties
+              }
+            />
+          ))}
+        </div>
+      )}
+
+      {!activeCelebration.reducedMotion &&
+        activeCelebration.variant === "floating-shapes" &&
+        floatingShapes.map((shape, index) => (
+          <span
+            aria-hidden="true"
+            className="celebration-floating-shape"
+            key={`${activeCelebration.id}-shape-${index}`}
+            style={
+              {
+                "--shape-color": shape.color,
+                "--shape-delay": `${shape.delay}ms`,
+                "--shape-duration": `${shape.duration}ms`,
+                "--shape-radius": `${shape.radius}px`,
+                "--shape-rotate": `${shape.rotate}deg`,
+                "--shape-size": `${shape.size}px`,
+                "--shape-x": `${shape.x}vw`,
+                "--shape-y": `${shape.y}vh`,
               } as CSSProperties
             }
           />
