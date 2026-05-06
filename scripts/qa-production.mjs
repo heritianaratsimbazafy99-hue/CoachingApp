@@ -1,8 +1,10 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
+
+loadLocalEnv();
 
 const baseUrl = process.env.QA_BASE_URL ?? "https://coaching-app-pi-olive.vercel.app";
 const password = process.env.QA_PASSWORD;
@@ -90,6 +92,35 @@ const roles = [
     ],
   },
 ];
+
+function loadLocalEnv() {
+  const envPath = join(process.cwd(), ".env.local");
+
+  if (!existsSync(envPath)) {
+    return;
+  }
+
+  const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) {
+      continue;
+    }
+
+    const index = trimmed.indexOf("=");
+    const key = trimmed.slice(0, index).trim();
+    let value = trimmed.slice(index + 1).trim();
+
+    if (!key || process.env[key] !== undefined) {
+      continue;
+    }
+
+    value = value.replace(/^['"]|['"]$/g, "");
+    process.env[key] = value;
+  }
+}
 
 async function main() {
   console.log(`QA production: ${baseUrl}`);

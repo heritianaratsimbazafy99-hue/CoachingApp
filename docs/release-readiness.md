@@ -41,6 +41,9 @@ QA_SKIP_BROWSER=1
 QA_KEEP_ARTIFACTS=1
 ```
 
+Ces variables peuvent être placées dans `.env.local`, qui est ignoré par Git,
+ou fournies au moment de lancer la commande.
+
 `QA_SKIP_BROWSER=1` ne lance que les sondes HTTP. À utiliser uniquement pour
 un contrôle rapide, pas pour une validation de sortie.
 
