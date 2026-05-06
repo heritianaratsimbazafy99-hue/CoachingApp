@@ -144,6 +144,7 @@ export async function saveQuizAction(
     title: values.title,
     updated_at: new Date().toISOString(),
   };
+  const isNewQuiz = !values.quizId;
   let savedQuizId = values.quizId;
 
   if (values.quizId) {
@@ -197,7 +198,11 @@ export async function saveQuizAction(
 
   if (savedQuizId) {
     revalidatePath(`/coach/quizzes/${savedQuizId}/edit`);
-    redirect(`/coach/quizzes/${savedQuizId}/edit`);
+    redirect(
+      isNewQuiz
+        ? `/coach/quizzes/${savedQuizId}/edit?celebrate=quiz-created`
+        : `/coach/quizzes/${savedQuizId}/edit`,
+    );
   }
 
   redirect("/coach/quizzes");

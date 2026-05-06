@@ -599,14 +599,16 @@ export async function completeContentAction(formData: FormData) {
   revalidatePath(`/coachee/contents/${contentId}`);
 
   if (assignment?.quiz_id) {
-    redirect(`/coachee/quiz/${assignment.quiz_id}?assignment=${assignment.id}`);
+    redirect(
+      `/coachee/quiz/${assignment.quiz_id}?assignment=${assignment.id}&celebrate=course-completed`,
+    );
   }
 
   if (!assignment) {
-    redirect("/coachee/paths");
+    redirect("/coachee/paths?celebrate=course-completed");
   }
 
-  redirect("/coachee/tasks");
+  redirect("/coachee/tasks?celebrate=course-completed");
 }
 
 function getSelectedOptionIds(formData: FormData, questionId: string) {
@@ -835,5 +837,5 @@ export async function submitQuizAction(
   revalidatePath("/coach/corrections");
   revalidatePath("/coach/quiz-results");
 
-  redirect(`/coachee/results?attempt=${attempt.id}`);
+  redirect(`/coachee/results?attempt=${attempt.id}&celebrate=quiz-completed`);
 }

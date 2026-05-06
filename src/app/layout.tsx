@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AppProviders } from "@/components/app/app-providers";
+import { CelebrationConfetti } from "@/components/app/celebration-confetti";
 import {
   defaultInterfaceTheme,
   interfaceThemeIds,
@@ -49,6 +50,7 @@ export default function RootLayout({
         />
         {children}
         <AppProviders />
+        <CelebrationConfetti />
       </body>
     </html>
   );
