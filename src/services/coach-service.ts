@@ -828,24 +828,21 @@ async function fetchActivityLogs(
 async function fetchDashboardUnreadMessages(payload: {
   currentUserId: string;
   limit?: number;
-  senderIds: string[];
+  senderIds?: string[];
 }): Promise<DashboardUnreadMessages> {
-  if (!payload.senderIds.length) {
-    return {
-      count: 0,
-      latest: [],
-    };
-  }
-
   const supabase = createServiceSupabaseClient();
-  const { count, data, error } = await supabase
+  let query = supabase
     .from("messages")
     .select("id,sender_id,body,created_at", { count: "exact" })
     .eq("receiver_id", payload.currentUserId)
     .is("read_at", null)
-    .in("sender_id", payload.senderIds)
-    .order("created_at", { ascending: false })
-    .limit(payload.limit ?? 5);
+    .order("created_at", { ascending: false });
+
+  if (payload.senderIds?.length) {
+    query = query.in("sender_id", payload.senderIds);
+  }
+
+  const { count, data, error } = await query.limit(payload.limit ?? 5);
 
   if (error) {
     throw new Error(error.message);
