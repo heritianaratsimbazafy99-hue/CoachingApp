@@ -76,6 +76,16 @@ function unique(values: Array<string | null | undefined>) {
   return [...new Set(values.filter(Boolean) as string[])];
 }
 
+function getMessagePartnerIds(messages: MessageRow[], currentUserId: string) {
+  return unique(
+    messages.map((message) =>
+      message.sender_id === currentUserId
+        ? message.receiver_id
+        : message.sender_id,
+    ),
+  ).filter((id) => id !== currentUserId);
+}
+
 async function getRows<T>(
   query: PromiseLike<{ data: unknown; error: { message: string } | null }>,
 ): Promise<T[]> {
@@ -180,10 +190,20 @@ async function getMessagingAccessContext(): Promise<MessagingAccessContext> {
 export async function canMessageUser(targetUserId: string) {
   const context = await getMessagingAccessContext();
 
-  return (
-    targetUserId !== context.currentUserId &&
-    (context.role === "admin" || context.partnerIds.includes(targetUserId))
+  if (targetUserId === context.currentUserId) {
+    return false;
+  }
+
+  if (context.role === "admin" || context.partnerIds.includes(targetUserId)) {
+    return true;
+  }
+
+  const messagePartnerIds = getMessagePartnerIds(
+    await fetchMessages(context.currentUserId),
+    context.currentUserId,
   );
+
+  return messagePartnerIds.includes(targetUserId);
 }
 
 export const getMessagingData = cache(
@@ -195,10 +215,12 @@ export const getMessagingData = cache(
     variant: MessagingVariant;
   }): Promise<MessagingData> => {
     const context = await getMessagingAccessContext();
-    const [profiles, messages] = await Promise.all([
-      fetchProfilesByUserIds(context.partnerIds),
-      fetchMessages(context.currentUserId),
+    const messages = await fetchMessages(context.currentUserId);
+    const participantIds = unique([
+      ...context.partnerIds,
+      ...getMessagePartnerIds(messages, context.currentUserId),
     ]);
+    const profiles = await fetchProfilesByUserIds(participantIds);
     const profileByUserId = new Map(
       profiles.map((profile) => [profile.user_id, profile]),
     );
@@ -210,7 +232,7 @@ export const getMessagingData = cache(
           ? message.receiver_id
           : message.sender_id;
 
-      if (!context.partnerIds.includes(partnerId)) {
+      if (!participantIds.includes(partnerId)) {
         return;
       }
 
@@ -219,7 +241,7 @@ export const getMessagingData = cache(
       messagesByPartner.set(partnerId, bucket);
     });
 
-    const participants = context.partnerIds
+    const participants = participantIds
       .map((userId) => {
         const profile = profileByUserId.get(userId);
         const partnerMessages = messagesByPartner.get(userId) ?? [];
